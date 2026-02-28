@@ -1,45 +1,34 @@
 #include "Solver.hpp"
 
-BhaskaraSolver::BhaskaraSolver() : a(0.0), b(0.0), c(0.0) {}
-
-BhaskaraSolver::BhaskaraSolver(double a, double b, double c) : a(a), b(b), c(c) {}
-
-BhaskaraSolver::BhaskaraSolver(const BhaskaraSolver &other) : Solver(other), a(other.a), b(other.b), c(other.c) {}
-
-BhaskaraSolver::~BhaskaraSolver() {}
-
-BhaskaraSolver	&BhaskaraSolver::operator=(const BhaskaraSolver &other)
+BhaskaraSolver::BhaskaraSolver(double a, double b, double c)
 {
-	if (this != &other)
-	{
-		Solver::operator=(other);
-		a = other.a;
-		b = other.b;
-		c = other.c;
-	}
-	return *this;
+	if (a == 0.0)
+		throw std::invalid_argument("Coefficient a must be non-zero for a quadratic equation.");
+	this->a = a;
+	this->b = b;
+	this->c = c;
 }
 
-Solution	BhaskaraSolver::getBestSolution() const
+vector<Solution>	BhaskaraSolver::getSolutions() const
 {
-	Solution solution;
+	vector<Solution> solutions;
+
 	double discriminant = b * b - 4.0 * a * c;
 	if (discriminant > 0.0)
 	{
-		double sqrtDiscriminant = sqrt(discriminant);
-		double root1 = (-b + sqrtDiscriminant) / (2.0 * a);
-		double root2 = (-b - sqrtDiscriminant) / (2.0 * a);
-		if (root1 < root2)
-			solution = Solution(root1, false);
-		else
-			solution = Solution(root2, false);
+		double sqrtDisc = std::sqrt(discriminant);
+
+		solutions.emplace_back(Solution((-b + sqrtDisc) / (2.0 * a), 0.0, false));
+		solutions.emplace_back(Solution((-b - sqrtDisc) / (2.0 * a), 0.0, false));
 	}
 	else if (discriminant == 0.0)
-	{
-		double root = -b / (2.0 * a);
-		solution = Solution(root, false);
-	}
+		solutions.emplace_back(Solution(-b / (2.0 * a), 0.0, false));
 	else
-		solution = Solution(0.0, true);
-	return solution;
+	{
+		double sqrtDisc = std::sqrt(-discriminant);
+		
+		solutions.emplace_back(Solution(-b / (2.0 * a), sqrtDisc / (2.0 * a), true));
+		solutions.emplace_back(Solution(-b / (2.0 * a), -sqrtDisc / (2.0 * a), true));
+	}
+	return solutions;
 }
