@@ -4,6 +4,9 @@
 # include "Transform.hpp"
 # include "Ray.hpp"
 # include "HitRecord.hpp"
+# include <vector>
+
+using std::vector;
 
 struct Limits
 {
@@ -18,13 +21,12 @@ class Hittable
 {
 	protected:
 		Transform				transform;
-		shared_ptr<Material>	material;
 
 		virtual Ray				applyInverseTransform(const Ray &ray) const;
 	public:
 		virtual	~Hittable() = default;
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const = 0;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const = 0;
 };
 
 class Triangle : public Hittable
@@ -37,7 +39,7 @@ class Triangle : public Hittable
 		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2);
 		virtual ~Triangle();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Plane : public Hittable
@@ -48,7 +50,7 @@ class Plane : public Hittable
 		Plane(const Point3 &point, const Vector3 &normal);
 		virtual ~Plane();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Sphere : public Hittable
@@ -59,7 +61,7 @@ class Sphere : public Hittable
 		Sphere(const Point3 &center, double radius);
 		virtual ~Sphere();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Cylinder : public Hittable
@@ -70,7 +72,7 @@ class Cylinder : public Hittable
 		Cylinder(double radius, double height, Point3 &center, Vector3 &normal);
 		virtual ~Cylinder();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Cone : public Hittable
@@ -81,7 +83,7 @@ class Cone : public Hittable
 		Cone(double radius, double height, Point3 &center, Vector3 &normal);
 		virtual ~Cone();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Hyperboloid : public Hittable
@@ -94,20 +96,20 @@ class Hyperboloid : public Hittable
 		Hyperboloid(double waist, double radius, double height, Point3 &center, Vector3 &normal);
 		virtual ~Hyperboloid();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Torus : public Hittable
 {
 	private:
-		double	radRelation; // minorRadius / majorRadius
+		double	thickness; // minorRadius / majorRadius
 	protected:
 		virtual Ray	applyInverseTransform(const Ray &ray) const override;
 	public:
 		Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &normal);
 		virtual ~Torus();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Kiss : Hittable
@@ -120,7 +122,7 @@ class Kiss : Hittable
 		Kiss(double sharpness, Point3 &center, Vector3 &normal);
 		virtual ~Kiss();
 
-		virtual bool hit(const Ray &ray, Limits limits, HitRecord &record) const override;
+		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 };
 
 #endif /* HITTABLE_HPP */
