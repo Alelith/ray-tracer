@@ -37,7 +37,6 @@ class Triangle : public Geometry
 		double	v0, v1, v2;
 	public:
 		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2);
-		virtual ~Triangle();
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;
@@ -74,7 +73,6 @@ class Cone : public Geometry
 {
 	public:
 		Cone(double radius, double height, Point3 &center, Vector3 &normal);
-		virtual ~Cone();
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;
@@ -86,7 +84,6 @@ class Hyperboloid : public Geometry
 		double	waist;
 	public:
 		Hyperboloid(double waist, double radius, double height, Point3 &center, Vector3 &normal);
-		virtual ~Hyperboloid();
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;
@@ -98,19 +95,17 @@ class Torus : public Geometry
 		double	thickness; // minorRadius / majorRadius
 	public:
 		Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &normal);
-		virtual ~Torus();
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;
 };
 
-class Kiss : Geometry
+class Kiss : public Geometry
 {
 	private:
 		double	sharpness;
 	public:
 		Kiss(double sharpness, Point3 &center, Vector3 &normal);
-		virtual ~Kiss();
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;

@@ -39,11 +39,8 @@ vector<double>	Cylinder::hit(const Ray &ray, Limits limits) const
 			if (x * x + z * z <= 1)
 				res.emplace_back(t);
 		}
-	}
 
-	if (fabs(d[1]) > 1e-10)
-	{
-		double t = (0.5 - o[1]) / d[1];
+		t = (0.5 - o[1]) / d[1];
 		if (limits.isBetween(t))
 		{
 			double x = o[0] + t * d[0];
