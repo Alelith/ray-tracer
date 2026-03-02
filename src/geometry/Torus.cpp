@@ -30,14 +30,8 @@ vector<double>	Torus::hit(const Ray &ray, Limits limits) const
 	{
 		vector<Solution>	sols = FerrariSolver(a, b, c, d, e).getSolutions();
 		for (Solution sol : sols)
-		{
 			if (!sol.isComplex && limits.isBetween(sol.real))
-			{
-				double y = o[1] + sol.real * dir[1];
-				if (y >= -0.5 && y <= 0.5)
-					res.emplace_back(sol.real);
-			}
-		}
+				res.emplace_back(sol.real);
 	}
 
 	return res;
@@ -47,9 +41,12 @@ Vector3	Torus::calculateNormal(Point3 p) const
 {
 	Point3	localP = transform.getInverseMatrix() * p;
 
-	double sumR2 = 1 + thickness * thickness;
-	double param = localP[0] * localP[0] + localP[2] * localP[2] + localP[1] * localP[1] - sumR2;
-	Vector3 localNormal(param * localP[0], param * localP[1] + 2 * thickness * thickness, param * localP[2]);
+	double rho = sqrt(localP[0] * localP[0] + localP[2] * localP[2]);
+	if (rho < 1e-10)
+		return Vector3::Zero;
+	
+	Point3 center(localP[0] / rho, 0, localP[2] / rho);
+	Vector3 localNormal = (localP - center).normalized();
 
 	return (transform.getTransposeMatrix() * localNormal).normalized();
 }

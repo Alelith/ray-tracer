@@ -14,9 +14,9 @@ vector<double>	Hyperboloid::hit(const Ray &ray, Limits limits) const
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
-	double	a = d[0] * d[0] + d[2] * d[2] - waist * d[1] * d[1];
-	double	b = 2 * (o[0] * d[0] + o[2] * d[2] - waist * o[1] * d[1]);
-	double	c = o[0] * o[0] + o[2] * o[2] - waist * o[1] * o[1] - 1;
+	double	a = d[0] * d[0] + d[2] * d[2] - d[1] * d[1];
+	double	b = 2 * (o[0] * d[0] + o[2] * d[2] - o[1] * d[1]);
+	double	c = o[0] * o[0] + o[2] * o[2] - o[1] * o[1] - waist;
 
 	if (a > 1e-10)
 	{
@@ -61,13 +61,13 @@ Vector3	Hyperboloid::calculateNormal(Point3 p) const
 	Point3	localP = transform.getInverseMatrix() * p;
 
 	double radiusSq = localP[0] * localP[0] + localP[2] * localP[2];
-	double expectedRadiusSq = waist * localP[1] * localP[1] + 1;
+	double expectedRadiusSq = localP[1] * localP[1] + waist;
 	bool onSurface = fabs(radiusSq - expectedRadiusSq) < 1e-6 && localP[1] >= -0.5 - 1e-6 && localP[1] <= 0.5 + 1e-6;
 
 	if (!onSurface)
 		return Vector3::Zero;
 
-	Vector3	localNormal = Vector3(localP[0], -waist * localP[1], localP[2]).normalized();
+	Vector3	localNormal = Vector3(localP[0], -localP[1], localP[2]).normalized();
 
 	return (transform.getTransposeMatrix() * localNormal).normalized();
 }

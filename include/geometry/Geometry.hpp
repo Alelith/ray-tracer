@@ -34,9 +34,10 @@ class Geometry
 class Triangle : public Geometry
 {
 	private:
-		double	v0, v1, v2;
+		Point3	v0, v1, v2;
+		Vector3	normal;
 	public:
-		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2);
+		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
 
 		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
 		virtual Vector3			calculateNormal(Point3 p) const override;
