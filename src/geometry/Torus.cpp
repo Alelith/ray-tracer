@@ -6,9 +6,11 @@ Torus::Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &no
 	this->thickness = minorRadius / majorRadius;
 }
 
-vector<double>	Torus::hit(const Ray &ray, Limits limits) const
+HitRecord	Torus::hit(const Ray &ray, Limits limits) const
 {
-	vector<double>	res;
+	HitRecord record;
+	record.hit = false;
+	record.t = INFINITY;
 
 	Ray		localRay = getLocalRay(ray);
 	Point3	o = localRay.getOrigin();
@@ -30,23 +32,22 @@ vector<double>	Torus::hit(const Ray &ray, Limits limits) const
 	{
 		vector<Solution>	sols = FerrariSolver(a, b, c, d, e).getSolutions();
 		for (Solution sol : sols)
-			if (!sol.isComplex && limits.isBetween(sol.real))
-				res.emplace_back(sol.real);
+		{
+			if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
+			{
+				record.hit = true;
+				record.t = sol.real;
+				record.point = ray.at(sol.real);
+				
+				Point3 localHitPoint = o + sol.real * dir;
+				double rho = sqrt(localHitPoint[0] * localHitPoint[0] + localHitPoint[2] * localHitPoint[2]);
+				Point3 center(localHitPoint[0] / rho, 0, localHitPoint[2] / rho);
+				Vector3 localNormal = (localHitPoint - center).normalized();
+				Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+				record.setFaceNormal(ray, worldNormal);
+			}
+		}
 	}
 
-	return res;
-}
-
-Vector3	Torus::calculateNormal(Point3 p) const
-{
-	Point3	localP = transform.getInverseMatrix() * p;
-
-	double rho = sqrt(localP[0] * localP[0] + localP[2] * localP[2]);
-	if (rho < 1e-10)
-		return Vector3::Zero;
-	
-	Point3 center(localP[0] / rho, 0, localP[2] / rho);
-	Vector3 localNormal = (localP - center).normalized();
-
-	return (transform.getTransposeMatrix() * localNormal).normalized();
+	return record;
 }

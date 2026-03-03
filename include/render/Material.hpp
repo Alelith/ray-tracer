@@ -12,7 +12,19 @@ class Texture
   public:
     virtual ~Texture() = default;
 
-    virtual Color value(double u, double v, const Point3 &p) const = 0;
+    virtual Color	value(double u, double v, const Point3 &p) const = 0;
+};
+
+class SolidColor : public Texture
+{
+  private:
+	Color color;
+  public:
+	SolidColor();
+	SolidColor(const Color &color);
+	virtual ~SolidColor() = default;
+
+	virtual Color	value(double u, double v, const Point3 &p) const override;
 };
 
 class Material

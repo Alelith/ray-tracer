@@ -6,9 +6,11 @@ Kiss::Kiss(double sharpness, Point3 &center, Vector3 &normal)
 	this->sharpness = sharpness;
 }
 
-vector<double>	Kiss::hit(const Ray &ray, Limits limits) const
+HitRecord	Kiss::hit(const Ray &ray, Limits limits) const
 {
-	vector<double>	res;
+	HitRecord record;
+	record.hit = false;
+	record.t = INFINITY;
 
 	Ray		localRay = getLocalRay(ray);
 	Point3	o = localRay.getOrigin();
@@ -31,39 +33,30 @@ vector<double>	Kiss::hit(const Ray &ray, Limits limits) const
 		vector<Solution>	sols = FerrariSolver(a, b, c, d_coef, e).getSolutions();
 		for (Solution sol : sols)
 		{
-			if (!sol.isComplex && limits.isBetween(sol.real))
+			if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
 			{
 				double y = o[1] + sol.real * d[1];
 				if (y >= -1.0 && y <= 1.0)
-					res.emplace_back(sol.real);
+				{
+					record.hit = true;
+					record.t = sol.real;
+					record.point = ray.at(sol.real);
+					
+					Point3 localHitPoint = o + sol.real * d;
+					double y2 = localHitPoint[1] * localHitPoint[1];
+					Vector3 grad;
+					grad[0] = 2.0 * localHitPoint[0];
+					grad[1] = -sharpness * 4.0 * localHitPoint[1] * y2
+							  + (sharpness + 1.0) * 2.0 * localHitPoint[1];
+					grad[2] = 2.0 * localHitPoint[2];
+					
+					Vector3 localNormal = grad.normalized();
+					Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+					record.setFaceNormal(ray, worldNormal);
+				}
 			}
 		}
 	}
 
-	return res;
-}
-
-Vector3	Kiss::calculateNormal(Point3 p) const
-{
-	Point3	localP = transform.getInverseMatrix() * p;
-
-	double y2 = localP[1] * localP[1];
-	double y4 = y2 * y2;
-	double surfaceValue = localP[0] * localP[0] + localP[2] * localP[2]
-						  - sharpness * y4 + (sharpness + 1.0) * y2 - 1.0;
-	
-	bool onSurface = fabs(surfaceValue) < 1e-6 && localP[1] >= -1.0 - 1e-6 && localP[1] <= 1.0 + 1e-6;
-	
-	if (!onSurface)
-		return Vector3::Zero;
-
-	Vector3 grad;
-	grad[0] = 2.0 * localP[0];
-	grad[1] = -sharpness * 4.0 * localP[1] * localP[1] * localP[1]
-			  + (sharpness + 1.0) * 2.0 * localP[1];
-	grad[2] = 2.0 * localP[2];
-
-	Vector3 localNormal = grad.normalized();
-
-	return (transform.getTransposeMatrix() * localNormal).normalized();
+	return record;
 }

@@ -1,22 +1,14 @@
 #ifndef HITTABLE_HPP
 # define HITTABLE_HPP
 
-# include "Transform.hpp"
 # include "Ray.hpp"
 # include "Solver.hpp"
+# include "Transform.hpp"
+# include "HitRecord.hpp"
+# include "Limits.hpp"
 # include <vector>
 
 using std::vector;
-
-struct Limits
-{
-	double tMin;
-	double tMax;
-
-	Limits(double tMin = 0.001, double tMax = INFINITY);
-	
-	bool	isBetween(double n);
-};
 
 class Geometry
 {
@@ -27,8 +19,7 @@ class Geometry
 	public:
 		virtual	~Geometry() = default;
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const = 0;
-		virtual Vector3			calculateNormal(Point3 p) const = 0;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const = 0;
 };
 
 class Triangle : public Geometry
@@ -39,8 +30,7 @@ class Triangle : public Geometry
 	public:
 		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Plane : public Geometry
@@ -48,8 +38,7 @@ class Plane : public Geometry
 	public:
 		Plane(const Point3 &point, const Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Sphere : public Geometry
@@ -57,8 +46,7 @@ class Sphere : public Geometry
 	public:
 		Sphere(const Point3 &center, double radius);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Cylinder : public Geometry
@@ -66,8 +54,7 @@ class Cylinder : public Geometry
 	public:
 		Cylinder(double radius, double height, Point3 &center, Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Cone : public Geometry
@@ -75,8 +62,7 @@ class Cone : public Geometry
 	public:
 		Cone(double radius, double height, Point3 &center, Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Hyperboloid : public Geometry
@@ -86,8 +72,7 @@ class Hyperboloid : public Geometry
 	public:
 		Hyperboloid(double waist, double radius, double height, Point3 &center, Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Torus : public Geometry
@@ -97,8 +82,7 @@ class Torus : public Geometry
 	public:
 		Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 class Kiss : public Geometry
@@ -108,8 +92,7 @@ class Kiss : public Geometry
 	public:
 		Kiss(double sharpness, Point3 &center, Vector3 &normal);
 
-		virtual vector<double>	hit(const Ray &ray, Limits limits) const override;
-		virtual Vector3			calculateNormal(Point3 p) const override;
+		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
 };
 
 #endif /* HITTABLE_HPP */

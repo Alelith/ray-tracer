@@ -3,9 +3,11 @@
 Plane::Plane(const Point3 &point, const Vector3 &normal)
 { transform = Transform(point, normal, Vector3::One); }
 
-vector<double>	Plane::hit(const Ray &ray, Limits limits) const
+HitRecord	Plane::hit(const Ray &ray, Limits limits) const
 {
-	vector<double>	res;
+	HitRecord record;
+	record.hit = false;
+	record.t = INFINITY;
 
 	Ray		localRay = getLocalRay(ray);
 	Point3	o = localRay.getOrigin();
@@ -15,22 +17,17 @@ vector<double>	Plane::hit(const Ray &ray, Limits limits) const
 	{
 		double t = -o[1] / d[1];
 		if (limits.isBetween(t))
-			res.emplace_back(t);
+		{
+			record.hit = true;
+			record.t = t;
+			record.point = ray.at(t);
+			
+			// Plane normal in local space is (0, 1, 0)
+			Vector3 localNormal = Vector3(0, 1, 0);
+			Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+			record.setFaceNormal(ray, worldNormal);
+		}
 	}
 
-	return res;
+	return record;
 }
-
-Vector3	Plane::calculateNormal(Point3 p) const
-{
-	Point3	localP = transform.getInverseMatrix() * p;
-
-	if (fabs(localP[1]) > 1e-6)
-		return Vector3::Zero;
-
-	Vector3	localNormal = Vector3(0, 1, 0);
-
-	return (transform.getTransposeMatrix() * localNormal).normalized();
-}
-
-

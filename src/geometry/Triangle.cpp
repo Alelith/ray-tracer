@@ -34,37 +34,32 @@ static bool	isInsideTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v
 	return true;
 }
 
-vector<double>	Triangle::hit(const Ray &ray, Limits limits) const
+HitRecord	Triangle::hit(const Ray &ray, Limits limits) const
 {
-	vector<double>	res;
+	HitRecord record;
+	record.hit = false;
+	record.t = INFINITY;
 
 	Vector3	dir = ray.getDirection();
 	Point3	orig = ray.getOrigin();
 
 	double denom = dot(normal, dir);
 	if (fabs(denom) < 1e-6)
-		return res;
+		return record;
 
 	double t = dot(normal, v0 - orig) / denom;
 	if (!limits.isBetween(t))
-		return res;
+		return record;
 
 	Point3 hitPoint = orig + t * dir;
 
 	if (isInsideTriangle(v0, v1, v2, normal, hitPoint))
-		res.emplace_back(t);
+	{
+		record.hit = true;
+		record.t = t;
+		record.point = hitPoint;
+		record.setFaceNormal(ray, normal);
+	}
 
-	return res;
-}
-
-Vector3	Triangle::calculateNormal(Point3 p) const
-{
-	double distance = fabs(dot(normal, p - v0));
-	if (distance > 1e-6)
-		return Vector3::Zero;
-
-	if (!isInsideTriangle(v0, v1, v2, normal, p))
-		return Vector3::Zero;
-
-	return normal;
+	return record;
 }
