@@ -28,10 +28,10 @@ class Camera
 		Vector3	defocusDiskV;
 		Color	backgroundColor;
 
-		void	initCamera(Vector3 rotation = Vector3(0, 0, -1));
+		void	initCamera(const Vector3 &rotation = Vector3(0, 0, -1));
 	public:
 		Camera();
-		Camera(double aspectRatio, int width, int samplesPerPixel, int maxDepth, double vfov, Point3 origin, Vector3 rotation, double defocusAngle, double focalDistance, Color backgroundColor);
+		Camera(double aspectRatio, int width, int samplesPerPixel, int maxDepth, double vfov, const Point3 &origin, const Vector3 &rotation, double defocusAngle, double focalDistance, const Color &backgroundColor);
 		virtual ~Camera();
 
 		vector<vector<Color>> render(RenderHitList &world);

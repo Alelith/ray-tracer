@@ -1,12 +1,12 @@
 #include "Geometry.hpp"
 
-Kiss::Kiss(double sharpness, Point3 &center, Vector3 &normal)
+Kiss::Kiss(double sharpness, const Point3 &center, const Vector3 &normal)
 {
 	transform = Transform(center, normal, Vector3::One);
 	this->sharpness = sharpness;
 }
 
-HitRecord	Kiss::hit(const Ray &ray, Limits limits) const
+HitRecord	Kiss::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

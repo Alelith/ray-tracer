@@ -20,7 +20,7 @@ class RenderHit
 		RenderHit(shared_ptr<Geometry> geometry, Color color);
 		virtual ~RenderHit();
 
-		virtual bool hit(const Ray &r, Limits limits, HitRecord &hitRecord) const;
+		virtual bool hit(const Ray &r, const Limits &limits, HitRecord &hitRecord) const;
 };
 
 class RenderHitList : public RenderHit
@@ -31,7 +31,7 @@ class RenderHitList : public RenderHit
 		RenderHitList();
 		virtual ~RenderHitList();
 
-		virtual bool hit(const Ray &r, Limits limits, HitRecord &hitRecord) const;
+		virtual bool hit(const Ray &r, const Limits &limits, HitRecord &hitRecord) const;
 };
 
 #endif /* RENDER_HIT_HPP */

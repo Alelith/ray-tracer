@@ -21,6 +21,6 @@ class Limits
 		Limits	expand(double delta) const;
 };
 
-Limits	getInterval(Limits a, Limits b);
+Limits	getInterval(const Limits &a, const Limits &b);
 
 #endif /* LIMITS_HPP */

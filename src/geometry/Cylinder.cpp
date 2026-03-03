@@ -1,9 +1,9 @@
 #include "Geometry.hpp"
 
-Cylinder::Cylinder(double radius, double height, Point3 &center, Vector3 &normal)
+Cylinder::Cylinder(double radius, double height, const Point3 &center, const Vector3 &normal)
 { transform = Transform(center, normal, Vector3(radius, height, radius)); }
 
-HitRecord	Cylinder::hit(const Ray &ray, Limits limits) const
+HitRecord	Cylinder::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

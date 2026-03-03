@@ -34,7 +34,7 @@ static bool	isInsideTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v
 	return true;
 }
 
-HitRecord	Triangle::hit(const Ray &ray, Limits limits) const
+HitRecord	Triangle::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

@@ -3,7 +3,7 @@
 Plane::Plane(const Point3 &point, const Vector3 &normal)
 { transform = Transform(point, normal, Vector3::One); }
 
-HitRecord	Plane::hit(const Ray &ray, Limits limits) const
+HitRecord	Plane::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

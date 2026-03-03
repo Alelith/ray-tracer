@@ -19,7 +19,7 @@ class Geometry
 	public:
 		virtual	~Geometry() = default;
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const = 0;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const = 0;
 };
 
 class Triangle : public Geometry
@@ -30,7 +30,7 @@ class Triangle : public Geometry
 	public:
 		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Plane : public Geometry
@@ -38,7 +38,7 @@ class Plane : public Geometry
 	public:
 		Plane(const Point3 &point, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Sphere : public Geometry
@@ -46,23 +46,23 @@ class Sphere : public Geometry
 	public:
 		Sphere(const Point3 &center, double radius);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Cylinder : public Geometry
 {
 	public:
-		Cylinder(double radius, double height, Point3 &center, Vector3 &normal);
+		Cylinder(double radius, double height, const Point3 &center, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Cone : public Geometry
 {
 	public:
-		Cone(double radius, double height, Point3 &center, Vector3 &normal);
+		Cone(double radius, double height, const Point3 &center, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Hyperboloid : public Geometry
@@ -70,9 +70,9 @@ class Hyperboloid : public Geometry
 	private:
 		double	waist;
 	public:
-		Hyperboloid(double waist, double radius, double height, Point3 &center, Vector3 &normal);
+		Hyperboloid(double waist, double radius, double height, const Point3 &center, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Torus : public Geometry
@@ -80,9 +80,9 @@ class Torus : public Geometry
 	private:
 		double	thickness; // minorRadius / majorRadius
 	public:
-		Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &normal);
+		Torus(double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 class Kiss : public Geometry
@@ -90,9 +90,9 @@ class Kiss : public Geometry
 	private:
 		double	sharpness;
 	public:
-		Kiss(double sharpness, Point3 &center, Vector3 &normal);
+		Kiss(double sharpness, const Point3 &center, const Vector3 &normal);
 
-		virtual HitRecord	hit(const Ray &ray, Limits limits) const override;
+		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
 };
 
 #endif /* HITTABLE_HPP */

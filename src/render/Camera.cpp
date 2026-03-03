@@ -5,14 +5,14 @@ Camera::Camera() : aspectRatio(1.0), pixelSamplesScale(1.0), vfov(90.0), defocus
 	initCamera();
 }
 
-Camera::Camera(double aspectRatio, int width, int samplesPerPixel, int maxDepth, double vfov, Point3 origin, Vector3 rotation, double defocusAngle, double focalDistance, Color backgroundColor) : aspectRatio(aspectRatio), pixelSamplesScale(1.0 / samplesPerPixel), vfov(vfov), defocusAngle(defocusAngle), focalDistance(focalDistance), width(width), height(static_cast<int>(width / aspectRatio)), samplesPerPixel(samplesPerPixel), depth(maxDepth), maxDepth(maxDepth), origin(origin), backgroundColor(backgroundColor)
+Camera::Camera(double aspectRatio, int width, int samplesPerPixel, int maxDepth, double vfov, const Point3 &origin, const Vector3 &rotation, double defocusAngle, double focalDistance, const Color &backgroundColor) : aspectRatio(aspectRatio), pixelSamplesScale(1.0 / samplesPerPixel), vfov(vfov), defocusAngle(defocusAngle), focalDistance(focalDistance), width(width), height(static_cast<int>(width / aspectRatio)), samplesPerPixel(samplesPerPixel), depth(maxDepth), maxDepth(maxDepth), origin(origin), backgroundColor(backgroundColor)
 {
-	initCamera();
+	initCamera(rotation);
 }
 
 Camera::~Camera() {}
 
-void	Camera::initCamera(Vector3 rotation)
+void	Camera::initCamera(const Vector3 &rotation)
 {
 	double	theta = vfov * (M_PI / 180.0) / 2.0;
 	double	halfHeight = tan(theta / 2);

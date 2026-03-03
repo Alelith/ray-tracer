@@ -20,7 +20,7 @@ bool	Limits::isBetween(double t) const
 Limits	Limits::expand(double delta) const
 { return Limits(min - delta, max + delta); }
 
-Limits	getInterval(Limits a, Limits b)
+Limits	getInterval(const Limits &a, const Limits &b)
 {
 	double newMin = std::min(a.getMin(), b.getMin());
 	double newMax = std::max(a.getMax(), b.getMax());

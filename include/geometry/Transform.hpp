@@ -11,7 +11,7 @@ class Transform
 		Matrix4x4	transposeMatrix;
 	public:
 		Transform();
-		Transform(const Vector3 translation, const Vector3 rotation, const Vector3 scale);
+		Transform(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 		Transform(const Transform &other);
 		~Transform();
 

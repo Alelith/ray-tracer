@@ -3,7 +3,7 @@
 Sphere::Sphere(const Point3 &center, double radius)
 { transform = Transform(center, Vector3::Up, Vector3(radius, radius, radius)); }
 
-HitRecord	Sphere::hit(const Ray &ray, Limits limits) const
+HitRecord	Sphere::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

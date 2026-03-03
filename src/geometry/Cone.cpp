@@ -1,9 +1,9 @@
 #include "Geometry.hpp"
 
-Cone::Cone(double radius, double height, Point3 &center, Vector3 &normal)
+Cone::Cone(double radius, double height, const Point3 &center, const Vector3 &normal)
 { transform = Transform(center, normal, Vector3(radius, height, radius)); }
 
-HitRecord	Cone::hit(const Ray &ray, Limits limits) const
+HitRecord	Cone::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

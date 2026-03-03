@@ -12,7 +12,7 @@ AABB::AABB(const AABB &box0, const AABB &box1) : xLimits(getInterval(box0.getXLi
 												yLimits(getInterval(box0.getYLimits(), box1.getYLimits())),
 												zLimits(getInterval(box0.getZLimits(), box1.getZLimits())) {}
 
-AABB::AABB(const Point3 localMin, const Point3 localMax, const Transform &transform)
+AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform)
 {
 	Point3	corners[8];
 	corners[0] = Point3(localMin[0], localMin[1], localMin[2], 1.0);
@@ -59,7 +59,7 @@ static const Limits& getLimits(int axis, const AABB &box)
 		return box.getZLimits();
 }
 
-bool	AABB::hit(const Ray &ray, Limits limits) const
+bool	AABB::hit(const Ray &ray, const Limits &limits) const
 {
 	for (int axis = 0; axis < 3; axis++)
 	{
@@ -68,8 +68,8 @@ bool	AABB::hit(const Ray &ray, Limits limits) const
 		double t1 = (getLimits(axis, *this).getMax() - ray.getOrigin()[axis]) * invD;
 		if (invD < 0.0)
 			std::swap(t0, t1);
-		limits = getInterval(Limits(t0, t1), limits);
-		if (limits.getMax() <= limits.getMin())
+		Limits newLimits = getInterval(Limits(t0, t1), limits);
+		if (newLimits.getMax() <= newLimits.getMin())
 			return false;
 	}
 	return true;

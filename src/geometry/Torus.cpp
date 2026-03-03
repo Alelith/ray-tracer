@@ -1,12 +1,12 @@
 #include "Geometry.hpp"
 
-Torus::Torus(double majorRadius, double minorRadius, Point3 &center, Vector3 &normal)
+Torus::Torus(double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal)
 {
 	transform = Transform(center, normal, Vector3(majorRadius, majorRadius, majorRadius));
 	this->thickness = minorRadius / majorRadius;
 }
 
-HitRecord	Torus::hit(const Ray &ray, Limits limits) const
+HitRecord	Torus::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;

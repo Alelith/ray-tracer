@@ -1,12 +1,12 @@
 #include "Geometry.hpp"
 
-Hyperboloid::Hyperboloid(double waist, double radius, double height, Point3 &center, Vector3 &normal)
+Hyperboloid::Hyperboloid(double waist, double radius, double height, const Point3 &center, const Vector3 &normal)
 {
 	transform = Transform(center, normal, Vector3(radius, height, radius));
 	this->waist = waist;
 }
 
-HitRecord	Hyperboloid::hit(const Ray &ray, Limits limits) const
+HitRecord	Hyperboloid::hit(const Ray &ray, const Limits &limits) const
 {
 	HitRecord record;
 	record.hit = false;
