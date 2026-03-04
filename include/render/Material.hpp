@@ -1,40 +1,40 @@
 #ifndef MATERIAL_HPP
 # define MATERIAL_HPP
 
+# include "Random.hpp"
 # include "Camera.hpp"
 # include "HitRecord.hpp"
-# include <memory>
+# include <cstdint>
 
-using std::shared_ptr;
-
-class Texture
+enum class MaterialType : uint8_t
 {
-  public:
-    virtual ~Texture() = default;
-
-    virtual Color	value(double u, double v, const Point3 &p) const = 0;
+	Lambertian,
+	Metallic,
+	Dielectric,
+	Emmisive
 };
 
-class SolidColor : public Texture
+enum class TextureType : uint8_t
 {
-  private:
-	Color color;
-  public:
-	SolidColor();
-	SolidColor(const Color &color);
-	virtual ~SolidColor() = default;
-
-	virtual Color	value(double u, double v, const Point3 &p) const override;
+	SolidColor
 };
 
-class Material
+struct TextureData
 {
-	protected:
-		shared_ptr<Texture>	albedo;
-	public:
-		virtual 		~Material() = default;
-		virtual bool	scatter(const Ray &rayIn, const HitRecord &record, Color &attenuation, Ray &scattered) const { return false; }
-		virtual Color	emmited(double u, double v, const Point3 &p) const { return Color::Zero; }
+	TextureType	type;
+	Color		albedo;
 };
+
+struct MaterialData
+{
+	MaterialType	type;
+	TextureData		albedo;
+	double			param;
+};
+
+Color	textureGetColor(const TextureData &data, double u, double v, const Point3 &point);
+
+bool	materialScatter(const MaterialData &data, const Ray &rayIn, const HitRecord &rec, Color &attenuation, Ray &scattered, RNG &rng);
+Color	materialEmmited(const MaterialData &data, double u, double v, const Point3 &p);
 
 #endif /* MATERIAL_HPP */

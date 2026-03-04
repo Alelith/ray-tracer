@@ -12,6 +12,7 @@ class AABB
 		Limits	yLimits;
 		Limits	zLimits;
 	public:
+		AABB();
 		AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits);
 		AABB(const Point3 &a, const Point3 &b);
 		AABB(const AABB &box0, const AABB &box1);

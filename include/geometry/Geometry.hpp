@@ -1,12 +1,12 @@
 #ifndef GEOMETRY_HPP
 # define GEOMETRY_HPP
 
-# include <cstdint>
-# include "Ray.hpp"
 # include "Solver.hpp"
+# include "AABB.hpp"
 # include "Transform.hpp"
 # include "HitRecord.hpp"
 # include "Limits.hpp"
+# include <cstdint>
 
 enum class GeometryType : uint8_t
 {
@@ -27,6 +27,7 @@ struct GeometryData
 {
 	GeometryType	type;
 	Transform		transform;		// Unused for Triangle
+	AABB			boundingBox;	// Precomputed AABB in local space for broad-phase culling
 
 	double			thickness;		// Torus:       minorRadius / majorRadius
 	double			waist;			// Hyperboloid: waist parameter

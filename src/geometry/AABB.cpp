@@ -1,5 +1,7 @@
 #include "AABB.hpp"
 
+AABB::AABB() : xLimits(Limits()), yLimits(Limits()), zLimits(Limits()) {}
+
 AABB::AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits) :
 	xLimits(xLimits), yLimits(yLimits), zLimits(zLimits) {}
 
