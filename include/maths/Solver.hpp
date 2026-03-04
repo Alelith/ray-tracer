@@ -2,11 +2,6 @@
 # define SOLVER_HPP
 
 # include "Ray.hpp"
-# include <vector>
-# include <memory>
-
-using std::vector;
-using std::shared_ptr;
 
 struct Solution
 {
@@ -17,77 +12,25 @@ struct Solution
 	Solution(double real, double imaginary, bool isComplex);
 };
 
-class Solver
+// Fixed-size result container: max 4 roots (quartic equation).
+// No heap allocation — safe for GPU device code.
+struct Solutions
 {
-	public:
-		virtual ~Solver() = default;
+	Solution	data[4];
+	int			count;
 
-		virtual vector<Solution>	getSolutions() const = 0;
+	Solutions();
+	void	push(double real, double imaginary, bool isComplex);
+	void	push(const Solution &sol);
 };
 
-class LinearSolver : public Solver
-{
-	private:
-		double	a;
-		double	b;
-	public:
-		LinearSolver(double a, double b);
+// ── Free functions ────────────────────────────────────────────────────────────
+// No virtual dispatch, no heap, GPU-compatible.
+// Returns empty Solutions (count == 0) for degenerate inputs (a == 0).
 
-		vector<Solution>	getSolutions() const override;
-};
-
-class BhaskaraSolver : public Solver
-{
-	private:
-		double	a;
-		double	b;
-		double	c;
-	public:
-		BhaskaraSolver(double a, double b, double c);
-
-		vector<Solution>	getSolutions() const override;
-};
-
-class CardamoSolver : public Solver
-{
-	private:
-		double	a;
-		double	b;
-		double	c;
-		double	d;
-	public:
-		CardamoSolver(double a, double b, double c, double d);
-
-		vector<Solution>	getSolutions() const override;
-};
-
-class FerrariSolver : public Solver
-{
-	private:
-		double	a;
-		double	b;
-		double	c;
-		double	d;
-		double	e;
-	public:
-		FerrariSolver(double a, double b, double c, double d, double e);
-
-		vector<Solution>	getSolutions() const override;
-};
-
-class RayMarchingSolver : public Solver
-{
-	private:
-		Ray					ray;
-		double				maxDistance;
-		double				epsilon;
-		double				maxSteps;
-		double				(*sdf)(Point3 point);
-		shared_ptr<void>	data;
-	public:
-		RayMarchingSolver(const Ray &ray, double maxDistance, double epsilon, double maxSteps, double (*sdf)(Point3 point), shared_ptr<void> data);
-
-		vector<Solution>	getSolutions() const override;
-};
+Solutions	solveLinear  (double a, double b);
+Solutions	solveBhaskara(double a, double b, double c);
+Solutions	solveCardano (double a, double b, double c, double d);
+Solutions	solveFerrari (double a, double b, double c, double d, double e);
 
 #endif /* SOLVER_HPP */

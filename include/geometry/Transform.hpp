@@ -12,10 +12,10 @@ class Transform
 	public:
 		Transform();
 		Transform(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
-		Transform(const Transform &other);
-		~Transform();
+		Transform(const Transform &other) = default;
+		~Transform() = default;
 
-		Transform	&operator=(const Transform &other);
+		Transform	&operator=(const Transform &other) = default;
 
 		Matrix4x4	getMatrix() const;
 		Matrix4x4	getInverseMatrix() const;

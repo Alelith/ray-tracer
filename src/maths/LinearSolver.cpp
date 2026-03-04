@@ -1,13 +1,9 @@
 #include "Solver.hpp"
 
-LinearSolver::LinearSolver(double a, double b) : a(a), b(b) {}
-
-vector<Solution>	LinearSolver::getSolutions() const
+Solutions	solveLinear(double a, double b)
 {
-	vector<Solution> solutions;
+	Solutions	sols;
 	if (a != 0.0)
-		solutions.emplace_back(Solution(-b / a, 0.0, false));
-	else
-		solutions.emplace_back(Solution(0.0, 0.0, true));
-	return solutions;
+		sols.push(-b / a, 0.0, false);
+	return sols;
 }

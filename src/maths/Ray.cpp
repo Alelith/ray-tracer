@@ -4,9 +4,7 @@ Ray::Ray() : origin(Point3::Zero), direction(Vector3::Forward) {}
 
 Ray::Ray(const Point3 &origin, const Vector3 &direction) : origin(origin), direction(direction) {}
 
-Ray::Ray(const Ray &other) : origin(other.origin), direction(other.direction) {}
 
-Ray::~Ray() {}
 
 Point3	Ray::getOrigin() const { return origin; }
 

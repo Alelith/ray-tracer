@@ -43,7 +43,6 @@ AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &tran
 	zLimits = Limits(wmin[2], wmax[2]);
 }
 
-AABB::~AABB() {}
 
 const Limits	&AABB::getXLimits() const { return xLimits; }
 const Limits	&AABB::getYLimits() const { return yLimits; }

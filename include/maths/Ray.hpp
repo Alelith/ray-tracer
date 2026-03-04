@@ -11,8 +11,8 @@ class Ray
 	public:
 		Ray();
 		Ray(const Point3 &origin, const Vector3 &direction);
-		Ray(const Ray &other);
-		~Ray();
+		Ray(const Ray &other) = default;
+		~Ray() = default;
 
 		Point3	getOrigin() const;
 		Vector3	getDirection() const;

@@ -12,7 +12,7 @@ class Limits
 	public:
 		Limits();
 		Limits(double min, double max);
-		~Limits();
+		~Limits() = default;
 
 		double	getMin() const;
 		double	getMax() const;

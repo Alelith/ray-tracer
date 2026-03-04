@@ -4,7 +4,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include "Solver.hpp"
 
 // ── Simple test helpers ────────────────────────────────────────────────────────
@@ -66,13 +65,13 @@ inline std::string format_solution(const Solution &sol)
 }
 
 // Prints the solutions obtained from a solver call
-inline void print_solutions(const std::vector<Solution> &sols)
+inline void print_solutions(const Solutions &sols)
 {
 	std::cout << "  obtained: ";
-	for (size_t i = 0; i < sols.size(); ++i)
+	for (int i = 0; i < sols.count; ++i)
 	{
 		if (i > 0) std::cout << ", ";
-		std::cout << format_solution(sols[i]);
+		std::cout << format_solution(sols.data[i]);
 	}
 	std::cout << "\n";
 }

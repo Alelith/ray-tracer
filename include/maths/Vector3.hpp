@@ -11,8 +11,8 @@ class Vector3
 	public:
 		Vector3();
 		Vector3(double x, double y, double z, double w = 0.0);
-		Vector3(const Vector3 &other);
-		~Vector3();
+		Vector3(const Vector3 &other) = default;
+		~Vector3() = default;
 
 		static const	Vector3 Zero;
 		static const	Vector3 Up;
@@ -23,7 +23,7 @@ class Vector3
 		static const	Vector3 Backward;
 		static const	Vector3 One;
 
-		Vector3			&operator=(const Vector3 &other);
+		Vector3			&operator=(const Vector3 &other) = default;
 
 		Vector3			operator-() const;
 		double			&operator[](int index);

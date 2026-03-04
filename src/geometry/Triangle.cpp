@@ -1,11 +1,15 @@
 #include "Geometry.hpp"
 
-Triangle::Triangle(const Point3 &vertex0, const Point3 &vertex1, const Point3 &vertex2, const Vector3 &n)
+GeometryData	makeTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal)
 {
-	this->v0 = vertex0;
-	this->v1 = vertex1;
-	this->v2 = vertex2;
-	this->normal = n;
+	GeometryData g{};
+	g.type      = GeometryType::Triangle;
+	g.v0        = v0;
+	g.v1        = v1;
+	g.v2        = v2;
+	g.triNormal = normal;
+	// transform is unused for Triangle (world-space vertices)
+	return g;
 }
 
 static bool	isInsideTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v2,
@@ -14,52 +18,43 @@ static bool	isInsideTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v
 	Vector3 edge, vp, cp;
 
 	edge = v1 - v0;
-	vp = hitPoint - v0;
-	cp = cross(edge, vp);
-	if (dot(normal, cp) < 0)
-		return false;
+	vp   = hitPoint - v0;
+	cp   = cross(edge, vp);
+	if (dot(normal, cp) < 0) return false;
 
 	edge = v2 - v1;
-	vp = hitPoint - v1;
-	cp = cross(edge, vp);
-	if (dot(normal, cp) < 0)
-		return false;
+	vp   = hitPoint - v1;
+	cp   = cross(edge, vp);
+	if (dot(normal, cp) < 0) return false;
 
 	edge = v0 - v2;
-	vp = hitPoint - v2;
-	cp = cross(edge, vp);
-	if (dot(normal, cp) < 0)
-		return false;
+	vp   = hitPoint - v2;
+	cp   = cross(edge, vp);
+	if (dot(normal, cp) < 0) return false;
 
 	return true;
 }
 
-HitRecord	Triangle::hit(const Ray &ray, const Limits &limits) const
+bool	triangleHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
 {
-	HitRecord record;
-	record.hit = false;
-	record.t = INFINITY;
-
-	Vector3	dir = ray.getDirection();
+	Vector3	dir  = ray.getDirection();
 	Point3	orig = ray.getOrigin();
 
-	double denom = dot(normal, dir);
+	double denom = dot(g.triNormal, dir);
 	if (fabs(denom) < 1e-6)
-		return record;
+		return false;
 
-	double t = dot(normal, v0 - orig) / denom;
-	if (!limits.isBetween(t))
-		return record;
+	double t = dot(g.triNormal, g.v0 - orig) / denom;
+	if (!limits.isBetween(t) || t >= record.t)
+		return false;
 
 	Point3 hitPoint = orig + t * dir;
-
-	if (isInsideTriangle(v0, v1, v2, normal, hitPoint))
+	if (isInsideTriangle(g.v0, g.v1, g.v2, g.triNormal, hitPoint))
 	{
-		record.hit = true;
-		record.t = t;
+		record.t     = t;
 		record.point = hitPoint;
-		record.setFaceNormal(ray, normal);
+		record.setFaceNormal(ray, g.triNormal);
+		return true;
 	}
-
-	return record;
+	return false;
 }

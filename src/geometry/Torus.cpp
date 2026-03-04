@@ -1,26 +1,27 @@
 #include "Geometry.hpp"
 
-Torus::Torus(double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal)
+GeometryData	makeTorus(double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal)
 {
-	transform = Transform(center, normal, Vector3(majorRadius, majorRadius, majorRadius));
-	this->thickness = minorRadius / majorRadius;
+	GeometryData g{};
+	g.type      = GeometryType::Torus;
+	g.transform = Transform(center, normal, Vector3(majorRadius, majorRadius, majorRadius));
+	g.thickness = minorRadius / majorRadius;
+	return g;
 }
 
-HitRecord	Torus::hit(const Ray &ray, const Limits &limits) const
+bool	torusHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
 {
-	HitRecord record;
-	record.hit = false;
-	record.t = INFINITY;
+	bool	wasHit = false;
 
-	Ray		localRay = getLocalRay(ray);
+	Ray		localRay = getLocalRay(g.transform, ray);
 	Point3	o = localRay.getOrigin();
 	Vector3	dir = localRay.getDirection();
 
-	double	dd = dot(dir, dir);
-	double	od = dot(o, dir);
-	double	oo = dot(o, o);
-	double	sumR2 = 1 + thickness * thickness;
-	double	diffR2 = 1 - thickness * thickness;
+	double	dd     = dot(dir, dir);
+	double	od     = dot(o, dir);
+	double	oo     = dot(o, o);
+	double	sumR2  = 1 + g.thickness * g.thickness;
+	double	diffR2 = 1 - g.thickness * g.thickness;
 
 	double	a = dd * dd;
 	double	b = 4 * dd * od;
@@ -30,24 +31,24 @@ HitRecord	Torus::hit(const Ray &ray, const Limits &limits) const
 
 	if (a > 1e-10)
 	{
-		vector<Solution>	sols = FerrariSolver(a, b, c, d, e).getSolutions();
-		for (Solution sol : sols)
+		Solutions	sols = solveFerrari(a, b, c, d, e);
+		for (int i = 0; i < sols.count; ++i)
 		{
+			const Solution &sol = sols.data[i];
 			if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
 			{
-				record.hit = true;
-				record.t = sol.real;
+				wasHit       = true;
+				record.t     = sol.real;
 				record.point = ray.at(sol.real);
-				
-				Point3 localHitPoint = o + sol.real * dir;
-				double rho = sqrt(localHitPoint[0] * localHitPoint[0] + localHitPoint[2] * localHitPoint[2]);
-				Point3 center(localHitPoint[0] / rho, 0, localHitPoint[2] / rho);
-				Vector3 localNormal = (localHitPoint - center).normalized();
-				Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+
+				Point3	localHit = o + sol.real * dir;
+				double	rho      = sqrt(localHit[0] * localHit[0] + localHit[2] * localHit[2]);
+				Point3	center(localHit[0] / rho, 0, localHit[2] / rho);
+				Vector3	localNormal = (localHit - center).normalized();
+				Vector3	worldNormal = (g.transform.getTransposeMatrix() * localNormal).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}
 	}
-
-	return record;
+	return wasHit;
 }

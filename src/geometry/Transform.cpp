@@ -7,32 +7,13 @@ Transform::Transform()
 	transposeMatrix = Matrix4x4::Identity;
 }
 
-Transform::Transform(const Vector3 translation, const Vector3 rotation, const Vector3 scale)
+Transform::Transform(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale)
 {
 	matrix = translationMatrix(translation) * rotationMatrix(rotation) * scaleMatrix(scale);
 	inverseMatrix = inverseScaleMatrix(scale) * inverseRotationMatrix(rotation) * inverseTranslationMatrix(translation);
 	transposeMatrix = transpose(matrix);
 }
 
-Transform::Transform(const Transform &other)
-{
-	matrix = other.matrix;
-	inverseMatrix = other.inverseMatrix;
-	transposeMatrix = other.transposeMatrix;
-}
-
-Transform::~Transform() {}
-
-Transform	&Transform::operator=(const Transform &other)
-{
-	if (this != &other)
-	{
-		matrix = other.matrix;
-		inverseMatrix = other.inverseMatrix;
-		transposeMatrix = other.transposeMatrix;
-	}
-	return *this;
-}
 
 Matrix4x4	Transform::getMatrix() const
 { return matrix; }

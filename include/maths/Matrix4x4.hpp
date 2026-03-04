@@ -10,12 +10,12 @@ class Matrix4x4
 	public:
 		Matrix4x4();
 		Matrix4x4(const double values[4][4]);
-		Matrix4x4(const Matrix4x4 &other);
-		~Matrix4x4();
+		Matrix4x4(const Matrix4x4 &other) = default;
+		~Matrix4x4() = default;
 
 		static const	Matrix4x4 Identity;
 
-		Matrix4x4		&operator=(const Matrix4x4 &other);
+		Matrix4x4		&operator=(const Matrix4x4 &other) = default;
 
 		double			&operator()(int row, int col);
 		double			operator()(int row, int col) const;

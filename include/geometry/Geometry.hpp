@@ -1,98 +1,68 @@
-#ifndef HITTABLE_HPP
-# define HITTABLE_HPP
+#ifndef GEOMETRY_HPP
+# define GEOMETRY_HPP
 
+# include <cstdint>
 # include "Ray.hpp"
 # include "Solver.hpp"
 # include "Transform.hpp"
 # include "HitRecord.hpp"
 # include "Limits.hpp"
-# include <vector>
 
-using std::vector;
-
-class Geometry
+enum class GeometryType : uint8_t
 {
-	protected:
-		Transform	transform;
-
-		Ray			getLocalRay(const Ray &ray) const;
-	public:
-		virtual	~Geometry() = default;
-
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const = 0;
+	Sphere,
+	Plane,
+	Cylinder,
+	Cone,
+	Hyperboloid,
+	Torus,
+	Kiss,
+	Triangle
 };
 
-class Triangle : public Geometry
+// Plain data struct — no vtable, no heap allocation, GPU-compatible.
+// Only the fields labelled with a type are meaningful for that type;
+// all unused fields are zero-initialised by the factory functions.
+struct GeometryData
 {
-	private:
-		Point3	v0, v1, v2;
-		Vector3	normal;
-	public:
-		Triangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
+	GeometryType	type;
+	Transform		transform;		// Unused for Triangle
 
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
+	double			thickness;		// Torus:       minorRadius / majorRadius
+	double			waist;			// Hyperboloid: waist parameter
+	double			sharpness;		// Kiss:        sharpness parameter
+
+	Point3			v0;				// Triangle:    vertex 0
+	Point3			v1;				// Triangle:    vertex 1
+	Point3			v2;				// Triangle:    vertex 2
+	Vector3			triNormal;		// Triangle:    face normal
 };
 
-class Plane : public Geometry
-{
-	public:
-		Plane(const Point3 &point, const Vector3 &normal);
+// ── Utility ────────────────────────────────────────────────────────────────────────────
+Ray				getLocalRay(const Transform &transform, const Ray &ray);
 
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
+// ── Factory functions ─ replace constructors ───────────────────────────────────────
+GeometryData	makeSphere      (const Point3 &center, double radius);
+GeometryData	makePlane       (const Point3 &point, const Vector3 &normal);
+GeometryData	makeCylinder    (double radius, double height, const Point3 &center, const Vector3 &normal);
+GeometryData	makeCone        (double radius, double height, const Point3 &center, const Vector3 &normal);
+GeometryData	makeHyperboloid (double waist, double radius, double height, const Point3 &center, const Vector3 &normal);
+GeometryData	makeTorus       (double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal);
+GeometryData	makeKiss        (double sharpness, const Point3 &center, const Vector3 &normal);
+GeometryData	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
 
-class Sphere : public Geometry
-{
-	public:
-		Sphere(const Point3 &center, double radius);
+// ── Per-shape hit functions ─ called by geometryHit() ────────────────────────────
+bool			sphereHit      (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			planeHit       (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			cylinderHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			coneHit        (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			hyperboloidHit (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			torusHit       (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			kissHit        (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			triangleHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
+// ── Main dispatch ─ replaces virtual hit() ───────────────────────────────────────────
+bool			geometryHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 
-class Cylinder : public Geometry
-{
-	public:
-		Cylinder(double radius, double height, const Point3 &center, const Vector3 &normal);
+#endif /* GEOMETRY_HPP */
 
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
-
-class Cone : public Geometry
-{
-	public:
-		Cone(double radius, double height, const Point3 &center, const Vector3 &normal);
-
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
-
-class Hyperboloid : public Geometry
-{
-	private:
-		double	waist;
-	public:
-		Hyperboloid(double waist, double radius, double height, const Point3 &center, const Vector3 &normal);
-
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
-
-class Torus : public Geometry
-{
-	private:
-		double	thickness; // minorRadius / majorRadius
-	public:
-		Torus(double majorRadius, double minorRadius, const Point3 &center, const Vector3 &normal);
-
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
-
-class Kiss : public Geometry
-{
-	private:
-		double	sharpness;
-	public:
-		Kiss(double sharpness, const Point3 &center, const Vector3 &normal);
-
-		virtual HitRecord	hit(const Ray &ray, const Limits &limits) const override;
-};
-
-#endif /* HITTABLE_HPP */

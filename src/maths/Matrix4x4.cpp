@@ -12,29 +12,12 @@ Matrix4x4::Matrix4x4(const double values[4][4])
 			m[i][j] = values[i][j];
 }
 
-Matrix4x4::Matrix4x4(const Matrix4x4 &other)
-{	for (int i = 0; i < 4; ++i)
-		for (int j = 0; j < 4; ++j)
-			m[i][j] = other.m[i][j]; }
-
-Matrix4x4::~Matrix4x4() {}
 
 static const double	s_identity[4][4] = {{1.0, 0.0, 0.0, 0.0},
 										{0.0, 1.0, 0.0, 0.0},
 										{0.0, 0.0, 1.0, 0.0},
 										{0.0, 0.0, 0.0, 1.0}};
 const Matrix4x4	Matrix4x4::Identity(s_identity);
-
-Matrix4x4 &Matrix4x4::operator=(const Matrix4x4 &other)
-{
-	if (this != &other)
-	{
-		for (int i = 0; i < 4; ++i)
-			for (int j = 0; j < 4; ++j)
-				m[i][j] = other.m[i][j];
-	}
-	return *this;
-}
 
 double	&Matrix4x4::operator()(int row, int col)
 { return m[row][col]; }

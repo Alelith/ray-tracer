@@ -8,7 +8,6 @@ Limits::Limits(double min, double max)
 	this->max = max;
 }
 
-Limits::~Limits() {}
 
 double	Limits::getMin() const { return min; }
 

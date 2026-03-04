@@ -1,52 +1,38 @@
 #include "Solver.hpp"
 
-FerrariSolver::FerrariSolver(double a, double b, double c, double d, double e)
+Solutions	solveFerrari(double a, double b, double c, double d, double e)
 {
+	Solutions	sols;
 	if (a == 0.0)
-		throw std::invalid_argument("Coefficient a must be non-zero for a quartic equation.");
-	this->a = 1.0;
-	this->b = b / a;
-	this->c = c / a;
-	this->d = d / a;
-	this->e = e / a;
-}
+		return sols;
 
-vector<Solution>	FerrariSolver::getSolutions() const
-{
-	vector<Solution> solutions;
+	// Normalize to monic form
+	double	bn = b / a;
+	double	cn = c / a;
+	double	dn = d / a;
+	double	en = e / a;
 
-	double resolventA = 1.0;
-	double resolventB = -c;
-	double resolventC = b * d - 4.0 * e;
-	double resolventD = 4.0 * c * e - b * b * e - d * d;
-
-	vector<Solution> resolventSolutions = CardamoSolver(resolventA, resolventB, resolventC, resolventD).getSolutions();
-	double y = 0.0;
-	for (const auto &sol : resolventSolutions)
+	// Resolvent cubic: y³ - cn*y² + (bn*dn - 4*en)*y - (bn²*en - 4*cn*en + dn²) = 0
+	Solutions	resolvent = solveCardano(1.0, -cn, bn * dn - 4.0 * en,
+									4.0 * cn * en - bn * bn * en - dn * dn);
+	double	y = 0.0;
+	for (int i = 0; i < resolvent.count; ++i)
 	{
-		if (!sol.isComplex)
+		if (!resolvent.data[i].isComplex)
 		{
-			y = sol.real;
+			y = resolvent.data[i].real;
 			break;
 		}
 	}
 
-	double m = std::sqrt(std::max(0.0, b * b / 4.0 - c + y));
-	double n = std::sqrt(std::max(0.0, y * y / 4.0 - e));
+	double	m  = std::sqrt(std::max(0.0, bn * bn / 4.0 - cn + y));
+	double	n  = std::sqrt(std::max(0.0, y  * y  / 4.0 - en));
 
-	double firstCuadraticB = b / 2 + m;
-	double firstCuadraticC = y / 2 - n;
+	Solutions	q1 = solveBhaskara(1.0, bn / 2.0 + m, y / 2.0 - n);
+	Solutions	q2 = solveBhaskara(1.0, bn / 2.0 - m, y / 2.0 + n);
 
-	double secondCuadraticB = b / 2 - m;
-	double secondCuadraticC = y / 2 + n;
+	for (int i = 0; i < q1.count; ++i) sols.push(q1.data[i]);
+	for (int i = 0; i < q2.count; ++i) sols.push(q2.data[i]);
 
-	vector<Solution> firstCuadratic = BhaskaraSolver(1.0, firstCuadraticB, firstCuadraticC).getSolutions();
-	vector<Solution> secondCuadratic = BhaskaraSolver(1.0, secondCuadraticB, secondCuadraticC).getSolutions();
-
-	for (const auto &sol : firstCuadratic)
-		solutions.emplace_back(sol);
-	for (const auto &sol : secondCuadratic)
-		solutions.emplace_back(sol);
-
-	return solutions;
+	return sols;
 }

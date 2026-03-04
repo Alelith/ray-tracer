@@ -4,9 +4,7 @@ Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
 
 Vector3::Vector3(double x, double y, double z, double w) : v{x, y, z, w} {}
 
-Vector3::Vector3(const Vector3 &other) : v{other.v[0], other.v[1], other.v[2]} {}
 
-Vector3::~Vector3() {}
 
 const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
 const Vector3	Vector3::Up(0.0, 1.0, 0.0);
@@ -16,17 +14,6 @@ const Vector3	Vector3::Down(0.0, -1.0, 0.0);
 const Vector3	Vector3::Left(-1.0, 0.0, 0.0);
 const Vector3	Vector3::Backward(0.0, 0.0, -1.0);
 const Vector3	Vector3::One(1.0, 1.0, 1.0);
-
-Vector3	&Vector3::operator=(const Vector3 &other)
-{
-	if (this != &other)
-	{
-		v[0] = other.v[0];
-		v[1] = other.v[1];
-		v[2] = other.v[2];
-	}
-	return *this;
-}
 
 Vector3	Vector3::operator-() const
 { return Vector3(-v[0], -v[1], -v[2]); }

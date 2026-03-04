@@ -1,68 +1,59 @@
 #include "Random.hpp"
 
-unsigned long Random::seed = static_cast<unsigned long>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-
-void	Random::xorshift64()
+// xorshift64 — branchless, register-only, GPU-safe
+double	RNG::next()
 {
-	seed ^= seed << 13;
-	seed ^= seed >> 7;
-	seed ^= seed << 17;
+	state ^= state << 13;
+	state ^= state >> 7;
+	state ^= state << 17;
+	return static_cast<double>(state) / static_cast<double>(ULONG_MAX);
 }
 
-double	Random::randomDouble()
+double	RNG::randomDouble()
 {
-	xorshift64();
-	return static_cast<double>(seed) / static_cast<double>(ULONG_MAX);
+	return next();
 }
 
-double	Random::randomDouble(double min, double max)
+double	RNG::randomDouble(double min, double max)
 {
-	return min + (max - min) * randomDouble();
+	return min + (max - min) * next();
 }
 
-Vector3	Random::randomVector3()
+Vector3	RNG::randomVector3()
 {
-	return Vector3(randomDouble(), randomDouble(), randomDouble());
+	return Vector3(next(), next(), next());
 }
 
-Vector3	Random::randomVector3(double min, double max)
+Vector3	RNG::randomVector3(double min, double max)
 {
 	return Vector3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
 }
 
-Vector3	Random::randomUnitVector3()
+// Uniform direction on the unit sphere via spherical coordinates — no rejection.
+Vector3	RNG::randomUnitVector3()
 {
 	double a = randomDouble(0, 2 * M_PI);
 	double z = randomDouble(-1, 1);
-	double r = sqrt(1 - z * z);
+	double r = sqrt(1.0 - z * z);
 	return Vector3(r * cos(a), r * sin(a), z);
 }
 
-Vector3	Random::randomInHemisphere(const Vector3 &normal)
+// Uniform point inside the unit sphere: random direction + cbrt-scaled radius.
+Vector3	RNG::randomInUnitSphere()
 {
-	Vector3 inUnitSphere = randomInUnitSphere();
-	if (dot(inUnitSphere, normal) > 0.0)
-		return inUnitSphere;
-	else
-		return -inUnitSphere;
+	return randomUnitVector3() * cbrt(next());
 }
 
-Vector3	Random::randomInUnitSphere()
+// Uniform point inside the unit disk: r = sqrt(u) for uniform area.
+Vector3	RNG::randomInUnitDisk()
 {
-	while (true)
-	{
-		Vector3 p = randomVector3(-1, 1);
-		if (p.length_sqrd() < 1)
-			return p;
-	}
+	double r     = sqrt(next());
+	double theta = randomDouble(0, 2 * M_PI);
+	return Vector3(r * cos(theta), r * sin(theta), 0);
 }
 
-Vector3	Random::randomInUnitDisk()
+Vector3	RNG::randomInHemisphere(const Vector3 &normal)
 {
-	while (true)
-	{
-		Vector3 p = Vector3(randomDouble(-1, 1), randomDouble(-1, 1), 0);
-		if (p.length_sqrd() < 1)
-			return p;
-	}
+	Vector3 v = randomInUnitSphere();
+	return dot(v, normal) > 0.0 ? v : -v;
 }

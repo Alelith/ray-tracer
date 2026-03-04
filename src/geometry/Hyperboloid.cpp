@@ -1,52 +1,55 @@
 #include "Geometry.hpp"
 
-Hyperboloid::Hyperboloid(double waist, double radius, double height, const Point3 &center, const Vector3 &normal)
+GeometryData	makeHyperboloid(double waist, double radius, double height, const Point3 &center, const Vector3 &normal)
 {
-	transform = Transform(center, normal, Vector3(radius, height, radius));
-	this->waist = waist;
+	GeometryData g{};
+	g.type      = GeometryType::Hyperboloid;
+	g.transform = Transform(center, normal, Vector3(radius, height, radius));
+	g.waist     = waist;
+	return g;
 }
 
-HitRecord	Hyperboloid::hit(const Ray &ray, const Limits &limits) const
+bool	hyperboloidHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
 {
-	HitRecord record;
-	record.hit = false;
-	record.t = INFINITY;
+	bool	wasHit = false;
 
-	Ray		localRay = getLocalRay(ray);
+	Ray		localRay = getLocalRay(g.transform, ray);
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
-	// Intersection with hyperboloid body
+	// Body
 	double	a = d[0] * d[0] + d[2] * d[2] - d[1] * d[1];
 	double	b = 2 * (o[0] * d[0] + o[2] * d[2] - o[1] * d[1]);
-	double	c = o[0] * o[0] + o[2] * o[2] - o[1] * o[1] - waist;
+	double	c = o[0] * o[0] + o[2] * o[2] - o[1] * o[1] - g.waist;
 
 	if (a > 1e-10)
 	{
-		vector<Solution>	sols = BhaskaraSolver(a, b, c).getSolutions();
-		for (Solution sol : sols)
+		Solutions	sols = solveBhaskara(a, b, c);
+		for (int i = 0; i < sols.count; ++i)
 		{
+			const Solution &sol = sols.data[i];
 			if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
 			{
 				double y = o[1] + sol.real * d[1];
 				if (y >= -0.5 && y <= 0.5)
 				{
-					record.hit = true;
-					record.t = sol.real;
+					wasHit       = true;
+					record.t     = sol.real;
 					record.point = ray.at(sol.real);
-					
-					Point3 localHitPoint = o + sol.real * d;
-					Vector3 localNormal = Vector3(localHitPoint[0], -localHitPoint[1], localHitPoint[2]).normalized();
-					Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+
+					Point3	localHit    = o + sol.real * d;
+					Vector3	localNormal = Vector3(localHit[0], -localHit[1], localHit[2]).normalized();
+					Vector3	worldNormal = (g.transform.getTransposeMatrix() * localNormal).normalized();
 					record.setFaceNormal(ray, worldNormal);
 				}
 			}
 		}
 	}
 
-	// Intersection with bottom cap (y = -0.5)
+	// Caps
 	if (fabs(d[1]) > 1e-10)
 	{
+		// Bottom cap (y = -0.5)
 		double t = (-0.5 - o[1]) / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{
@@ -54,17 +57,14 @@ HitRecord	Hyperboloid::hit(const Ray &ray, const Limits &limits) const
 			double z = o[2] + t * d[2];
 			if (x * x + z * z <= 1)
 			{
-				record.hit = true;
-				record.t = t;
+				wasHit       = true;
+				record.t     = t;
 				record.point = ray.at(t);
-				
-				Vector3 localNormal = Vector3(0, -1, 0);
-				Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+				Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, -1, 0)).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}
-
-		// Intersection with top cap (y = 0.5)
+		// Top cap (y = 0.5)
 		t = (0.5 - o[1]) / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{
@@ -72,16 +72,13 @@ HitRecord	Hyperboloid::hit(const Ray &ray, const Limits &limits) const
 			double z = o[2] + t * d[2];
 			if (x * x + z * z <= 1)
 			{
-				record.hit = true;
-				record.t = t;
+				wasHit       = true;
+				record.t     = t;
 				record.point = ray.at(t);
-				
-				Vector3 localNormal = Vector3(0, 1, 0);
-				Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+				Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, 1, 0)).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}
 	}
-
-	return record;
+	return wasHit;
 }

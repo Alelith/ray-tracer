@@ -16,7 +16,7 @@ class AABB
 		AABB(const Point3 &a, const Point3 &b);
 		AABB(const AABB &box0, const AABB &box1);
 		AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform);
-		~AABB();
+		~AABB() = default;
 
 		const Limits	&getXLimits() const;
 		const Limits	&getYLimits() const;

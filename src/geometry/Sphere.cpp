@@ -1,15 +1,18 @@
 #include "Geometry.hpp"
 
-Sphere::Sphere(const Point3 &center, double radius)
-{ transform = Transform(center, Vector3::Up, Vector3(radius, radius, radius)); }
-
-HitRecord	Sphere::hit(const Ray &ray, const Limits &limits) const
+GeometryData	makeSphere(const Point3 &center, double radius)
 {
-	HitRecord record;
-	record.hit = false;
-	record.t = INFINITY;
+	GeometryData g{};
+	g.type      = GeometryType::Sphere;
+	g.transform = Transform(center, Vector3::Up, Vector3(radius, radius, radius));
+	return g;
+}
 
-	Ray		localRay = getLocalRay(ray);
+bool	sphereHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
+{
+	bool	wasHit = false;
+
+	Ray		localRay = getLocalRay(g.transform, ray);
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
@@ -17,27 +20,21 @@ HitRecord	Sphere::hit(const Ray &ray, const Limits &limits) const
 	double	b = 2 * dot(d, o);
 	double	c = dot(o, o) - 1;
 
-	vector<Solution>	sols = BhaskaraSolver(a, b, c).getSolutions();
-
-	for (Solution sol : sols)
+	Solutions	sols = solveBhaskara(a, b, c);
+	for (int i = 0; i < sols.count; ++i)
 	{
+		const Solution &sol = sols.data[i];
 		if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
 		{
-			record.hit = true;
-			record.t = sol.real;
-			
-			// Calculate hit point in local space
-			Point3 localHitPoint = o + sol.real * d;
-			
-			// Calculate normal in local space
-			Vector3 localNormal = localHitPoint.normalized();
-			
-			// Transform point and normal to world space
+			wasHit       = true;
+			record.t     = sol.real;
 			record.point = ray.at(sol.real);
-			Vector3 worldNormal = (transform.getTransposeMatrix() * localNormal).normalized();
+
+			Point3	localHit    = o + sol.real * d;
+			Vector3	localNormal = localHit.normalized();
+			Vector3	worldNormal = (g.transform.getTransposeMatrix() * localNormal).normalized();
 			record.setFaceNormal(ray, worldNormal);
 		}
 	}
-	
-	return record;
+	return wasHit;
 }

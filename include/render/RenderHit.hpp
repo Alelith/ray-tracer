@@ -13,11 +13,11 @@ using std::vector;
 class RenderHit
 {
 	private:
-		shared_ptr<Geometry>	geometry;
-		Material				color;
+		GeometryData	geometry;
+		Material		color;
 	public:
 		RenderHit();
-		RenderHit(shared_ptr<Geometry> geometry, Color color);
+		RenderHit(GeometryData geometry, Color color);
 		virtual ~RenderHit();
 
 		virtual bool hit(const Ray &r, const Limits &limits, HitRecord &hitRecord) const;
@@ -31,6 +31,7 @@ class RenderHitList : public RenderHit
 		RenderHitList();
 		virtual ~RenderHitList();
 
+		void add(GeometryData geometry, Color color);
 		virtual bool hit(const Ray &r, const Limits &limits, HitRecord &hitRecord) const;
 };
 
