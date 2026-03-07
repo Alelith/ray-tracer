@@ -8,7 +8,6 @@ GeometryData	makeTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, 
 	g.v1        = v1;
 	g.v2        = v2;
 	g.triNormal = normal;
-	// transform is unused for Triangle (world-space vertices)
 	return g;
 }
 

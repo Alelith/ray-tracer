@@ -46,10 +46,8 @@ bool	hyperboloidHit(const GeometryData &g, const Ray &ray, const Limits &limits,
 		}
 	}
 
-	// Caps
 	if (fabs(d[1]) > 1e-10)
 	{
-		// Bottom cap (y = -0.5)
 		double t = (-0.5 - o[1]) / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{
@@ -64,7 +62,6 @@ bool	hyperboloidHit(const GeometryData &g, const Ray &ray, const Limits &limits,
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}
-		// Top cap (y = 0.5)
 		t = (0.5 - o[1]) / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{

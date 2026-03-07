@@ -4,8 +4,6 @@ Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
 
 Vector3::Vector3(double x, double y, double z, double w) : v{x, y, z, w} {}
 
-
-
 const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
 const Vector3	Vector3::Up(0.0, 1.0, 0.0);
 const Vector3	Vector3::Right(1.0, 0.0, 0.0);

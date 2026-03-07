@@ -12,7 +12,6 @@ Matrix4x4::Matrix4x4(const double values[4][4])
 			m[i][j] = values[i][j];
 }
 
-
 static const double	s_identity[4][4] = {{1.0, 0.0, 0.0, 0.0},
 										{0.0, 1.0, 0.0, 0.0},
 										{0.0, 0.0, 1.0, 0.0},

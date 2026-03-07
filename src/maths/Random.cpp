@@ -1,6 +1,5 @@
 #include "Random.hpp"
 
-// xorshift64 — branchless, register-only, GPU-safe
 double	RNG::next()
 {
 	state ^= state << 13;
@@ -29,7 +28,6 @@ Vector3	RNG::randomVector3(double min, double max)
 	return Vector3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
 }
 
-// Uniform direction on the unit sphere via spherical coordinates — no rejection.
 Vector3	RNG::randomUnitVector3()
 {
 	double a = randomDouble(0, 2 * M_PI);
@@ -38,13 +36,11 @@ Vector3	RNG::randomUnitVector3()
 	return Vector3(r * cos(a), r * sin(a), z);
 }
 
-// Uniform point inside the unit sphere: random direction + cbrt-scaled radius.
 Vector3	RNG::randomInUnitSphere()
 {
 	return randomUnitVector3() * cbrt(next());
 }
 
-// Uniform point inside the unit disk: r = sqrt(u) for uniform area.
 Vector3	RNG::randomInUnitDisk()
 {
 	double r     = sqrt(next());

@@ -16,7 +16,6 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
-	// Body
 	double	a = d[0] * d[0] + d[2] * d[2] - d[1] * d[1];
 	double	b = 2 * (o[0] * d[0] + o[2] * d[2] - (o[1] - 0.5) * d[1]);
 	double	c = o[0] * o[0] + o[2] * o[2] - (o[1] - 0.5) * (o[1] - 0.5);
@@ -45,7 +44,6 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 		}
 	}
 
-	// Base (y = -0.5)
 	if (fabs(d[1]) > 1e-10)
 	{
 		double t = (-0.5 - o[1]) / d[1];

@@ -12,8 +12,6 @@ struct Solution
 	Solution(double real, double imaginary, bool isComplex);
 };
 
-// Fixed-size result container: max 4 roots (quartic equation).
-// No heap allocation — safe for GPU device code.
 struct Solutions
 {
 	Solution	data[4];
@@ -23,10 +21,6 @@ struct Solutions
 	void	push(double real, double imaginary, bool isComplex);
 	void	push(const Solution &sol);
 };
-
-// ── Free functions ────────────────────────────────────────────────────────────
-// No virtual dispatch, no heap, GPU-compatible.
-// Returns empty Solutions (count == 0) for degenerate inputs (a == 0).
 
 Solutions	solveLinear  (double a, double b);
 Solutions	solveBhaskara(double a, double b, double c);

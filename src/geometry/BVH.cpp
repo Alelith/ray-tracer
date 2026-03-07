@@ -96,6 +96,7 @@ bool	bvhHit(const BVHView &bvh, const Ray &ray, const Limits &limits, HitRecord 
 			// Leaf — test the actual geometry
 			if (geometryHit(bvh.geoms[node.geomIdx], ray, current, record))
 			{
+				record.geomIdx = node.geomIdx;
 				anyHit  = true;
 				current = Limits(current.getMin(), record.t);
 			}

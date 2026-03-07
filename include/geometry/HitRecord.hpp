@@ -8,12 +8,13 @@ struct HitRecord
 	Point3	point;
 	Vector3	normal;
 	double	t;
+	int		geomIdx;  // index into BVHView::geoms — filled by bvhHit
 	bool	frontFace;
 	bool	hit;
 
-	HitRecord() : t(INFINITY), frontFace(false), hit(false) {}
+	HitRecord() : t(INFINITY), geomIdx(-1), frontFace(false), hit(false) {}
 	HitRecord(bool hit, const Point3 &point, const Vector3 &normal, double t, bool frontFace)
-		: point(point), normal(normal), t(t), frontFace(frontFace), hit(hit) {}
+		: point(point), normal(normal), t(t), geomIdx(-1), frontFace(frontFace), hit(hit) {}
 
 	inline void	setFaceNormal(const Ray &ray, const Vector3 &outwardNormal)
 	{

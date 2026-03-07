@@ -20,9 +20,6 @@ enum class GeometryType : uint8_t
 	Triangle
 };
 
-// Plain data struct — no vtable, no heap allocation, GPU-compatible.
-// Only the fields labelled with a type are meaningful for that type;
-// all unused fields are zero-initialised by the factory functions.
 struct GeometryData
 {
 	GeometryType	type;
@@ -39,10 +36,8 @@ struct GeometryData
 	Vector3			triNormal;		// Triangle:    face normal
 };
 
-// ── Utility ────────────────────────────────────────────────────────────────────────────
 Ray				getLocalRay(const Transform &transform, const Ray &ray);
 
-// ── Factory functions ─ replace constructors ───────────────────────────────────────
 GeometryData	makeSphere      (const Point3 &center, double radius);
 GeometryData	makePlane       (const Point3 &point, const Vector3 &normal);
 GeometryData	makeCylinder    (double radius, double height, const Point3 &center, const Vector3 &normal);
@@ -52,7 +47,6 @@ GeometryData	makeTorus       (double majorRadius, double minorRadius, const Poin
 GeometryData	makeKiss        (double sharpness, const Point3 &center, const Vector3 &normal);
 GeometryData	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
 
-// ── Per-shape hit functions ─ called by geometryHit() ────────────────────────────
 bool			sphereHit      (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 bool			planeHit       (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 bool			cylinderHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
@@ -62,7 +56,6 @@ bool			torusHit       (const GeometryData &g, const Ray &ray, const Limits &limi
 bool			kissHit        (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 bool			triangleHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 
-// ── Main dispatch ─ replaces virtual hit() ───────────────────────────────────────────
 bool			geometryHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
 
 #endif /* GEOMETRY_HPP */

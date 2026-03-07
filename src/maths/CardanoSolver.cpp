@@ -4,7 +4,7 @@ Solutions	solveCardano(double a, double b, double c, double d)
 {
 	Solutions	sols;
 	if (a == 0.0)
-		return sols;
+		return solveBhaskara(b, c, d);
 
 	// Normalize to monic form: t³ + pt + q = 0  (substitute t = x - b/3a)
 	double	bn = b / a;

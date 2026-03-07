@@ -4,7 +4,7 @@ Solutions	solveBhaskara(double a, double b, double c)
 {
 	Solutions	sols;
 	if (a == 0.0)
-		return sols;
+		return solveLinear(b, c);
 
 	double discriminant = b * b - 4.0 * a * c;
 	if (discriminant > 0.0)
