@@ -37,7 +37,7 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 
 					Point3	localHit    = o + sol.real * d;
 					Vector3	localNormal = Vector3(localHit[0], 0.5 - localHit[1], localHit[2]).normalized();
-					Vector3	worldNormal = (g.transform.getTransposeMatrix() * localNormal).normalized();
+					Vector3	worldNormal = (g.transform.getTransposeInverseMatrix() * localNormal).normalized();
 					record.setFaceNormal(ray, worldNormal);
 				}
 			}
@@ -56,7 +56,7 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 				wasHit       = true;
 				record.t     = t;
 				record.point = ray.at(t);
-				Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, -1, 0)).normalized();
+			Vector3 worldNormal = (g.transform.getTransposeInverseMatrix() * Vector3(0, -1, 0)).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}

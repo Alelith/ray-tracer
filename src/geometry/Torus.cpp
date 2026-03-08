@@ -18,8 +18,8 @@ bool	torusHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRe
 	Vector3	dir = localRay.getDirection();
 
 	double	dd     = dot(dir, dir);
-	double	od     = dot(o, dir);
-	double	oo     = dot(o, o);
+	double	od     = dot(o.toVector(), dir);
+	double	oo     = dot(o.toVector(), o.toVector());
 	double	sumR2  = 1 + g.thickness * g.thickness;
 	double	diffR2 = 1 - g.thickness * g.thickness;
 

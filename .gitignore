@@ -2,3 +2,5 @@
 obj/
 bin/
 *.o
+.cache_exists
+ray_tracer

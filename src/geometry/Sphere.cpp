@@ -17,8 +17,8 @@ bool	sphereHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitR
 	Vector3	d = localRay.getDirection();
 
 	double	a = dot(d, d);
-	double	b = 2 * dot(d, o);
-	double	c = dot(o, o) - 1;
+	double	b = 2 * dot(d, o.toVector());
+	double	c = dot(o.toVector(), o.toVector()) - 1;
 
 	Solutions	sols = solveBhaskara(a, b, c);
 	for (int i = 0; i < sols.count; ++i)
@@ -31,8 +31,8 @@ bool	sphereHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitR
 			record.point = ray.at(sol.real);
 
 			Point3	localHit    = o + sol.real * d;
-			Vector3	localNormal = localHit.normalized();
-			Vector3	worldNormal = (g.transform.getTransposeMatrix() * localNormal).normalized();
+			Vector3	localNormal = localHit.toVector().normalized();
+			Vector3	worldNormal = (g.transform.getTransposeInverseMatrix() * localNormal).normalized();
 			record.setFaceNormal(ray, worldNormal);
 		}
 	}

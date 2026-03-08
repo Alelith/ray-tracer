@@ -18,6 +18,7 @@ class Limits
 		double	getMax() const;
 
 		bool	isBetween(double t) const;
+		double	clamp(double t) const;
 		Limits	expand(double delta) const;
 };
 

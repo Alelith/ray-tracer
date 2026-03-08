@@ -1,6 +1,6 @@
 #include "Limits.hpp"
 
-Limits::Limits() : min(0.0), max(0.0) {}
+Limits::Limits() : min(0.0001), max(INFINITY) {}
 
 Limits::Limits(double min, double max)
 {
@@ -8,10 +8,14 @@ Limits::Limits(double min, double max)
 	this->max = max;
 }
 
-
 double	Limits::getMin() const { return min; }
 
 double	Limits::getMax() const { return max; }
+
+double	Limits::clamp(double t) const
+{
+	return std::max(min, std::min(max, t));
+}
 
 bool	Limits::isBetween(double t) const
 { return t >= min && t <= max; }

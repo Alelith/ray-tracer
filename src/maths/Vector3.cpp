@@ -2,7 +2,7 @@
 
 Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
 
-Vector3::Vector3(double x, double y, double z, double w) : v{x, y, z, w} {}
+Vector3::Vector3(double x, double y, double z) : v{x, y, z} {}
 
 const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
 const Vector3	Vector3::Up(0.0, 1.0, 0.0);
@@ -81,6 +81,15 @@ bool	Vector3::isNearZero() const
 	const double s = 1e-8;
 	return (std::fabs(v[0]) < s) && (std::fabs(v[1]) < s) && (std::fabs(v[2]) < s);
 }
+
+double	Vector3::x() const
+{ return v[0]; }
+
+double	Vector3::y() const
+{ return v[1]; }
+
+double	Vector3::z() const
+{ return v[2]; }
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec)
 {

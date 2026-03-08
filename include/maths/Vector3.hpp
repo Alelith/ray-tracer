@@ -7,10 +7,10 @@
 class Vector3
 {
 	private:
-		double	v[4];
+		double	v[3];
 	public:
 		Vector3();
-		Vector3(double x, double y, double z, double w = 0.0);
+		Vector3(double x, double y, double z);
 		Vector3(const Vector3 &other) = default;
 		~Vector3() = default;
 
@@ -40,9 +40,12 @@ class Vector3
 		Vector3			normalized() const;
 
 		bool			isNearZero() const;
+
+		double			x() const;
+		double			y() const;
+		double			z() const;
 };
 
-using Point3 = Vector3;
 using Color = Vector3;
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec);

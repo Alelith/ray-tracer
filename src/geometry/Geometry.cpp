@@ -3,8 +3,7 @@
 Ray	getLocalRay(const Transform &transform, const Ray &ray)
 {
 	const Point3	&wo = ray.getOrigin();
-	Point3			origin(wo[0], wo[1], wo[2], 1.0);
-	return Ray(transform.getInverseMatrix() * origin,
+	return Ray(transform.getInverseMatrix() * wo,
 			   transform.getInverseMatrix() * ray.getDirection());
 }
 

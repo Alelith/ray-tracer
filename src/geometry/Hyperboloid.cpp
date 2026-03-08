@@ -58,7 +58,7 @@ bool	hyperboloidHit(const GeometryData &g, const Ray &ray, const Limits &limits,
 				wasHit       = true;
 				record.t     = t;
 				record.point = ray.at(t);
-				Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, -1, 0)).normalized();
+			Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, -1, 0)).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}
@@ -72,7 +72,7 @@ bool	hyperboloidHit(const GeometryData &g, const Ray &ray, const Limits &limits,
 				wasHit       = true;
 				record.t     = t;
 				record.point = ray.at(t);
-				Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, 1, 0)).normalized();
+			Vector3 worldNormal = (g.transform.getTransposeMatrix() * Vector3(0, 1, 0)).normalized();
 				record.setFaceNormal(ray, worldNormal);
 			}
 		}

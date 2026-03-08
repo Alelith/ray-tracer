@@ -2,11 +2,34 @@
 # define CAMERA_HPP
 
 # include "Ray.hpp"
-# include "BVH.hpp"
 # include "Random.hpp"
-# include <vector>
-# include <algorithm>
+# include "Geometry.hpp"
+# include "Material.hpp"
+# include <iostream>
 
+class Camera
+{
+	public:
+		Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth = 10);
+		Camera(const Camera &other) = default;
+		~Camera() = default;
 
+		void	render(const GeometryData *geoms, const MaterialData *materials, int geomCount);
+	private:
+		double	aspectRatio;
+		double	pixelSamplesScale;
+		int		imageWidth;
+		int		imageHeight;
+		int		samplesPerPixel;
+		int		maxDepth;
+		Point3	cameraCenter;
+		Point3	pixel00Loc;
+		Vector3	pixelDeltaU;
+		Vector3	pixelDeltaV;
+
+		void	initialize();
+		Ray		getRay(double u, double v) const;
+		Color	rayColor(const Ray &ray, const GeometryData *geoms, const MaterialData *materials, int geomCount, int depth);
+};
 
 #endif /* CAMERA_HPP */

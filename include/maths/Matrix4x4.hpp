@@ -2,6 +2,7 @@
 # define MATRIX4X4_HPP
 
 # include "Vector3.hpp"
+# include "Point3.hpp"
 
 class Matrix4x4
 {
@@ -24,7 +25,12 @@ class Matrix4x4
 std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat);
 
 Matrix4x4		operator*(const Matrix4x4 &mat1, const Matrix4x4 &mat2);
+
+// Matrix * Vector: w=0, no translation applied (directions)
 Vector3			operator*(const Matrix4x4 &mat, const Vector3 &vec);
+
+// Matrix * Point: w=1, translation applied (positions)
+Point3			operator*(const Matrix4x4 &mat, const Point3 &point);
 
 Matrix4x4		translationMatrix(const Vector3 &translation);
 Matrix4x4		rotationMatrix(const Vector3 &rotation);

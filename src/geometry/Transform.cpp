@@ -5,15 +5,17 @@ Transform::Transform()
 	matrix = Matrix4x4::Identity;
 	inverseMatrix = Matrix4x4::Identity;
 	transposeMatrix = Matrix4x4::Identity;
+	transposeInverseMatrix = Matrix4x4::Identity;
 }
 
-Transform::Transform(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale)
+Transform::Transform(const Point3 &position, const Vector3 &rotation, const Vector3 &scale)
 {
+	Vector3 translation(position[0], position[1], position[2]);
 	matrix = translationMatrix(translation) * rotationMatrix(rotation) * scaleMatrix(scale);
 	inverseMatrix = inverseScaleMatrix(scale) * inverseRotationMatrix(rotation) * inverseTranslationMatrix(translation);
 	transposeMatrix = transpose(matrix);
+	transposeInverseMatrix = transpose(inverseMatrix);
 }
-
 
 Matrix4x4	Transform::getMatrix() const
 { return matrix; }
@@ -23,6 +25,9 @@ Matrix4x4	Transform::getInverseMatrix() const
 
 Matrix4x4	Transform::getTransposeMatrix() const
 { return transposeMatrix; }
+
+Matrix4x4	Transform::getTransposeInverseMatrix() const
+{ return transposeInverseMatrix; }
 
 std::ostream	&operator<<(std::ostream &os, const Transform &transform)
 {

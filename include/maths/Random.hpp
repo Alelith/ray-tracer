@@ -4,13 +4,17 @@
 # include "Vector3.hpp"
 # include <cmath>
 # include <climits>
+# include <random>
 
-struct RNG
+struct Random
 {
 	unsigned long	state;
 
-	explicit RNG(unsigned long seed = 123456789UL)
+	explicit Random(unsigned long seed = 123456789UL)
 		: state(seed ? seed : 1UL) {}
+
+	static Random&	global();
+	static void		reseed(unsigned long seed);
 
 	double			next();
 

@@ -2,6 +2,7 @@
 # define RAY_HPP
 
 # include "Vector3.hpp"
+# include "Point3.hpp"
 
 class Ray
 {

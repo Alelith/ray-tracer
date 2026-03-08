@@ -17,14 +17,14 @@ AABB::AABB(const AABB &box0, const AABB &box1) : xLimits(getInterval(box0.getXLi
 AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform)
 {
 	Point3	corners[8];
-	corners[0] = Point3(localMin[0], localMin[1], localMin[2], 1.0);
-	corners[1] = Point3(localMin[0], localMin[1], localMax[2], 1.0);
-	corners[2] = Point3(localMin[0], localMax[1], localMin[2], 1.0);
-	corners[3] = Point3(localMin[0], localMax[1], localMax[2], 1.0);
-	corners[4] = Point3(localMax[0], localMin[1], localMin[2], 1.0);
-	corners[5] = Point3(localMax[0], localMin[1], localMax[2], 1.0);
-	corners[6] = Point3(localMax[0], localMax[1], localMin[2], 1.0);
-	corners[7] = Point3(localMax[0], localMax[1], localMax[2], 1.0);
+	corners[0] = Point3(localMin[0], localMin[1], localMin[2]);
+	corners[1] = Point3(localMin[0], localMin[1], localMax[2]);
+	corners[2] = Point3(localMin[0], localMax[1], localMin[2]);
+	corners[3] = Point3(localMin[0], localMax[1], localMax[2]);
+	corners[4] = Point3(localMax[0], localMin[1], localMin[2]);
+	corners[5] = Point3(localMax[0], localMin[1], localMax[2]);
+	corners[6] = Point3(localMax[0], localMax[1], localMin[2]);
+	corners[7] = Point3(localMax[0], localMax[1], localMax[2]);
 
 	Point3	wmin = transform.getMatrix() * corners[0];
 	Point3	wmax = wmin;
