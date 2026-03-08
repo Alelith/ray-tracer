@@ -7,19 +7,19 @@
 class Limits
 {
 	private:
-		double	min;
-		double	max;
+		float	min;
+		float	max;
 	public:
 		Limits();
-		Limits(double min, double max);
+		Limits(float min, float max);
 		~Limits() = default;
 
-		double	getMin() const;
-		double	getMax() const;
+		float	getMin() const;
+		float	getMax() const;
 
-		bool	isBetween(double t) const;
-		double	clamp(double t) const;
-		Limits	expand(double delta) const;
+		bool	isBetween(float t) const;
+		float	clamp(float t) const;
+		Limits	expand(float delta) const;
 };
 
 Limits	getInterval(const Limits &a, const Limits &b);

@@ -16,13 +16,13 @@ struct Random
 	static Random&	global();
 	static void		reseed(unsigned long seed);
 
-	double			next();
+	float			next();
 
-	double			randomDouble();
-	double			randomDouble(double min, double max);
+	float			randomfloat();
+	float			randomfloat(float min, float max);
 
 	Vector3			randomVector3();
-	Vector3			randomVector3(double min, double max);
+	Vector3			randomVector3(float min, float max);
 	Vector3			randomUnitVector3();
 	Vector3			randomInUnitSphere();
 	Vector3			randomInUnitDisk();

@@ -16,14 +16,14 @@ struct MaterialData
 {
 	Material	type;
 	Color		albedo;
-	double		roughness; // For Metallic: 0.0 (perfect mirror) to 1.0 (fully rough)
-	double		refractiveIndex; // For Dielectric (not implemented yet)
-	double		opacity; // For future use (e.g., transparent materials)
+	float		roughness; // For Metallic: 0.0 (perfect mirror) to 1.0 (fully rough)
+	float		refractiveIndex; // For Dielectric (not implemented yet)
+	float		opacity; // For future use (e.g., transparent materials)
 };
 
 MaterialData	makeLambertian(const Color &albedo);
-MaterialData	makeMetallic(const Color &albedo, double roughness);
-MaterialData	makeDielectric(const Color &albedo, double refractiveIndex, double opacity = 1.0);
+MaterialData	makeMetallic(const Color &albedo, float roughness);
+MaterialData	makeDielectric(const Color &albedo, float refractiveIndex, float opacity = 1.0);
 
 bool			scatterLambertian(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);
 bool			scatterMetallic(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);

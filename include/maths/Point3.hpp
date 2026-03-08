@@ -9,10 +9,10 @@ class Vector3;
 class Point3
 {
 	private:
-		double	p[3];
+		float	p[3];
 	public:
 		Point3();
-		Point3(double x, double y, double z);
+		Point3(float x, float y, float z);
 		Point3(const Point3 &other) = default;
 		~Point3() = default;
 
@@ -20,12 +20,12 @@ class Point3
 
 		Point3			&operator=(const Point3 &other) = default;
 
-		double			&operator[](int index);
-		double			operator[](int index) const;
+		float			&operator[](int index);
+		float			operator[](int index) const;
 
-		double			x() const;
-		double			y() const;
-		double			z() const;
+		float			x() const;
+		float			y() const;
+		float			z() const;
 
 		// Convert to vector (position vector from origin)
 		Vector3			toVector() const;

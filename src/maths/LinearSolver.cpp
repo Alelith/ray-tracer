@@ -1,6 +1,6 @@
 #include "Solver.hpp"
 
-Solutions	solveLinear(double a, double b)
+Solutions	solveLinear(float a, float b)
 {
 	Solutions	sols;
 	if (a != 0.0)

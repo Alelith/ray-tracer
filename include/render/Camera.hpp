@@ -10,15 +10,15 @@
 class Camera
 {
 	public:
-		Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, double vfov, const Point3 &center, const Vector3 &normal);
+		Camera(float aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, float vfov, const Point3 &center, const Vector3 &normal);
 		Camera(const Camera &other) = default;
 		~Camera() = default;
 
 		void	render(const GeometryData *geoms, const MaterialData *materials, int geomCount);
 	private:
-		double	aspectRatio;
-		double	pixelSamplesScale;
-		double	vfov;
+		float	aspectRatio;
+		float	pixelSamplesScale;
+		float	vfov;
 		int		imageWidth;
 		int		imageHeight;
 		int		samplesPerPixel;
@@ -30,7 +30,7 @@ class Camera
 		Vector3	pixelDeltaV;
 
 		void	initialize();
-		Ray		getRay(double u, double v) const;
+		Ray		getRay(float u, float v) const;
 		Color	rayColor(const Ray &ray, const GeometryData *geoms, const MaterialData *materials, int geomCount, int depth);
 };
 

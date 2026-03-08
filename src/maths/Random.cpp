@@ -13,20 +13,20 @@ void	Random::reseed(unsigned long seed)
 	global().state = seed ? seed : 1UL;
 }
 
-double	Random::next()
+float	Random::next()
 {
 	state ^= state << 13;
 	state ^= state >> 7;
 	state ^= state << 17;
-	return static_cast<double>(state) / static_cast<double>(ULONG_MAX);
+	return static_cast<float>(state) / static_cast<float>(ULONG_MAX);
 }
 
-double	Random::randomDouble()
+float	Random::randomfloat()
 {
 	return next();
 }
 
-double	Random::randomDouble(double min, double max)
+float	Random::randomfloat(float min, float max)
 {
 	return min + (max - min) * next();
 }
@@ -36,16 +36,16 @@ Vector3	Random::randomVector3()
 	return Vector3(next(), next(), next());
 }
 
-Vector3	Random::randomVector3(double min, double max)
+Vector3	Random::randomVector3(float min, float max)
 {
-	return Vector3(randomDouble(min, max), randomDouble(min, max), randomDouble(min, max));
+	return Vector3(randomfloat(min, max), randomfloat(min, max), randomfloat(min, max));
 }
 
 Vector3	Random::randomUnitVector3()
 {
-	double a = randomDouble(0, 2 * M_PI);
-	double z = randomDouble(-1, 1);
-	double r = sqrt(1.0 - z * z);
+	float a = randomfloat(0, 2 * M_PI);
+	float z = randomfloat(-1, 1);
+	float r = sqrt(1.0 - z * z);
 	return Vector3(r * cos(a), r * sin(a), z);
 }
 
@@ -56,8 +56,8 @@ Vector3	Random::randomInUnitSphere()
 
 Vector3	Random::randomInUnitDisk()
 {
-	double r     = sqrt(next());
-	double theta = randomDouble(0, 2 * M_PI);
+	float r     = sqrt(next());
+	float theta = randomfloat(0, 2 * M_PI);
 	return Vector3(r * cos(theta), r * sin(theta), 0);
 }
 

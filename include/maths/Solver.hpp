@@ -5,11 +5,11 @@
 
 struct Solution
 {
-	double	real;
-	double	imaginary;
+	float	real;
+	float	imaginary;
 	bool	isComplex;
 	Solution();
-	Solution(double real, double imaginary, bool isComplex);
+	Solution(float real, float imaginary, bool isComplex);
 };
 
 struct Solutions
@@ -18,13 +18,13 @@ struct Solutions
 	int			count;
 
 	Solutions();
-	void	push(double real, double imaginary, bool isComplex);
+	void	push(float real, float imaginary, bool isComplex);
 	void	push(const Solution &sol);
 };
 
-Solutions	solveLinear  (double a, double b);
-Solutions	solveBhaskara(double a, double b, double c);
-Solutions	solveCardano (double a, double b, double c, double d);
-Solutions	solveFerrari (double a, double b, double c, double d, double e);
+Solutions	solveLinear  (float a, float b);
+Solutions	solveBhaskara(float a, float b, float c);
+Solutions	solveCardano (float a, float b, float c, float d);
+Solutions	solveFerrari (float a, float b, float c, float d, float e);
 
 #endif /* SOLVER_HPP */

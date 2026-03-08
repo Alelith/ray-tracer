@@ -62,14 +62,14 @@ static const Limits& getLimits(int axis, const AABB &box)
 
 bool	AABB::hit(const Ray &ray, const Limits &limits) const
 {
-	double	tMin = limits.getMin();
-	double	tMax = limits.getMax();
+	float	tMin = limits.getMin();
+	float	tMax = limits.getMax();
 
 	for (int axis = 0; axis < 3; axis++)
 	{
-		double	invD = 1.0 / ray.getDirection()[axis];
-		double	t0   = (getLimits(axis, *this).getMin() - ray.getOrigin()[axis]) * invD;
-		double	t1   = (getLimits(axis, *this).getMax() - ray.getOrigin()[axis]) * invD;
+		float	invD = 1.0 / ray.getDirection()[axis];
+		float	t0   = (getLimits(axis, *this).getMin() - ray.getOrigin()[axis]) * invD;
+		float	t1   = (getLimits(axis, *this).getMax() - ray.getOrigin()[axis]) * invD;
 		if (invD < 0.0)
 			std::swap(t0, t1);
 		// Intersect: narrow the running [tMin, tMax] window with the slab [t0, t1]

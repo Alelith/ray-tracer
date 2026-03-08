@@ -129,14 +129,14 @@ Este es el concepto más fundamental. DOP prefiere **tipos valor** (value types)
 | Copia | Copia real de los datos | Copia del puntero (mismos datos) |
 | Caché | Contiguo con los datos circundantes | Salto de puntero → aleatorio |
 | Ownership | Implícito (RAII automático) | Manual o con `shared_ptr` |
-| Ejemplos en C++ | `int`, `double`, `struct`, arrays | `new T`, `unique_ptr`, `shared_ptr` |
+| Ejemplos en C++ | `int`, `float`, `struct`, arrays | `new T`, `unique_ptr`, `shared_ptr` |
 
 **En este proyecto**, `Vector3`, `Matrix4x4`, `Ray`, `HitRecord`, `Transform` y `Limits` ya son **tipos valor puros** — no heap allocation, no punteros internos. Son la base correcta sobre la que construir DOP.
 
 ```cpp
 // Vector3: tipo valor — los datos están aquí mismo, en 32 bytes contiguos
 class Vector3 {
-    double v[4];  // ← los 4 doubles están literalmente aquí, sin indireccion
+    float v[4];  // ← los 4 floats están literalmente aquí, sin indireccion
 };
 
 // Ray: tipo valor — contiene dos Vector3 por valor (sin punteros)
@@ -250,9 +250,9 @@ struct GeometryData {
     Transform    transform; // datos comunes a todos
     union {                 // datos específicos por tipo (solo uno activo)
         struct { /* Sphere, Plane, Cylinder, Cone: sin datos extra */ };
-        struct { double thickness;  } torus;
-        struct { double waist;      } hyperboloid;
-        struct { double sharpness;  } kiss;
+        struct { float thickness;  } torus;
+        struct { float waist;      } hyperboloid;
+        struct { float sharpness;  } kiss;
         struct { Point3 v0, v1, v2; Vector3 normal; } triangle;
     };
 };
@@ -355,7 +355,7 @@ public:
 
 class Sphere : public Geometry {
 public:
-    Sphere(const Point3 &center, double radius);
+    Sphere(const Point3 &center, float radius);
     virtual HitRecord hit(const Ray &ray, const Limits &limits) const override;
 };
 
@@ -376,16 +376,16 @@ struct GeometryData {
     GeometryType type;
     Transform    transform;
     union {
-        struct { double thickness;  } torus;
-        struct { double waist;      } hyperboloid;
-        struct { double sharpness;  } kiss;
+        struct { float thickness;  } torus;
+        struct { float waist;      } hyperboloid;
+        struct { float sharpness;  } kiss;
         struct { Point3 v0, v1, v2; Vector3 n; } triangle;
     };
 };
 
 // Función factory — reemplaza al constructor
-GeometryData makeSphere(const Point3 &center, double radius);
-GeometryData makeTorus(double majorR, double minorR, const Point3 &c, const Vector3 &n);
+GeometryData makeSphere(const Point3 &center, float radius);
+GeometryData makeTorus(float majorR, float minorR, const Point3 &c, const Vector3 &n);
 
 // Función de hit — reemplaza al método virtual
 HitRecord geometryHit(const GeometryData &g, const Ray &ray, const Limits &limits);
@@ -407,9 +407,9 @@ El cuerpo de `Sphere::hit()`, `Torus::hit()`, etc. se mueve a `sphereHit()`, `to
 
 ```cpp
 class BhaskaraSolver : public Solver {
-    double a, b, c;
+    float a, b, c;
 public:
-    BhaskaraSolver(double a, double b, double c);
+    BhaskaraSolver(float a, float b, float c);
     vector<Solution> getSolutions() const override;  // heap allocation
 };
 
@@ -430,8 +430,8 @@ struct Solutions {
 };
 
 // Función libre — sin clase, sin virtual
-Solutions solveBhaskara(double a, double b, double c);
-Solutions solveFerrari(double a, double b, double c, double d, double e);
+Solutions solveBhaskara(float a, float b, float c);
+Solutions solveFerrari(float a, float b, float c, float d, float e);
 
 // En geometryHit() (que reemplaza a Sphere::hit()):
 Solutions sols = solveBhaskara(a, b, c);
@@ -442,7 +442,7 @@ for (int i = 0; i < sols.count; ++i) {
 // Todo en el stack: cero heap allocations en el hot path del ray tracer
 ```
 
-**Por qué importa:** En el hot path (la función que se llama millones de veces por frame), cada `vector<Solution>` implica `malloc` + `free` internamente. Con `Solutions` como struct de stack, el compilador puede almacenar los 4 doubles **en registros de la CPU** — sin tocar la memoria en absoluto.
+**Por qué importa:** En el hot path (la función que se llama millones de veces por frame), cada `vector<Solution>` implica `malloc` + `free` internamente. Con `Solutions` como struct de stack, el compilador puede almacenar los 4 floats **en registros de la CPU** — sin tocar la memoria en absoluto.
 
 ---
 
@@ -516,13 +516,13 @@ class Random {
     static unsigned long seed;  // ← global, compartido
     static void xorshift64();
 public:
-    static double randomDouble();
+    static float randomfloat();
     static Vector3 randomUnitVector3();
     // ...
 };
 ```
 
-Problema GPU: si 1024 work-items llaman a `Random::randomDouble()` simultáneamente, todos leen y escriben el mismo `seed` → condición de carrera → resultados incorrectos.
+Problema GPU: si 1024 work-items llaman a `Random::randomfloat()` simultáneamente, todos leen y escriben el mismo `seed` → condición de carrera → resultados incorrectos.
 
 Problema CPU multithread: idéntico. Con `std::thread` o OpenMP también habría race conditions.
 
@@ -541,9 +541,9 @@ struct RngState {
         seed ^= seed << 17;
     }
 
-    double randomDouble() {
+    float randomfloat() {
         xorshift64();
-        return static_cast<double>(seed) / static_cast<double>(ULONG_MAX);
+        return static_cast<float>(seed) / static_cast<float>(ULONG_MAX);
     }
 
     Vector3 randomUnitVector3() { ... }
@@ -646,10 +646,10 @@ geometryHit(obj, ray, limits);
 ```cpp
 // ❌ Estado global / estático
 static unsigned long seed;
-static double randomDouble();
+static float randomfloat();
 
 // ✅ Estado por instancia, ownership explícito
-struct RngState { unsigned long seed; double randomDouble(); };
+struct RngState { unsigned long seed; float randomfloat(); };
 ```
 
 ### Regla 6: Buffers contiguos en lugar de árboles de punteros

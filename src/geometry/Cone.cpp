@@ -1,6 +1,6 @@
 #include "Geometry.hpp"
 
-GeometryData	makeCone(double radius, double height, const Point3 &center, const Vector3 &normal)
+GeometryData	makeCone(float radius, float height, const Point3 &center, const Vector3 &normal)
 {
 	GeometryData g{};
 	g.type      = GeometryType::Cone;
@@ -16,9 +16,9 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
-	double	a = d[0] * d[0] + d[2] * d[2] - d[1] * d[1];
-	double	b = 2 * (o[0] * d[0] + o[2] * d[2] - (o[1] - 0.5) * d[1]);
-	double	c = o[0] * o[0] + o[2] * o[2] - (o[1] - 0.5) * (o[1] - 0.5);
+	float	a = d[0] * d[0] + d[2] * d[2] - d[1] * d[1];
+	float	b = 2 * (o[0] * d[0] + o[2] * d[2] - (o[1] - 0.5) * d[1]);
+	float	c = o[0] * o[0] + o[2] * o[2] - (o[1] - 0.5) * (o[1] - 0.5);
 
 	if (a > 1e-10)
 	{
@@ -28,7 +28,7 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 			const Solution &sol = sols.data[i];
 			if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
 			{
-				double y = o[1] + sol.real * d[1];
+				float y = o[1] + sol.real * d[1];
 				if (y >= -0.5 && y <= 0.5)
 				{
 					wasHit       = true;
@@ -46,11 +46,11 @@ bool	coneHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRec
 
 	if (fabs(d[1]) > 1e-10)
 	{
-		double t = (-0.5 - o[1]) / d[1];
+		float t = (-0.5 - o[1]) / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{
-			double x = o[0] + t * d[0];
-			double z = o[2] + t * d[2];
+			float x = o[0] + t * d[0];
+			float z = o[2] + t * d[2];
 			if (x * x + z * z <= 1)
 			{
 				wasHit       = true;

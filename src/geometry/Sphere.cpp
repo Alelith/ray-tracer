@@ -1,6 +1,13 @@
 #include "Geometry.hpp"
 
-GeometryData	makeSphere(const Point3 &center, double radius)
+void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
+{
+	worldGeoms.spheres.inverseTransform.emplace_back(Transform(center, Vector3::Up, Vector3(radius, radius, radius)).getInverseMatrix());
+	worldGeoms.spheres.transposeInverseTransform.emplace_back(Transform(center, Vector3::Up, Vector3(radius, radius, radius)).getTransposeInverseMatrix());
+	worldGeoms.spheres.boundingBox.emplace_back(AABB(Point3(-1, -1, -1), Point3(1, 1, 1)));
+}
+
+GeometryData	makeSphere(const Point3 &center, float radius)
 {
 	GeometryData g{};
 	g.type      = GeometryType::Sphere;
@@ -16,9 +23,9 @@ bool	sphereHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitR
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
-	double	a = dot(d, d);
-	double	b = 2 * dot(d, o.toVector());
-	double	c = dot(o.toVector(), o.toVector()) - 1;
+	float	a = dot(d, d);
+	float	b = 2 * dot(d, o.toVector());
+	float	c = dot(o.toVector(), o.toVector()) - 1;
 
 	Solutions	sols = solveBhaskara(a, b, c);
 	for (int i = 0; i < sols.count; ++i)

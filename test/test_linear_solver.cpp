@@ -1,7 +1,7 @@
 #include "test_utils.hpp"
 #include "Solver.hpp"
 
-static const double EPS = 1e-9;
+static const float EPS = 1e-9;
 
 // ax + b = 0
 

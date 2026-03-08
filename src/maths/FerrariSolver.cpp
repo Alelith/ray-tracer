@@ -1,19 +1,19 @@
 #include "Solver.hpp"
 
-Solutions	solveFerrari(double a, double b, double c, double d, double e)
+Solutions	solveFerrari(float a, float b, float c, float d, float e)
 {
 	Solutions	sols;
 	if (a == 0.0)
 		return solveCardano(b, c, d, e);
 
-	double	bn = b / a;
-	double	cn = c / a;
-	double	dn = d / a;
-	double	en = e / a;
+	float	bn = b / a;
+	float	cn = c / a;
+	float	dn = d / a;
+	float	en = e / a;
 
 	Solutions	resolvent = solveCardano(1.0, -cn, bn * dn - 4.0 * en,
 									4.0 * cn * en - bn * bn * en - dn * dn);
-	double	y = 0.0;
+	float	y = 0.0;
 	for (int i = 0; i < resolvent.count; ++i)
 	{
 		if (!resolvent.data[i].isComplex)
@@ -23,9 +23,9 @@ Solutions	solveFerrari(double a, double b, double c, double d, double e)
 		}
 	}
 
-	double	m  = std::sqrt(std::max(0.0, bn * bn / 4.0 - cn + y));
+	float	m  = std::sqrt(std::max(0.0, bn * bn / 4.0 - cn + y));
 
-	double	n;
+	float	n;
 	if (m > 1e-10)
 		n = (dn - bn * y) / (2.0 * m);
 	else

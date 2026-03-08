@@ -18,7 +18,7 @@ class Ray
 		Point3	getOrigin() const;
 		Vector3	getDirection() const;
 
-		Point3	at(double t) const;
+		Point3	at(float t) const;
 };
 
 std::ostream	&operator<<(std::ostream &os, const Ray &ray);

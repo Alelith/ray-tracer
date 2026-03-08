@@ -7,10 +7,10 @@
 class Vector3
 {
 	private:
-		double	v[3];
+		float	v[3];
 	public:
 		Vector3();
-		Vector3(double x, double y, double z);
+		Vector3(float x, float y, float z);
 		Vector3(const Vector3 &other) = default;
 		~Vector3() = default;
 
@@ -26,24 +26,24 @@ class Vector3
 		Vector3			&operator=(const Vector3 &other) = default;
 
 		Vector3			operator-() const;
-		double			&operator[](int index);
-		double			operator[](int index) const;
+		float			&operator[](int index);
+		float			operator[](int index) const;
 
 		Vector3 		operator+=(const Vector3 &other);
 		Vector3 		operator-=(const Vector3 &other);
 		Vector3 		operator*=(const Vector3 &other);
-		Vector3 		operator*=(double scalar);
-		Vector3 		operator/=(double scalar);
+		Vector3 		operator*=(float scalar);
+		Vector3 		operator/=(float scalar);
 
-		double			length_sqrd() const;
-		double			length() const;
+		float			length_sqrd() const;
+		float			length() const;
 		Vector3			normalized() const;
 
 		bool			isNearZero() const;
 
-		double			x() const;
-		double			y() const;
-		double			z() const;
+		float			x() const;
+		float			y() const;
+		float			z() const;
 };
 
 using Color = Vector3;
@@ -54,14 +54,14 @@ Vector3			operator+(const Vector3 &vec1, const Vector3 &vec2);
 Vector3			operator-(const Vector3 &vec1, const Vector3 &vec2);
 
 Vector3			operator*(const Vector3 &vec1, const Vector3 &vec2);
-Vector3			operator*(double scalar, const Vector3 &vec);
-Vector3			operator*(const Vector3 &vec, double scalar);
-Vector3			operator/(const Vector3 &vec, double scalar);
+Vector3			operator*(float scalar, const Vector3 &vec);
+Vector3			operator*(const Vector3 &vec, float scalar);
+Vector3			operator/(const Vector3 &vec, float scalar);
 
-double			dot(const Vector3 &vec1, const Vector3 &vec2);
+float			dot(const Vector3 &vec1, const Vector3 &vec2);
 Vector3			cross(const Vector3 &vec1, const Vector3 &vec2);
 
 Vector3			reflect(const Vector3 &vec, const Vector3 &normal);
-Vector3			refract(const Vector3 &uv, const Vector3 &normal, double eta_over_eta_prime);
+Vector3			refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime);
 
 #endif /* VECTOR3_HPP */

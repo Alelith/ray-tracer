@@ -3,14 +3,14 @@
 #include <algorithm>
 #include <vector>
 
-static const double EPS = 1e-6;
+static const float EPS = 1e-6;
 
 // ax³ + bx² + cx + d = 0
 
 // Collect only real solutions from a Solutions struct
-static std::vector<double> real_roots(const Solutions &sols)
+static std::vector<float> real_roots(const Solutions &sols)
 {
-	std::vector<double> reals;
+	std::vector<float> reals;
 	for (int i = 0; i < sols.count; ++i)
 		if (!sols.data[i].isComplex)
 			reals.push_back(sols.data[i].real);
@@ -75,10 +75,10 @@ static void test_cardano_negative_real_root(int &passed, int &failed)
 	print_result("CardamoSolver: x³+1=0", passed, failed);
 }
 
-// x³ - 3x + 2 = 0  →  x = 1 (double), x = -2  (discriminant = 0)
+// x³ - 3x + 2 = 0  →  x = 1 (float), x = -2  (discriminant = 0)
 static void test_cardano_repeated_root(int &passed, int &failed)
 {
-	print_case("x\u00b3 - 3x + 2 = 0", "x = 1 (double root), x = -2");
+	print_case("x\u00b3 - 3x + 2 = 0", "x = 1 (float root), x = -2");
 	auto sols = solveCardano(1.0, 0.0, -3.0, 2.0);
 	print_solutions(sols);
 

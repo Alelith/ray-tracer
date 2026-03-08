@@ -3,23 +3,23 @@
 
 Point3::Point3() : p{0.0, 0.0, 0.0} {}
 
-Point3::Point3(double x, double y, double z) : p{x, y, z} {}
+Point3::Point3(float x, float y, float z) : p{x, y, z} {}
 
 const Point3	Point3::Origin(0.0, 0.0, 0.0);
 
-double	&Point3::operator[](int index)
+float	&Point3::operator[](int index)
 { return p[index]; }
 
-double	Point3::operator[](int index) const
+float	Point3::operator[](int index) const
 { return p[index]; }
 
-double	Point3::x() const
+float	Point3::x() const
 { return p[0]; }
 
-double	Point3::y() const
+float	Point3::y() const
 { return p[1]; }
 
-double	Point3::z() const
+float	Point3::z() const
 { return p[2]; }
 
 Vector3	Point3::toVector() const

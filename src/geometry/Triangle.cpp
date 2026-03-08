@@ -39,11 +39,11 @@ bool	triangleHit(const GeometryData &g, const Ray &ray, const Limits &limits, Hi
 	Vector3	dir  = ray.getDirection();
 	Point3	orig = ray.getOrigin();
 
-	double denom = dot(g.triNormal, dir);
+	float denom = dot(g.triNormal, dir);
 	if (fabs(denom) < 1e-6)
 		return false;
 
-	double t = dot(g.triNormal, g.v0 - orig) / denom;
+	float t = dot(g.triNormal, g.v0 - orig) / denom;
 	if (!limits.isBetween(t) || t >= record.t)
 		return false;
 

@@ -18,7 +18,7 @@ bool	planeHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRe
 
 	if (fabs(d[1]) > 1e-10)
 	{
-		double t = -o[1] / d[1];
+		float t = -o[1] / d[1];
 		if (limits.isBetween(t) && t < record.t)
 		{
 			wasHit       = true;

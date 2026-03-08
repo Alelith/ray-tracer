@@ -293,9 +293,9 @@ struct RngState {
         seed ^= seed << 17;
     }
 
-    double randomDouble() {
+    float randomfloat() {
         xorshift64();
-        return static_cast<double>(seed) / static_cast<double>(ULONG_MAX);
+        return static_cast<float>(seed) / static_cast<float>(ULONG_MAX);
     }
 
     // ... resto de métodos, todos non-static
@@ -309,7 +309,7 @@ size_t id = item.get_global_linear_id();
 RngState rng(baseSeed ^ (id * 6364136223846793005ULL + 1442695040888963407ULL));
 ```
 
-**Cambio en código existente:** Solo el interior del bucle render y los sitios que llaman a `Random::randomDouble()` etc. — el host no cambia.
+**Cambio en código existente:** Solo el interior del bucle render y los sitios que llaman a `Random::randomfloat()` etc. — el host no cambia.
 
 ---
 
@@ -332,9 +332,9 @@ struct GeometryData {
     GeometryType type;
     Transform    transform;
     union {
-        struct { double thickness; }  torus;   // Torus::thickness
-        struct { double waist; }      hyperboloid;
-        struct { double sharpness; }  kiss;
+        struct { float thickness; }  torus;   // Torus::thickness
+        struct { float waist; }      hyperboloid;
+        struct { float sharpness; }  kiss;
         struct { Point3 v0, v1, v2; Vector3 normal; } triangle;
         // Sphere, Plane, Cylinder, Cone: solo usan transform
     };
@@ -373,10 +373,10 @@ struct Solutions {
 };
 
 // Funciones libres directas — no virtuales
-Solutions solveLinear(double a, double b);
-Solutions solveBhaskara(double a, double b, double c);
-Solutions solveCardano(double a, double b, double c, double d);
-Solutions solveFerrari(double a, double b, double c, double d, double e);
+Solutions solveLinear(float a, float b);
+Solutions solveBhaskara(float a, float b, float c);
+Solutions solveCardano(float a, float b, float c, float d);
+Solutions solveFerrari(float a, float b, float c, float d, float e);
 ```
 
 El código interno de cada solver (ya implementado en los `.cpp`) no cambia — solo el empaquetado del resultado pasa de `push_back` a índice fijo.
@@ -411,13 +411,13 @@ struct TextureData {
 struct MaterialData {
     MaterialType type;
     TextureData  albedo;
-    double       param; // roughness (Metal), ior (Dielectric), etc.
+    float       param; // roughness (Metal), ior (Dielectric), etc.
 };
 
 // Función libre
 bool materialScatter(const MaterialData &mat, const Ray &rayIn,
                      const HitRecord &rec, Color &attenuation, Ray &scattered, RngState &rng);
-Color materialEmitted(const MaterialData &mat, double u, double v, const Point3 &p);
+Color materialEmitted(const MaterialData &mat, float u, float v, const Point3 &p);
 ```
 
 **Cambio en código existente:**
@@ -469,7 +469,7 @@ bool sceneHit(const SceneObject *objects, int count,
 **Archivos:** [include/maths/Vector3.hpp](include/maths/Vector3.hpp), [include/maths/Matrix4x4.hpp](include/maths/Matrix4x4.hpp), [include/maths/Ray.hpp](include/maths/Ray.hpp), [include/geometry/Transform.hpp](include/geometry/Transform.hpp)
 
 **Problema:**
-Ninguno de carácter funcional. Estos son tipos valor con layout de memoria contiguo (arrays internos `double v[4]`, `double m[4][4]`). Sin herencia virtual, sin heap allocation.
+Ninguno de carácter funcional. Estos son tipos valor con layout de memoria contiguo (arrays internos `float v[4]`, `float m[4][4]`). Sin herencia virtual, sin heap allocation.
 
 **Con SYCL (decisión tomada):**  
 No se requiere ningún cambio de código. AdaptiveCpp y oneAPI compilarán estos tipos directamente en device sin anotaciones adicionales.
@@ -489,7 +489,7 @@ __host__ __device__ Vector3 operator+(const Vector3 &v1, const Vector3 &v2);
 
 Esto aplica a ~30 funciones en Vector3.hpp/cpp, ~10 en Matrix4x4, y ~5 en Ray. Es mecánico pero tedioso — otra razón para preferir SYCL.
 
-**Consideración de layout:** `Vector3` almacena `double v[4]` (padding de 4 componentes). En GPU, los tipos de 4 doubles son nativos y muy eficientes. Este diseño es conveniente tanto para GPU como para SIMD en el motor físico CPU (`__m256d` AVX2 encaja perfectamente con 4 doubles).
+**Consideración de layout:** `Vector3` almacena `float v[4]` (padding de 4 componentes). En GPU, los tipos de 4 floats son nativos y muy eficientes. Este diseño es conveniente tanto para GPU como para SIMD en el motor físico CPU (`__m256d` AVX2 encaja perfectamente con 4 floats).
 
 ---
 

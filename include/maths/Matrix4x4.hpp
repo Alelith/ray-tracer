@@ -7,10 +7,10 @@
 class Matrix4x4
 {
 	private:
-		double	m[4][4];
+		float	m[4][4];
 	public:
 		Matrix4x4();
-		Matrix4x4(const double values[4][4]);
+		Matrix4x4(const float values[4][4]);
 		Matrix4x4(const Matrix4x4 &other) = default;
 		~Matrix4x4() = default;
 
@@ -18,8 +18,8 @@ class Matrix4x4
 
 		Matrix4x4		&operator=(const Matrix4x4 &other) = default;
 
-		double			&operator()(int row, int col);
-		double			operator()(int row, int col) const;
+		float			&operator()(int row, int col);
+		float			operator()(int row, int col) const;
 };
 
 std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat);

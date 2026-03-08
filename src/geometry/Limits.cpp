@@ -2,30 +2,30 @@
 
 Limits::Limits() : min(0.0001), max(INFINITY) {}
 
-Limits::Limits(double min, double max)
+Limits::Limits(float min, float max)
 {
 	this->min = min;
 	this->max = max;
 }
 
-double	Limits::getMin() const { return min; }
+float	Limits::getMin() const { return min; }
 
-double	Limits::getMax() const { return max; }
+float	Limits::getMax() const { return max; }
 
-double	Limits::clamp(double t) const
+float	Limits::clamp(float t) const
 {
 	return std::max(min, std::min(max, t));
 }
 
-bool	Limits::isBetween(double t) const
+bool	Limits::isBetween(float t) const
 { return t >= min && t <= max; }
 
-Limits	Limits::expand(double delta) const
+Limits	Limits::expand(float delta) const
 { return Limits(min - delta, max + delta); }
 
 Limits	getInterval(const Limits &a, const Limits &b)
 {
-	double newMin = std::min(a.getMin(), b.getMin());
-	double newMax = std::max(a.getMax(), b.getMax());
+	float newMin = std::min(a.getMin(), b.getMin());
+	float newMax = std::max(a.getMax(), b.getMax());
 	return Limits(newMin, newMax);
 }

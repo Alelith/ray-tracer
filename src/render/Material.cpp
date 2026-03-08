@@ -8,7 +8,7 @@ MaterialData	makeLambertian(const Color &albedo)
 	return m;
 }
 
-MaterialData	makeMetallic(const Color &albedo, double roughness)
+MaterialData	makeMetallic(const Color &albedo, float roughness)
 {
 	MaterialData m{};
 	m.type = Material::Metallic;
@@ -17,7 +17,7 @@ MaterialData	makeMetallic(const Color &albedo, double roughness)
 	return m;
 }
 
-MaterialData	makeDielectric(const Color &albedo, double refractiveIndex, double opacity)
+MaterialData	makeDielectric(const Color &albedo, float refractiveIndex, float opacity)
 {
 	MaterialData m{};
 	m.type = Material::Dielectric;
@@ -53,24 +53,24 @@ bool	scatterDielectric(const Ray &rIn, const MaterialData &material, const HitRe
 {
 	Vector3	unitDirection = rIn.getDirection().normalized();
 
-	double	ri;
+	float	ri;
 	if (record.frontFace)
 		ri = 1.0 / material.refractiveIndex;
 	else
 		ri = material.refractiveIndex;
 	
-	double	cosTheta = fmin(dot(-unitDirection, record.normal), 1.0);
-	double	sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+	float	cosTheta = fmin(dot(-unitDirection, record.normal), 1.0);
+	float	sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
-	double	r0 = (1.0 - ri) / (1.0 + ri);
+	float	r0 = (1.0 - ri) / (1.0 + ri);
 	r0 = r0 * r0;
 	r0 = r0 + (0.5 - r0) * material.opacity;
 
-	double	fresnel = r0 + (1.0 - r0) * pow(1.0 - cosTheta, 2.0 + 3.0 * (1.0 - material.opacity));
+	float	fresnel = r0 + (1.0 - r0) * pow(1.0 - cosTheta, 2.0 + 3.0 * (1.0 - material.opacity));
 
 	Random	&random = Random::global();
-	bool	willReflect = ri * sinTheta > 1.0 || fresnel > random.randomDouble(0.0, 1.0);
-	if (!willReflect && random.randomDouble(0.0, 1.0) < material.opacity)
+	bool	willReflect = ri * sinTheta > 1.0 || fresnel > random.randomfloat(0.0, 1.0);
+	if (!willReflect && random.randomfloat(0.0, 1.0) < material.opacity)
 		return scatterLambertian(rIn, material, record, attenuation, scattered);
 	
 	if (willReflect && record.frontFace)

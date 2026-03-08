@@ -2,7 +2,7 @@
 
 Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
 
-Vector3::Vector3(double x, double y, double z) : v{x, y, z} {}
+Vector3::Vector3(float x, float y, float z) : v{x, y, z} {}
 
 const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
 const Vector3	Vector3::Up(0.0, 1.0, 0.0);
@@ -16,10 +16,10 @@ const Vector3	Vector3::One(1.0, 1.0, 1.0);
 Vector3	Vector3::operator-() const
 { return Vector3(-v[0], -v[1], -v[2]); }
 
-double	&Vector3::operator[](int index)
+float	&Vector3::operator[](int index)
 { return v[index]; }
 
-double	Vector3::operator[](int index) const
+float	Vector3::operator[](int index) const
 { return v[index]; }
 
 Vector3	Vector3::operator+=(const Vector3 &other)
@@ -46,7 +46,7 @@ Vector3	Vector3::operator*=(const Vector3 &other)
 	return *this;
 }
 
-Vector3	Vector3::operator*=(double scalar)
+Vector3	Vector3::operator*=(float scalar)
 {
 	v[0] *= scalar;
 	v[1] *= scalar;
@@ -54,7 +54,7 @@ Vector3	Vector3::operator*=(double scalar)
 	return *this;
 }
 
-Vector3	Vector3::operator/=(double scalar)
+Vector3	Vector3::operator/=(float scalar)
 {
 	v[0] /= scalar;
 	v[1] /= scalar;
@@ -62,15 +62,15 @@ Vector3	Vector3::operator/=(double scalar)
 	return *this;
 }
 
-double	Vector3::length_sqrd() const
+float	Vector3::length_sqrd() const
 { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
 
-double	Vector3::length() const
+float	Vector3::length() const
 { return std::sqrt(length_sqrd()); }
 
 Vector3	Vector3::normalized() const
 {
-	double len = length();
+	float len = length();
 	if (len == 0.0)
 		return Vector3::Zero;
 	return *this / len;
@@ -78,17 +78,17 @@ Vector3	Vector3::normalized() const
 
 bool	Vector3::isNearZero() const
 {
-	const double s = 1e-8;
+	const float s = 1e-8;
 	return (std::fabs(v[0]) < s) && (std::fabs(v[1]) < s) && (std::fabs(v[2]) < s);
 }
 
-double	Vector3::x() const
+float	Vector3::x() const
 { return v[0]; }
 
-double	Vector3::y() const
+float	Vector3::y() const
 { return v[1]; }
 
-double	Vector3::z() const
+float	Vector3::z() const
 { return v[2]; }
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec)
@@ -106,16 +106,16 @@ Vector3	operator-(const Vector3 &vec1, const Vector3 &vec2)
 Vector3	operator*(const Vector3 &vec1, const Vector3 &vec2)
 { return Vector3(vec1) *= vec2; }
 
-Vector3	operator*(double scalar, const Vector3 &vec)
+Vector3	operator*(float scalar, const Vector3 &vec)
 { return Vector3(vec) *= scalar; }
 
-Vector3	operator*(const Vector3 &vec, double scalar)
+Vector3	operator*(const Vector3 &vec, float scalar)
 { return Vector3(vec) *= scalar; }
 
-Vector3	operator/(const Vector3 &vec, double scalar)
+Vector3	operator/(const Vector3 &vec, float scalar)
 { return Vector3(vec) /= scalar; }
 
-double	dot(const Vector3 &vec1, const Vector3 &vec2)
+float	dot(const Vector3 &vec1, const Vector3 &vec2)
 { return vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2]; }
 
 Vector3	cross(const Vector3 &vec1, const Vector3 &vec2)
@@ -132,9 +132,9 @@ Vector3	reflect(const Vector3 &vec, const Vector3 &normal)
 	return vec - 2 * dot(vec, normal) * normal;
 }
 
-Vector3	refract(const Vector3 &uv, const Vector3 &normal, double eta_over_eta_prime)
+Vector3	refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime)
 {
-	double cos_theta = std::fmin(dot(-uv, normal), 1.0);
+	float cos_theta = std::fmin(dot(-uv, normal), 1.0);
 	Vector3 r_out_perp = eta_over_eta_prime * (uv + cos_theta * normal);
 	Vector3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_sqrd())) * normal;
 	return r_out_perp + r_out_parallel;

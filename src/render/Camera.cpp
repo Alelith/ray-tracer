@@ -1,10 +1,10 @@
 #include "Camera.hpp"
 
-Camera::Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, double vfov, const Point3 &center, const Vector3 &normal)
+Camera::Camera(float aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, float vfov, const Point3 &center, const Vector3 &normal)
 	: aspectRatio(aspectRatio), vfov(vfov), imageWidth(imageWidth), samplesPerPixel(samplesPerPixel), maxDepth(maxDepth), cameraCenter(center), normal(normal)
 { initialize(); }
 
-inline double	linearToGamma(double value)
+inline float	linearToGamma(float value)
 {
 	return value > 0 ? sqrt(value) : 0;
 }
@@ -45,15 +45,15 @@ void	Camera::initialize()
 
 	pixelSamplesScale = 1.0 / samplesPerPixel;
 
-	double	focalLength = 1.0;
-	double	theta = vfov * M_PI / 180.0;
-	double	h = tan(theta / 2);
-	double	viewportHeight = 2.0 * h * focalLength;
-	double	viewportWidth = aspectRatio * viewportHeight;
+	float	focalLength = 1.0;
+	float	theta = vfov * M_PI / 180.0;
+	float	h = tan(theta / 2);
+	float	viewportHeight = 2.0 * h * focalLength;
+	float	viewportWidth = aspectRatio * viewportHeight;
 
 	Vector3	w = -normal.normalized();
 	Vector3	u = cross(Vector3::Up, w);
-	double	uLength = u.length();
+	float	uLength = u.length();
 	if (uLength < 1e-6)
 		u = cross(Vector3::Right, w).normalized();
 	else
@@ -70,10 +70,10 @@ void	Camera::initialize()
 	pixel00Loc = viewportUpperLeft + 0.5 * pixelDeltaU + 0.5 * pixelDeltaV;
 }
 
-Ray	Camera::getRay(double u, double v) const
+Ray	Camera::getRay(float u, float v) const
 {
 	Random&	random = Random::global();
-	Vector3	offset(random.randomDouble(0, 1) -0.5, random.randomDouble(0, 1) - 0.5, 0);
+	Vector3	offset(random.randomfloat(0, 1) -0.5, random.randomfloat(0, 1) - 0.5, 0);
 	auto	rayOrigin = pixel00Loc + (u + offset[0]) * pixelDeltaU + (v + offset[1]) * pixelDeltaV;
 	auto	rayDir = rayOrigin - cameraCenter;
 	return Ray(cameraCenter, rayDir);
@@ -83,7 +83,7 @@ static bool	hitAnything(const Ray &ray, const Limits &limits, const GeometryData
 {
 	HitRecord	tempRecord;
 	bool		hitAnything = false;
-	double		closestSoFar = limits.getMax();
+	float		closestSoFar = limits.getMax();
 
 	for (int i = 0; i < geomCount; i++)
 	{
@@ -115,6 +115,6 @@ Color	Camera::rayColor(const Ray &ray, const GeometryData *geoms, const Material
 		return Color(0, 0, 0);
 	}
 	Vector3 unitDir = ray.getDirection().normalized();
-	double t = 0.5 * (unitDir[1] + 1.0);
+	float t = 0.5 * (unitDir[1] + 1.0);
 	return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
 }

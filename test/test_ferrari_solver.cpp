@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <vector>
 
-static const double EPS = 1e-5;
+static const float EPS = 1e-5;
 
 // ax⁴ + bx³ + cx² + dx + e = 0
 
-static std::vector<double> real_roots4(const Solutions &sols)
+static std::vector<float> real_roots4(const Solutions &sols)
 {
-	std::vector<double> reals;
+	std::vector<float> reals;
 	for (int i = 0; i < sols.count; ++i)
 		if (!sols.data[i].isComplex)
 			reals.push_back(sols.data[i].real);
