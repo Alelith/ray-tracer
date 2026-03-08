@@ -10,7 +10,7 @@
 class Camera
 {
 	public:
-		Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth = 10);
+		Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, double vfov, const Point3 &center, const Vector3 &normal);
 		Camera(const Camera &other) = default;
 		~Camera() = default;
 
@@ -18,12 +18,14 @@ class Camera
 	private:
 		double	aspectRatio;
 		double	pixelSamplesScale;
+		double	vfov;
 		int		imageWidth;
 		int		imageHeight;
 		int		samplesPerPixel;
 		int		maxDepth;
 		Point3	cameraCenter;
 		Point3	pixel00Loc;
+		Vector3	normal;
 		Vector3	pixelDeltaU;
 		Vector3	pixelDeltaV;
 

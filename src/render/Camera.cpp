@@ -1,7 +1,7 @@
 #include "Camera.hpp"
 
-Camera::Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth)
-	: aspectRatio(aspectRatio), imageWidth(imageWidth), samplesPerPixel(samplesPerPixel), maxDepth(maxDepth)
+Camera::Camera(double aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, double vfov, const Point3 &center, const Vector3 &normal)
+	: aspectRatio(aspectRatio), vfov(vfov), imageWidth(imageWidth), samplesPerPixel(samplesPerPixel), maxDepth(maxDepth), cameraCenter(center), normal(normal)
 { initialize(); }
 
 inline double	linearToGamma(double value)
@@ -45,19 +45,28 @@ void	Camera::initialize()
 
 	pixelSamplesScale = 1.0 / samplesPerPixel;
 
-	cameraCenter = Point3(0, 0, 0);
+	double	focalLength = 1.0;
+	double	theta = vfov * M_PI / 180.0;
+	double	h = tan(theta / 2);
+	double	viewportHeight = 2.0 * h * focalLength;
+	double	viewportWidth = aspectRatio * viewportHeight;
 
-	auto	focalLength = 1.0;
-	auto	viewportHeight = 2.0;
-	auto	viewportWidth = aspectRatio * viewportHeight;
+	Vector3	w = -normal.normalized();
+	Vector3	u = cross(Vector3::Up, w);
+	double	uLength = u.length();
+	if (uLength < 1e-6)
+		u = cross(Vector3::Right, w).normalized();
+	else
+		u = u / uLength;
+	Vector3	v = cross(w, u);
 
-	auto	viewportU = Vector3(viewportWidth, 0, 0);
-	auto	viewportV = Vector3(0, -viewportHeight, 0);
+	Vector3	viewportU = viewportWidth * u;
+	Vector3	viewportV = viewportHeight * -v;
 
 	pixelDeltaU = viewportU / imageWidth;
 	pixelDeltaV = viewportV / imageHeight;
 
-	auto	viewportUpperLeft = cameraCenter - Vector3(0, 0, focalLength) - viewportU / 2 - viewportV / 2;
+	Point3	viewportUpperLeft = cameraCenter - focalLength * w - viewportU / 2 - viewportV / 2;
 	pixel00Loc = viewportUpperLeft + 0.5 * pixelDeltaU + 0.5 * pixelDeltaV;
 }
 
