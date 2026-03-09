@@ -1,109 +1,64 @@
 #include "Material.hpp"
 
-MaterialData	makeLambertian(const Color &albedo)
+void	addMaterial(const Color &color, float metallic, float roughness, float transmission, float ior, Materials &materials)
 {
-	MaterialData m{};
-	m.type = Material::Lambertian;
-	m.albedo = albedo;
-	return m;
+	materials.albedos.push_back(color);
+	materials.metallic.push_back(metallic);
+	materials.roughness.push_back(roughness);
+	materials.transmission.push_back(transmission);
+	materials.ior.push_back(ior);
 }
 
-MaterialData	makeMetallic(const Color &albedo, float roughness)
+inline Vector3	calculateDiffuse(const Vector3 &normal)
 {
-	MaterialData m{};
-	m.type = Material::Metallic;
-	m.albedo = albedo;
-	m.roughness = roughness;
-	return m;
+	Vector3	scatterDir = normal + Random::global().randomUnitVector3();
+	if (scatterDir.isNearZero())
+		scatterDir = normal;
+	return scatterDir.normalized();
 }
 
-MaterialData	makeDielectric(const Color &albedo, float refractiveIndex, float opacity)
+inline Vector3	calculateMetallic(const Vector3 &normal, const Vector3 &viewDir, float roughness)
 {
-	MaterialData m{};
-	m.type = Material::Dielectric;
-	m.albedo = albedo;
-	m.refractiveIndex = refractiveIndex;
-	m.opacity = opacity;
-	return m;
+	Vector3 reflected = reflect(viewDir, normal);
+	return (reflected + roughness * Random::global().randomUnitVector3()).normalized();
 }
 
-bool	scatterLambertian(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered)
+inline Vector3	calculateGlass(const Vector3 &normal, const Vector3 &viewDir, float refractiveIndex, bool frontFace)
 {
-	(void)rIn; // Unused parameter
-	Random &random = Random::global();
-	Vector3 scatterDirection = record.normal + random.randomUnitVector3();
-	if (scatterDirection.isNearZero())
-		scatterDirection = record.normal;
-	scattered = Ray(record.point, scatterDirection);
-	attenuation = material.albedo;
-	return true;
-}
-
-bool	scatterMetallic(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered)
-{
-	Vector3 reflected = reflect(rIn.getDirection().normalized(), record.normal);
-	Random &random = Random::global();
-	Vector3 fuzz = material.roughness * random.randomInUnitSphere();
-	scattered = Ray(record.point, reflected + fuzz);
-	attenuation = material.albedo;
-	return dot(scattered.getDirection(), record.normal) > 0;
-}
-
-bool	scatterDielectric(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered)
-{
-	Vector3	unitDirection = rIn.getDirection().normalized();
-
-	float	ri;
-	if (record.frontFace)
-		ri = 1.0 / material.refractiveIndex;
-	else
-		ri = material.refractiveIndex;
+	float	refractionRatio = frontFace ? 1.0 / refractiveIndex : refractiveIndex;
 	
-	float	cosTheta = fmin(dot(-unitDirection, record.normal), 1.0);
+	float	cosTheta = fmin(dot(-viewDir, normal), 1.0);
 	float	sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
-	float	r0 = (1.0 - ri) / (1.0 + ri);
-	r0 = r0 * r0;
-	r0 = r0 + (0.5 - r0) * material.opacity;
+	bool	cannotRefract = refractionRatio * sinTheta > 1.0;
 
-	float	fresnel = r0 + (1.0 - r0) * pow(1.0 - cosTheta, 2.0 + 3.0 * (1.0 - material.opacity));
-
-	Random	&random = Random::global();
-	bool	willReflect = ri * sinTheta > 1.0 || fresnel > random.randomfloat(0.0, 1.0);
-	if (!willReflect && random.randomfloat(0.0, 1.0) < material.opacity)
-		return scatterLambertian(rIn, material, record, attenuation, scattered);
-	
-	if (willReflect && record.frontFace)
-		attenuation = Color::One - material.opacity * (Color::One - material.albedo);
-	else if (!record.frontFace)
-	{
-		Color baseAttenuation = -record.t * (Color::One - material.albedo);
-		attenuation = Color(exp(baseAttenuation[0]), exp(baseAttenuation[1]), exp(baseAttenuation[2]));
-	}
-	else
-		attenuation = Color::One;
-	
-	Vector3	direction;
-	if (willReflect)
-		direction = reflect(unitDirection, record.normal);
-	else
-		direction = refract(unitDirection, record.normal, ri);
-	scattered = Ray(record.point, direction);
-
-	return true;
+	if (cannotRefract || reflectance(cosTheta, refractionRatio) > Random::global().randomfloat(0, 1))
+		return reflect(viewDir, normal);
+	return refract(viewDir, normal, refractionRatio);
 }
 
-bool	scatter(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered)
+ScatterResult	calculateBounce(const Ray &rayIn, const HitRecord &record, const Materials &materials)
 {
-	switch (material.type)
-	{
-		case Material::Lambertian:
-			return scatterLambertian(rIn, material, record, attenuation, scattered);
-		case Material::Metallic:
-			return scatterMetallic(rIn, material, record, attenuation, scattered);
-		case Material::Dielectric:
-			return scatterDielectric(rIn, material, record, attenuation, scattered);
-		default:
-			return false;
-	}
+	ScatterResult	res;
+
+	Vector3	albedo = materials.albedos[record.geomIdx];
+	float	metallic = materials.metallic[record.geomIdx];
+	float	roughness = materials.roughness[record.geomIdx];
+	float	transmission = materials.transmission[record.geomIdx];
+	float	ior = materials.ior[record.geomIdx];
+
+	float	chance = Random::global().randomfloat(0, 1);
+
+	Vector3	newDir;
+
+	if (chance < transmission)
+		newDir = calculateGlass(record.normal, rayIn.getDirection(), ior, record.frontFace);
+	else if (chance < transmission + metallic)
+		newDir = calculateMetallic(record.normal, rayIn.getDirection(), roughness);
+	else
+		newDir = calculateDiffuse(record.normal);
+	res.scatter = true;
+	res.attenuation = albedo;
+	res.scatteredRay = Ray(record.point + record.normal * 0.001, newDir);
+	return res;
 }

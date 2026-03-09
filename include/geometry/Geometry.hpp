@@ -11,23 +11,12 @@
 
 using std::vector;
 
-enum class GeometryType : uint8_t
-{
-	Sphere,
-	Plane,
-	Cylinder,
-	Cone,
-	Hyperboloid,
-	Torus,
-	Kiss,
-	Triangle
-};
-
 struct SimpleGeometryData
 {
 	vector<Matrix4x4>		inverseTransform;
 	vector<Matrix4x4>		transposeInverseTransform;
 	vector<AABB>			boundingBox;
+	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
 };
 
 struct ParametrizedGeometryData
@@ -36,6 +25,7 @@ struct ParametrizedGeometryData
 	vector<Matrix4x4>		transposeInverseTransform;
 	vector<float>			param;
 	vector<AABB>			boundingBox;
+	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
 };
 
 struct WorldGeometryData
@@ -45,6 +35,7 @@ struct WorldGeometryData
 	vector<Point3>			v2;
 	vector<Vector3>			triNormal;
 	vector<AABB>			boundingBox;
+	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
 };
 
 struct WorldGeometries
@@ -57,25 +48,16 @@ struct WorldGeometries
 	ParametrizedGeometryData	tori;
 	ParametrizedGeometryData	kisses;
 	WorldGeometryData			triangles;
+
+	int	totalCount() const
+	{
+		return static_cast<int>(spheres.inverseTransform.size() + planes.inverseTransform.size() + cylinders.inverseTransform.size() +
+								cones.inverseTransform.size() + hyperboloids.inverseTransform.size() + tori.inverseTransform.size() +
+								kisses.inverseTransform.size() + triangles.v0.size());
+	}
 };
 
-struct GeometryData
-{
-	GeometryType	type;
-	Transform		transform;		// Unused for Triangle
-	AABB			boundingBox;	// Precomputed AABB in local space for broad-phase culling
-
-	float			thickness;		// Torus:       minorRadius / majorRadius
-	float			waist;			// Hyperboloid: waist parameter
-	float			sharpness;		// Kiss:        sharpness parameter
-
-	Point3			v0;				// Triangle:    vertex 0
-	Point3			v1;				// Triangle:    vertex 1
-	Point3			v2;				// Triangle:    vertex 2
-	Vector3			triNormal;		// Triangle:    face normal
-};
-
-Ray				getLocalRay(const Transform &transform, const Ray &ray);
+Ray				getLocalRay     (const Matrix4x4 &inverse, const Ray &ray);
 
 void			makeSphere      (const Point3 &center, float radius, WorldGeometries &worldGeoms);
 void			makePlane       (const Point3 &point, const Vector3 &normal, WorldGeometries &worldGeoms);
@@ -86,24 +68,9 @@ void			makeTorus       (float majorRadius, float minorRadius, const Point3 &cent
 void			makeKiss        (float sharpness, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);
 
-GeometryData	makeSphere      (const Point3 &center, float radius);
-GeometryData	makePlane       (const Point3 &point, const Vector3 &normal);
-GeometryData	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal);
-GeometryData	makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal);
-GeometryData	makeHyperboloid (float waist, float radius, float height, const Point3 &center, const Vector3 &normal);
-GeometryData	makeTorus       (float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal);
-GeometryData	makeKiss        (float sharpness, const Point3 &center, const Vector3 &normal);
-GeometryData	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal);
+bool			sphereHits      (const Matrix4x4 &inverseTransform, const Matrix4x4 &transposeInverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			spheresHit      (const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record);
 
-bool			sphereHit      (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			planeHit       (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			cylinderHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			coneHit        (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			hyperboloidHit (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			torusHit       (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			kissHit        (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-bool			triangleHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
-
-bool			geometryHit    (const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record);
+bool			geometryHit     (const WorldGeometries &g, const Ray &ray, const Limits &limits, HitRecord &record);
 
 #endif /* GEOMETRY_HPP */

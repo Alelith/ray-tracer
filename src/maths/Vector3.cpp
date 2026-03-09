@@ -126,16 +126,3 @@ Vector3	cross(const Vector3 &vec1, const Vector3 &vec2)
 		vec1[0] * vec2[1] - vec1[1] * vec2[0]
 	);
 }
-
-Vector3	reflect(const Vector3 &vec, const Vector3 &normal)
-{
-	return vec - 2 * dot(vec, normal) * normal;
-}
-
-Vector3	refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime)
-{
-	float cos_theta = std::fmin(dot(-uv, normal), 1.0);
-	Vector3 r_out_perp = eta_over_eta_prime * (uv + cos_theta * normal);
-	Vector3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_sqrd())) * normal;
-	return r_out_perp + r_out_parallel;
-}

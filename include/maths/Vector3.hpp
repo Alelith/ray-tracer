@@ -61,7 +61,24 @@ Vector3			operator/(const Vector3 &vec, float scalar);
 float			dot(const Vector3 &vec1, const Vector3 &vec2);
 Vector3			cross(const Vector3 &vec1, const Vector3 &vec2);
 
-Vector3			reflect(const Vector3 &vec, const Vector3 &normal);
-Vector3			refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime);
+inline Vector3	reflect(const Vector3 &vec, const Vector3 &normal)
+{
+	return vec - 2 * dot(vec, normal) * normal;
+}
+
+inline Vector3	refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime)
+{
+	float cos_theta = std::fmin(dot(-uv, normal), 1.0);
+	Vector3 r_out_perp = eta_over_eta_prime * (uv + cos_theta * normal);
+	Vector3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_sqrd())) * normal;
+	return r_out_perp + r_out_parallel;
+}
+
+inline float	reflectance(float cosine, float ref_idx)
+{
+	float r0 = (1 - ref_idx) / (1 + ref_idx);
+	r0 = r0 * r0;
+	return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+}
 
 #endif /* VECTOR3_HPP */

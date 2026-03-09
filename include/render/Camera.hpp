@@ -14,7 +14,7 @@ class Camera
 		Camera(const Camera &other) = default;
 		~Camera() = default;
 
-		void	render(const GeometryData *geoms, const MaterialData *materials, int geomCount);
+		void	render(const WorldGeometries &geometries, const Materials &materials);
 	private:
 		float	aspectRatio;
 		float	pixelSamplesScale;
@@ -31,7 +31,7 @@ class Camera
 
 		void	initialize();
 		Ray		getRay(float u, float v) const;
-		Color	rayColor(const Ray &ray, const GeometryData *geoms, const MaterialData *materials, int geomCount, int depth);
+		Color	rayColor(const Ray &ray, const WorldGeometries &geometries, const Materials &materials, int depth);
 };
 
 #endif /* CAMERA_HPP */

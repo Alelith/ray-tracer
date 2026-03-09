@@ -18,7 +18,7 @@ static void	writeColor(std::ostream &out, const Color &color)
 	out << ir << ' ' << ig << ' ' << ib << '\n';
 }
 
-void	Camera::render(const GeometryData *geoms, const MaterialData *materials, int geomCount)
+void	Camera::render(const WorldGeometries &geometries, const Materials &materials)
 {
 	std::cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
 
@@ -30,7 +30,7 @@ void	Camera::render(const GeometryData *geoms, const MaterialData *materials, in
 			for (int s = 0; s < samplesPerPixel; s++)
 			{
 				Ray ray = getRay(i, j);
-				pixelColor += rayColor(ray, geoms, materials, geomCount, 10);
+				pixelColor += rayColor(ray, geometries, materials, 10);
 			}
 			pixelColor *= pixelSamplesScale;
 			writeColor(std::cout, pixelColor);
@@ -79,42 +79,39 @@ Ray	Camera::getRay(float u, float v) const
 	return Ray(cameraCenter, rayDir);
 }
 
-static bool	hitAnything(const Ray &ray, const Limits &limits, const GeometryData *geoms, int geomCount, HitRecord &record)
+Color	Camera::rayColor(const Ray &ray, const WorldGeometries &geometries, const Materials &materials, int depth)
 {
-	HitRecord	tempRecord;
-	bool		hitAnything = false;
-	float		closestSoFar = limits.getMax();
+	Ray		currentRay = ray;
+	Color	accumulatedColor(0, 0, 0);
+	Color	throughput(1, 1, 1);
 
-	for (int i = 0; i < geomCount; i++)
+	for (int i = 0; i < depth; i++)
 	{
-		if (geometryHit(geoms[i], ray, Limits(limits.getMin(), closestSoFar), tempRecord))
+		HitRecord	record;
+		Limits	limits(0.001, INFINITY);
+		
+		if (geometryHit(geometries, currentRay, limits, record))
 		{
-			hitAnything = true;
-			closestSoFar = tempRecord.t;
-			record = tempRecord;
-			record.geomIdx = i; // Store the index of the hit geometry
+			ScatterResult	scatterResult = calculateBounce(currentRay, record, materials);
+			if (scatterResult.scatter)
+			{
+				throughput *= scatterResult.attenuation;
+				currentRay = scatterResult.scatteredRay;
+			}
+			else
+			{
+				accumulatedColor += throughput * Color(0, 0, 0); // Absorbed, contributes no light
+				break;
+			}
+		}
+		else
+		{
+			Vector3 unitDir = currentRay.getDirection().normalized();
+			float t = 0.5 * (unitDir.y() + 1.0);
+			Color backgroundColor = (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
+			accumulatedColor += throughput * backgroundColor; // Background color
+			break;
 		}
 	}
-
-	return hitAnything;
-}
-
-Color	Camera::rayColor(const Ray &ray, const GeometryData *geoms, const MaterialData *materials, int geomCount, int depth)
-{
-	if (depth <= 0)
-		return Color(0, 0, 0);
-
-	HitRecord	record;
-
-	if (hitAnything(ray, Limits(0.0001, INFINITY), geoms, geomCount, record))
-	{
-		Ray		scattered;
-		Color	attenuation;
-		if (scatter(ray, materials[record.geomIdx], record, attenuation, scattered))
-			return attenuation * rayColor(scattered, geoms, materials, geomCount, depth - 1);
-		return Color(0, 0, 0);
-	}
-	Vector3 unitDir = ray.getDirection().normalized();
-	float t = 0.5 * (unitDir[1] + 1.0);
-	return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
+	return accumulatedColor;
 }

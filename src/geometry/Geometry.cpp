@@ -1,13 +1,27 @@
 #include "Geometry.hpp"
 
-Ray	getLocalRay(const Transform &transform, const Ray &ray)
+Ray	getLocalRay(const Matrix4x4 &inverse, const Ray &ray)
 {
 	const Point3	&wo = ray.getOrigin();
-	return Ray(transform.getInverseMatrix() * wo,
-			   transform.getInverseMatrix() * ray.getDirection());
+	return Ray(inverse * wo,
+			   inverse * ray.getDirection());
 }
 
-bool	geometryHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
+bool	geometryHit(const WorldGeometries &g, const Ray &ray, const Limits &limits, HitRecord &record)
+{
+	HitRecord	tmpRecord;
+	bool		hitAnything = false;
+	Limits		localLimits = limits;
+
+	if (spheresHit(g.spheres, ray, localLimits, tmpRecord))
+	{
+		hitAnything = true;
+		record = tmpRecord;
+	}
+	return hitAnything;
+}
+
+/*bool	geometryHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
 {
 	switch (g.type)
 	{
@@ -21,4 +35,4 @@ bool	geometryHit(const GeometryData &g, const Ray &ray, const Limits &limits, Hi
 		case GeometryType::Triangle:    return triangleHit(g, ray, limits, record);
 		default:                        return false;
 	}
-}
+}*/

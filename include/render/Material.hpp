@@ -4,31 +4,32 @@
 # include "Random.hpp"
 # include "Ray.hpp"
 # include "HitRecord.hpp"
+# include <vector>
 
-enum class Material
+using std::vector;
+
+struct Materials
 {
-	Lambertian,
-	Metallic,
-	Dielectric
+	vector<Color>	albedos;
+	vector<float>	metallic;
+	vector<float>	roughness;
+	vector<float>	transmission;
+	vector<float>	ior;
 };
 
-struct MaterialData
+struct ScatterResult
 {
-	Material	type;
-	Color		albedo;
-	float		roughness; // For Metallic: 0.0 (perfect mirror) to 1.0 (fully rough)
-	float		refractiveIndex; // For Dielectric (not implemented yet)
-	float		opacity; // For future use (e.g., transparent materials)
+	bool	scatter;	
+	Color	attenuation;
+	Ray		scatteredRay;
 };
 
-MaterialData	makeLambertian(const Color &albedo);
-MaterialData	makeMetallic(const Color &albedo, float roughness);
-MaterialData	makeDielectric(const Color &albedo, float refractiveIndex, float opacity = 1.0);
+void			addMaterial       (const Color &color, float metallic, float roughness, float transmission, float ior, Materials &materials);
 
-bool			scatterLambertian(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);
-bool			scatterMetallic(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);
-bool			scatterDielectric(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);
+inline Vector3	calculateDiffuse  (const Vector3 &normal);
+inline Vector3	calculateMetallic (const Vector3 &normal, const Vector3 &viewDir, float roughness);
+inline Vector3	calculateGlass    (const Vector3 &normal, const Vector3 &viewDir, float refractiveIndex, bool frontFace);
 
-bool			scatter(const Ray &rIn, const MaterialData &material, const HitRecord &record, Color &attenuation, Ray &scattered);
+ScatterResult	calculateBounce   (const Ray &rayIn, const HitRecord &record, const Materials &materials);
 
 #endif /* MATERIAL_HPP */

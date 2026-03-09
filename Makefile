@@ -21,8 +21,7 @@ SRC_DIR = src/
 OBJ_DIR = obj/
 
 GEOMETRY_DIR = geometry/
-GEOMETRY_FILES = AABB BVH Cone Cylinder Geometry Hyperboloid Kiss Limits \
-				Plane Sphere Torus Transform Triangle
+GEOMETRY_FILES = Geometry Sphere Transform Limits AABB
 
 MATHS_DIR = maths/
 MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \

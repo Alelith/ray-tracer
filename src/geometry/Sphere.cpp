@@ -2,46 +2,63 @@
 
 void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
 {
-	worldGeoms.spheres.inverseTransform.emplace_back(Transform(center, Vector3::Up, Vector3(radius, radius, radius)).getInverseMatrix());
-	worldGeoms.spheres.transposeInverseTransform.emplace_back(Transform(center, Vector3::Up, Vector3(radius, radius, radius)).getTransposeInverseMatrix());
-	worldGeoms.spheres.boundingBox.emplace_back(AABB(Point3(-1, -1, -1), Point3(1, 1, 1)));
+	Transform	t = Transform(center, Vector3::Up, Vector3(radius, radius, radius));
+	int			idx = worldGeoms.totalCount();  // Calculate index BEFORE adding
+	worldGeoms.spheres.inverseTransform.emplace_back(t.getInverseMatrix());
+	worldGeoms.spheres.transposeInverseTransform.emplace_back(t.getTransposeInverseMatrix());
+	worldGeoms.spheres.geomIdx.emplace_back(idx);
 }
 
-GeometryData	makeSphere(const Point3 &center, float radius)
+bool	sphereHits(const Matrix4x4 &invTransform, const Matrix4x4 &transInvTransform, const Ray &ray, const Limits &limits, HitRecord &record)
 {
-	GeometryData g{};
-	g.type      = GeometryType::Sphere;
-	g.transform = Transform(center, Vector3::Up, Vector3(radius, radius, radius));
-	return g;
-}
-
-bool	sphereHit(const GeometryData &g, const Ray &ray, const Limits &limits, HitRecord &record)
-{
-	bool	wasHit = false;
-
-	Ray		localRay = getLocalRay(g.transform, ray);
+	Ray		localRay = getLocalRay(invTransform, ray);
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
 
 	float	a = dot(d, d);
-	float	b = 2 * dot(d, o.toVector());
+	float	half_b = dot(d, o.toVector());
 	float	c = dot(o.toVector(), o.toVector()) - 1;
 
-	Solutions	sols = solveBhaskara(a, b, c);
-	for (int i = 0; i < sols.count; ++i)
-	{
-		const Solution &sol = sols.data[i];
-		if (!sol.isComplex && limits.isBetween(sol.real) && sol.real < record.t)
-		{
-			wasHit       = true;
-			record.t     = sol.real;
-			record.point = ray.at(sol.real);
+	float	discriminant = half_b * half_b - a * c;
+	if (discriminant < 0)
+		return false;
+	
+	float	sqrtDisc = sqrt(discriminant);
 
-			Point3	localHit    = o + sol.real * d;
-			Vector3	localNormal = localHit.toVector().normalized();
-			Vector3	worldNormal = (g.transform.getTransposeInverseMatrix() * localNormal).normalized();
-			record.setFaceNormal(ray, worldNormal);
+	float	root = (-half_b - sqrtDisc) / a;
+	if (!limits.isBetween(root))
+	{
+		root = (-half_b + sqrtDisc) / a;
+		if (!limits.isBetween(root))
+			return false;
+	}
+
+	record.t = root;
+	record.point = ray.at(root);
+
+	Point3	localHit = o + root * d;
+	Vector3	localNormal = localHit.toVector().normalized();
+	Vector3	worldNormal = (transInvTransform * localNormal).normalized();
+	record.setFaceNormal(ray, worldNormal);
+	
+	return true;
+}
+
+bool	spheresHit(const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record)
+{
+	HitRecord	tmpRecord;
+	bool		hitAnything = false;
+
+	for (size_t i = 0; i < spheres.inverseTransform.size(); ++i)
+	{
+		if (sphereHits(spheres.inverseTransform[i], spheres.transposeInverseTransform[i], ray, limits, tmpRecord))
+		{
+			hitAnything = true;
+			record = tmpRecord;
+			record.geomIdx = spheres.geomIdx[i]; // Store the index of the hit geometry
+			limits = Limits(limits.getMin(), record.t); // Update limits to find closest hit
 		}
 	}
-	return wasHit;
+
+	return hitAnything;
 }
