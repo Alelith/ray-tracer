@@ -18,7 +18,7 @@ static void	writeColor(std::ostream &out, const Color &color)
 	out << ir << ' ' << ig << ' ' << ib << '\n';
 }
 
-void	Camera::render(const WorldGeometries &geometries, const Materials &materials)
+void	Camera::render(const LinearBVH &geometries, const Materials &materials)
 {
 	std::cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
 
@@ -79,7 +79,7 @@ Ray	Camera::getRay(float u, float v) const
 	return Ray(cameraCenter, rayDir);
 }
 
-Color	Camera::rayColor(const Ray &ray, const WorldGeometries &geometries, const Materials &materials, int depth)
+Color	Camera::rayColor(const Ray &ray, const LinearBVH &geometries, const Materials &materials, int depth)
 {
 	Ray		currentRay = ray;
 	Color	accumulatedColor(0, 0, 0);
@@ -90,9 +90,9 @@ Color	Camera::rayColor(const Ray &ray, const WorldGeometries &geometries, const 
 		HitRecord	record;
 		Limits	limits(0.001, INFINITY);
 		
-		if (geometryHit(geometries, currentRay, limits, record))
+		if (geometries.hit(currentRay, limits, record))
 		{
-			ScatterResult	scatterResult = calculateBounce(currentRay, record, materials);
+			ScatterResult	scatterResult = calculateBounce(materials[record.geomIdx], currentRay, record);
 			if (scatterResult.scatter)
 			{
 				throughput *= scatterResult.attenuation;
@@ -100,7 +100,7 @@ Color	Camera::rayColor(const Ray &ray, const WorldGeometries &geometries, const 
 			}
 			else
 			{
-				accumulatedColor += throughput * Color(0, 0, 0); // Absorbed, contributes no light
+				accumulatedColor += throughput * scatterResult.emmision;
 				break;
 			}
 		}

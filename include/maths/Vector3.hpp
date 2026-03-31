@@ -23,6 +23,15 @@ class Vector3
 		static const	Vector3 Backward;
 		static const	Vector3 One;
 
+		static const	Vector3 White;
+		static const	Vector3 Black;
+		static const	Vector3 Red;
+		static const	Vector3 Green;
+		static const	Vector3 Blue;
+		static const	Vector3 Yellow;
+		static const	Vector3 Cyan;
+		static const	Vector3 Magenta;
+
 		Vector3			&operator=(const Vector3 &other) = default;
 
 		Vector3			operator-() const;

@@ -5,6 +5,7 @@
 # include "Random.hpp"
 # include "Geometry.hpp"
 # include "Material.hpp"
+# include "LinearBVH.hpp"
 # include <iostream>
 
 class Camera
@@ -14,7 +15,7 @@ class Camera
 		Camera(const Camera &other) = default;
 		~Camera() = default;
 
-		void	render(const WorldGeometries &geometries, const Materials &materials);
+		void	render(const LinearBVH &geometries, const Materials &materials);
 	private:
 		float	aspectRatio;
 		float	pixelSamplesScale;
@@ -31,7 +32,7 @@ class Camera
 
 		void	initialize();
 		Ray		getRay(float u, float v) const;
-		Color	rayColor(const Ray &ray, const WorldGeometries &geometries, const Materials &materials, int depth);
+		Color	rayColor(const Ray &ray, const LinearBVH &geometries, const Materials &materials, int depth);
 };
 
 #endif /* CAMERA_HPP */

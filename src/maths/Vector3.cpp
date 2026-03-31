@@ -13,6 +13,15 @@ const Vector3	Vector3::Left(-1.0, 0.0, 0.0);
 const Vector3	Vector3::Backward(0.0, 0.0, -1.0);
 const Vector3	Vector3::One(1.0, 1.0, 1.0);
 
+const Vector3	Vector3::White(1.0, 1.0, 1.0);
+const Vector3	Vector3::Black(0.0, 0.0, 0.0);
+const Vector3	Vector3::Red(1.0, 0.0, 0.0);
+const Vector3	Vector3::Green(0.0, 1.0, 0.0);
+const Vector3	Vector3::Blue(0.0, 0.0, 1.0);
+const Vector3	Vector3::Yellow(1.0, 1.0, 0.0);
+const Vector3	Vector3::Cyan(0.0, 1.0, 1.0);
+const Vector3	Vector3::Magenta(1.0, 0.0, 1.0);
+
 Vector3	Vector3::operator-() const
 { return Vector3(-v[0], -v[1], -v[2]); }
 

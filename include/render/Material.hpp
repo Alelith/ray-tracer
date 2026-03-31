@@ -4,32 +4,38 @@
 # include "Random.hpp"
 # include "Ray.hpp"
 # include "HitRecord.hpp"
+# include "Matrix4x4.hpp"
 # include <vector>
 
 using std::vector;
 
-struct Materials
+struct Material
 {
-	vector<Color>	albedos;
-	vector<float>	metallic;
-	vector<float>	roughness;
-	vector<float>	transmission;
-	vector<float>	ior;
+	Color	albedo;
+
+	float	roughness;
+	float	metallic;
+	float	transmission;
+	float	ior;
+
+	Color	emmision;
+
+	Material(const Color &albedo, float roughness, float metallic, float transmission, float ior, const Color &emmision)
+		: albedo(albedo), roughness(roughness), metallic(metallic), transmission(transmission), ior(ior), emmision(emmision) {}
 };
+
+using Materials = vector<Material>;
 
 struct ScatterResult
 {
 	bool	scatter;	
-	Color	attenuation;
 	Ray		scatteredRay;
+	Color	attenuation;
+	Color	emmision;
 };
 
-void			addMaterial       (const Color &color, float metallic, float roughness, float transmission, float ior, Materials &materials);
+void			addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, Materials &materials);
 
-inline Vector3	calculateDiffuse  (const Vector3 &normal);
-inline Vector3	calculateMetallic (const Vector3 &normal, const Vector3 &viewDir, float roughness);
-inline Vector3	calculateGlass    (const Vector3 &normal, const Vector3 &viewDir, float refractiveIndex, bool frontFace);
-
-ScatterResult	calculateBounce   (const Ray &rayIn, const HitRecord &record, const Materials &materials);
+ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record);
 
 #endif /* MATERIAL_HPP */

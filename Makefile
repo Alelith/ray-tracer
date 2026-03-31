@@ -11,7 +11,7 @@ MAGENTA = \033[0;95m
 CYAN = \033[0;96m
 WHITE = \033[0;97m
 
-INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/
+INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
 CXX = c++ -g
 CXXFLAGS = -Wall -Wextra -Werror -std=c++17
@@ -21,7 +21,7 @@ SRC_DIR = src/
 OBJ_DIR = obj/
 
 GEOMETRY_DIR = geometry/
-GEOMETRY_FILES = Geometry Sphere Transform Limits AABB
+GEOMETRY_FILES = Geometry Sphere Transform Limits AABB LinearBVH
 
 MATHS_DIR = maths/
 MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \
@@ -30,12 +30,16 @@ MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \
 RENDER_DIR = render/
 RENDER_FILES = Camera Material Texture
 
+DEBUG_DIR = debug/
+DEBUG_FILES = Timer
+
 MAIN = main
 
 SRC_FILES += $(MAIN)
 SRC_FILES += $(addprefix $(GEOMETRY_DIR), $(GEOMETRY_FILES))
 SRC_FILES += $(addprefix $(MATHS_DIR), $(MATHS_FILES))
 SRC_FILES += $(addprefix $(RENDER_DIR), $(RENDER_FILES))
+SRC_FILES += $(addprefix $(DEBUG_DIR), $(DEBUG_FILES))
 SRCS = $(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
 OBJS = $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
 OBJSF = .cache_exists

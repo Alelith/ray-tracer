@@ -3,13 +3,15 @@
 void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
 {
 	Transform	t = Transform(center, Vector3::Up, Vector3(radius, radius, radius));
+	AABB		box(Point3(-1, -1, -1), Point3(1, 1, 1), t);
 	int			idx = worldGeoms.totalCount();  // Calculate index BEFORE adding
 	worldGeoms.spheres.inverseTransform.emplace_back(t.getInverseMatrix());
 	worldGeoms.spheres.transposeInverseTransform.emplace_back(t.getTransposeInverseMatrix());
+	worldGeoms.spheres.boundingBox.emplace_back(box);
 	worldGeoms.spheres.geomIdx.emplace_back(idx);
 }
 
-bool	sphereHits(const Matrix4x4 &invTransform, const Matrix4x4 &transInvTransform, const Ray &ray, const Limits &limits, HitRecord &record)
+bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
 {
 	Ray		localRay = getLocalRay(invTransform, ray);
 	Point3	o = localRay.getOrigin();
@@ -38,7 +40,7 @@ bool	sphereHits(const Matrix4x4 &invTransform, const Matrix4x4 &transInvTransfor
 
 	Point3	localHit = o + root * d;
 	Vector3	localNormal = localHit.toVector().normalized();
-	Vector3	worldNormal = (transInvTransform * localNormal).normalized();
+	Vector3	worldNormal = (transpose(invTransform) * localNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
 	
 	return true;
@@ -51,7 +53,7 @@ bool	spheresHit(const SimpleGeometryData &spheres, const Ray &ray, Limits &limit
 
 	for (size_t i = 0; i < spheres.inverseTransform.size(); ++i)
 	{
-		if (sphereHits(spheres.inverseTransform[i], spheres.transposeInverseTransform[i], ray, limits, tmpRecord))
+		if (sphereHits(spheres.inverseTransform[i], ray, limits, tmpRecord))
 		{
 			hitAnything = true;
 			record = tmpRecord;

@@ -17,6 +17,9 @@ class Limits
 		float	getMin() const;
 		float	getMax() const;
 
+		float	getCenter() const;
+		float	getLength() const;
+
 		bool	isBetween(float t) const;
 		float	clamp(float t) const;
 		Limits	expand(float delta) const;
