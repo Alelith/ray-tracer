@@ -9,39 +9,47 @@ inline float	linearToGamma(float value)
 	return value > 0 ? sqrt(value) : 0;
 }
 
-static void	writeColor(std::ostream &out, const Color &color)
+void	Camera::renderSample(const LinearBVH &geometries, const Materials &materials)
 {
-	static const Limits	intensity(0, 0.999);
-	int ir = static_cast<int>(256 * intensity.clamp(linearToGamma(color[0])));
-	int ig = static_cast<int>(256 * intensity.clamp(linearToGamma(color[1])));
-	int ib = static_cast<int>(256 * intensity.clamp(linearToGamma(color[2])));
-	out << ir << ' ' << ig << ' ' << ib << '\n';
+	int threads = std::thread::hardware_concurrency();
+	vector<std::thread> threadPool;
+	int linesPerThread = imageHeight / threads;
+
+	for (int t = 0; t < threads; t++)
+	{
+		int startLine = t * linesPerThread;
+		int endLine = (t == threads - 1) ? imageHeight : startLine + linesPerThread;
+		threadPool.emplace_back(&Camera::renderLine, this, startLine, endLine, std::ref(geometries), std::ref(materials));
+	}
+
+	for (auto& thread : threadPool)
+		thread.join();
+
+	iteration++;
 }
 
-void	Camera::render(const LinearBVH &geometries, const Materials &materials)
+vector<int>	Camera::getImage()
 {
-	std::cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
+	vector<int> imageData(imageWidth * imageHeight);
 
-	for (int j = 0; j < imageHeight; j++)
+	Limits intensity(0, 0.999);
+	for (size_t i = 0; i < buffer.size(); i++)
 	{
-		for (int i = 0; i < imageWidth; i++)
-		{
-			Color pixelColor(0, 0, 0);
-			for (int s = 0; s < samplesPerPixel; s++)
-			{
-				Ray ray = getRay(i, j);
-				pixelColor += rayColor(ray, geometries, materials, 10);
-			}
-			pixelColor *= pixelSamplesScale;
-			writeColor(std::cout, pixelColor);
-		}
+		Color avgColor = buffer[i] / iteration;
+		imageData[i] = (static_cast<int>(256 * intensity.clamp(linearToGamma(avgColor.x())))) << 16 |
+					   (static_cast<int>(256 * intensity.clamp(linearToGamma(avgColor.y())))) << 8 |
+					   (static_cast<int>(256 * intensity.clamp(linearToGamma(avgColor.z()))));
 	}
+	return imageData;
 }
 
 void	Camera::initialize()
 {
 	imageHeight = static_cast<int>(imageWidth / aspectRatio);
 	imageHeight = imageHeight < 1 ? 1 : imageHeight;
+
+	buffer.resize(imageWidth * imageHeight);
+	iteration = 0;
 
 	pixelSamplesScale = 1.0 / samplesPerPixel;
 
@@ -96,6 +104,15 @@ Color	Camera::rayColor(const Ray &ray, const LinearBVH &geometries, const Materi
 			if (scatterResult.scatter)
 			{
 				throughput *= scatterResult.attenuation;
+
+				float	p = std::min(0.99f, std::max(throughput.x(), std::max(throughput.y(), throughput.z())));
+				float	r = Random::global().randomfloat(0, 1);
+
+				if (r > p)
+					break;
+				else
+					throughput /= p;
+
 				currentRay = scatterResult.scatteredRay;
 			}
 			else
@@ -108,10 +125,24 @@ Color	Camera::rayColor(const Ray &ray, const LinearBVH &geometries, const Materi
 		{
 			Vector3 unitDir = currentRay.getDirection().normalized();
 			float t = 0.5 * (unitDir.y() + 1.0);
-			Color backgroundColor = (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
+			Color backgroundColor = (1.0 - t) * Color::LightGray + t * Color::DarkGray;
 			accumulatedColor += throughput * backgroundColor; // Background color
 			break;
 		}
 	}
 	return accumulatedColor;
+}
+
+void	Camera::renderLine(int start, int end, const LinearBVH &geometries, const Materials &materials)
+{
+	for (int j = start; j < end; j++)
+	{
+		for (int i = 0; i < imageWidth; i++)
+		{
+			Color pixelColor(0, 0, 0);
+			Ray ray = getRay(i, j);
+			pixelColor += rayColor(ray, geometries, materials, 10);
+			buffer[j * imageWidth + i] += pixelColor;
+		}
+	}
 }

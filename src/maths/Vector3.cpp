@@ -15,6 +15,9 @@ const Vector3	Vector3::One(1.0, 1.0, 1.0);
 
 const Vector3	Vector3::White(1.0, 1.0, 1.0);
 const Vector3	Vector3::Black(0.0, 0.0, 0.0);
+const Vector3	Vector3::Gray(0.5, 0.5, 0.5);
+const Vector3	Vector3::LightGray(0.75, 0.75, 0.75);
+const Vector3	Vector3::DarkGray(0.25, 0.25, 0.25);
 const Vector3	Vector3::Red(1.0, 0.0, 0.0);
 const Vector3	Vector3::Green(0.0, 1.0, 0.0);
 const Vector3	Vector3::Blue(0.0, 0.0, 1.0);

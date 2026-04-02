@@ -25,6 +25,9 @@ class Vector3
 
 		static const	Vector3 White;
 		static const	Vector3 Black;
+		static const	Vector3 Gray;
+		static const	Vector3 LightGray;
+		static const	Vector3 DarkGray;
 		static const	Vector3 Red;
 		static const	Vector3 Green;
 		static const	Vector3 Blue;

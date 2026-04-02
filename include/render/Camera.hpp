@@ -7,6 +7,11 @@
 # include "Material.hpp"
 # include "LinearBVH.hpp"
 # include <iostream>
+# include <vector>
+# include <cmath>
+# include <thread>
+
+using std::vector;
 
 class Camera
 {
@@ -15,7 +20,8 @@ class Camera
 		Camera(const Camera &other) = default;
 		~Camera() = default;
 
-		void	render(const LinearBVH &geometries, const Materials &materials);
+		void			renderSample(const LinearBVH &geometries, const Materials &materials);
+		vector<int>		getImage();
 	private:
 		float	aspectRatio;
 		float	pixelSamplesScale;
@@ -30,9 +36,14 @@ class Camera
 		Vector3	pixelDeltaU;
 		Vector3	pixelDeltaV;
 
+		vector<Color>	buffer;
+		int				iteration;
+
 		void	initialize();
 		Ray		getRay(float u, float v) const;
 		Color	rayColor(const Ray &ray, const LinearBVH &geometries, const Materials &materials, int depth);
+		void	renderLine(int start, int end, const LinearBVH &geometries, const Materials &materials);
+
 };
 
 #endif /* CAMERA_HPP */

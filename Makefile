@@ -31,7 +31,7 @@ RENDER_DIR = render/
 RENDER_FILES = Camera Material Texture
 
 DEBUG_DIR = debug/
-DEBUG_FILES = Timer
+DEBUG_FILES = Timer PrintPPM
 
 MAIN = main
 
