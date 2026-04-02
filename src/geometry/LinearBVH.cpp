@@ -41,7 +41,7 @@ int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 			return aCenter < bCenter;
 		});
 
-		int mid = start + (end - start) / 2;
+		int mid = bestSplit(data, start, end);
 		
 		BVHData nodeData;
 		nodeData.geomIdx = -1; // Internal node
@@ -55,6 +55,31 @@ int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 		bvhData[nodeIdx].rightChildIdx = buildNode(data, mid, end);
 		return nodeIdx;
 	}
+}
+
+int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int end)
+{
+	float minCost = INFINITY;
+	int res = start + (end - start) / 2;
+
+	for (int i = start; i < end - 1; i++)
+	{
+		AABB leftBox = data[start].box;
+		for (int j = start + 1; j <= i; j++)
+			leftBox = AABB(leftBox, data[j].box);
+		
+		AABB rightBox = data[i + 1].box;
+		for (int j = i + 2; j < end; j++)
+			rightBox = AABB(rightBox, data[j].box);
+		
+		float cost = leftBox.getArea() * (i - start + 1) + rightBox.getArea() * (end - i - 1);
+		if (cost < minCost)
+		{
+			minCost = cost;
+			res = i + 1;
+		}
+	}
+	return res;
 }
 
 LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms(worldGeoms)

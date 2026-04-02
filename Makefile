@@ -28,7 +28,7 @@ MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \
 				Matrix4x4 Point3 Random Ray Solver Vector3
 
 RENDER_DIR = render/
-RENDER_FILES = Camera Material Texture
+RENDER_FILES = Camera Material
 
 DEBUG_DIR = debug/
 DEBUG_FILES = Timer PrintPPM

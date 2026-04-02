@@ -50,6 +50,11 @@ const Limits	&AABB::getXLimits() const { return xLimits; }
 const Limits	&AABB::getYLimits() const { return yLimits; }
 const Limits	&AABB::getZLimits() const { return zLimits; }
 
+float	AABB::getArea() const
+{
+	return 2 * (xLimits.getLength() * yLimits.getLength() + xLimits.getLength() * zLimits.getLength() + yLimits.getLength() * zLimits.getLength());
+}
+
 static const Limits& getLimits(int axis, const AABB &box)
 {
 	if (axis == 0)

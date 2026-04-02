@@ -23,6 +23,8 @@ class AABB
 		const Limits	&getYLimits() const;
 		const Limits	&getZLimits() const;
 
+		float			getArea() const;
+
 		bool			hit(const Ray &ray, const Limits &limits) const;
 };
 

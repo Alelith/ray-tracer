@@ -76,7 +76,7 @@ int main()
 	}
 
 	Timer timer;
-	int spp = 500;
+	int spp = 10000;
 	int i = 0;
 	while (true)
 	{
@@ -88,22 +88,35 @@ int main()
 				SDL_DestroyTexture(texture);
 				SDL_DestroyRenderer(ren);
 				SDL_DestroyWindow(win);
+				std::cerr << "\nRendering stopped by user." << std::endl;
 				SDL_Quit();
 				return 0;
 			}
 		}
-		std::cerr << "\rSample " << (i + 1) << "/" << spp << " rendering." << std::flush;
+		if (i < spp)
+		{
+			std::cerr << "\rSample " << (i + 1) << "/" << spp << " rendering." << std::flush;
+			timer.start();
+			camera.renderSample(bvh, materials);
+			timer.stop();
+			
+			std::cerr << " [Render time: " << timer.elapsedMilliseconds() << " ms]" << std::flush;
 
-		camera.renderSample(bvh, materials);
-
-		vector<int> imageData = camera.getImage();
-		int width = 960;
-		SDL_UpdateTexture(texture, nullptr, imageData.data(), width * sizeof(int));
+			vector<int> imageData = camera.getImage();
+			int width = 960;
+			SDL_UpdateTexture(texture, nullptr, imageData.data(), width * sizeof(int));
+			i++;
+		}
 		SDL_RenderClear(ren);
 		SDL_RenderCopy(ren, texture, nullptr, nullptr);
 		SDL_RenderPresent(ren);
-		i++;
 	}
+
+	std::cerr << endl;
+
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(ren);
+	SDL_DestroyWindow(win);
 
 	SDL_Quit();
 	return 0;

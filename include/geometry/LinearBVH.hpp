@@ -35,6 +35,8 @@ class LinearBVH
 		const WorldGeometries &worldGeoms;
 
 		int	buildNode(vector<BVHData> &data, int start, int end);
+
+		int	bestSplit(const vector<BVHData> &data, int start, int end);
 	public:
 		LinearBVH(const WorldGeometries &worldGeoms);
 		~LinearBVH() = default;
