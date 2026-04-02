@@ -125,7 +125,7 @@ Color	Camera::rayColor(const Ray &ray, const LinearBVH &geometries, const Materi
 		{
 			Vector3 unitDir = currentRay.getDirection().normalized();
 			float t = 0.5 * (unitDir.y() + 1.0);
-			Color backgroundColor = (1.0 - t) * Color::LightGray + t * Color::DarkGray;
+			Color backgroundColor = (1.0 - t) * Color::DarkGray + t * Color::Black;
 			accumulatedColor += throughput * backgroundColor; // Background color
 			break;
 		}

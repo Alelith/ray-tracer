@@ -1,8 +1,8 @@
 #include "Material.hpp"
 
-void	addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, Materials &materials)
+void	addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength, Materials &materials)
 {
-	materials.push_back(Material(color, roughness, metallic, transmission, ior, emmision));
+	materials.push_back(Material(color, roughness, metallic, transmission, ior, emmision, emmisionStrength));
 }
 
 ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record)
@@ -59,6 +59,6 @@ ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitReco
 		}
 	}
 
-	result.emmision = mat.emmision;
+	result.emmision = mat.emmision * mat.emmisionStrength;
 	return result;
 }

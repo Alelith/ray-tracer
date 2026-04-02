@@ -19,9 +19,10 @@ struct Material
 	float	ior;
 
 	Color	emmision;
+	float	emmisionStrength;
 
-	Material(const Color &albedo, float roughness, float metallic, float transmission, float ior, const Color &emmision)
-		: albedo(albedo), roughness(roughness), metallic(metallic), transmission(transmission), ior(ior), emmision(emmision) {}
+	Material(const Color &albedo, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength)
+		: albedo(albedo), roughness(roughness), metallic(metallic), transmission(transmission), ior(ior), emmision(emmision), emmisionStrength(emmisionStrength) {}
 };
 
 using Materials = vector<Material>;
@@ -34,7 +35,7 @@ struct ScatterResult
 	Color	emmision;
 };
 
-void			addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, Materials &materials);
+void			addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength, Materials &materials);
 
 ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record);
 

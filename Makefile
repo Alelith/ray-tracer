@@ -15,7 +15,7 @@ INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
 CXX = c++ -g
 CXXFLAGS = -Wall -Wextra -Werror -std=c++17
-LDFLAGS = -lm
+LDFLAGS = -lm -lSDL2
 
 SRC_DIR = src/
 OBJ_DIR = obj/
