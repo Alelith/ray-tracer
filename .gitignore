@@ -6,3 +6,6 @@ bin/
 ray_tracer
 
 *.ppm
+*.txt
+*.out.\d+
+*.py

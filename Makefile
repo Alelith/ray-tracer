@@ -13,8 +13,10 @@ WHITE = \033[0;97m
 
 INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
-CXX = c++ -g
-CXXFLAGS = -Wall -Wextra -Werror -std=c++17
+CXX = g++
+CXXFLAGS = -Wall -Wextra -Werror -O3 -std=c++17
+CUDA = nvcc
+CUDAFLAGS = -std=c++17
 LDFLAGS = -lm -lSDL2
 
 SRC_DIR = src/

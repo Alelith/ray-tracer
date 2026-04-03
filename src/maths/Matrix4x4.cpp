@@ -19,12 +19,6 @@ static const float	s_identity[4][4] = {{1.0, 0.0, 0.0, 0.0},
 										{0.0, 0.0, 0.0, 1.0}};
 const Matrix4x4	Matrix4x4::Identity(s_identity);
 
-float	&Matrix4x4::operator()(int row, int col)
-{ return m[row][col]; }
-
-float	Matrix4x4::operator()(int row, int col) const
-{ return m[row][col]; }
-
 std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat)
 {
 	os << "Matrix4x4(\n";
@@ -43,46 +37,6 @@ std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat)
 	}
 	os << "\n)";
 	return os;
-}
-
-Matrix4x4	operator*(const Matrix4x4 &mat1, const Matrix4x4 &mat2)
-{
-	Matrix4x4 result;
-	for (int i = 0; i < 4; ++i)
-		for (int j = 0; j < 4; ++j)
-		{
-			result(i, j) = 0.0;
-			for (int k = 0; k < 4; ++k)
-				result(i, j) += mat1(i, k) * mat2(k, j);
-		}
-	return result;
-}
-
-// Matrix * Vector: w=0, no translation applied (directions, normals)
-Vector3	operator*(const Matrix4x4 &mat, const Vector3 &vec)
-{
-	float x = mat(0, 0) * vec[0] + mat(0, 1) * vec[1] + mat(0, 2) * vec[2];
-	float y = mat(1, 0) * vec[0] + mat(1, 1) * vec[1] + mat(1, 2) * vec[2];
-	float z = mat(2, 0) * vec[0] + mat(2, 1) * vec[1] + mat(2, 2) * vec[2];
-	return Vector3(x, y, z);
-}
-
-// Matrix * Point: w=1, translation applied (positions)
-Point3	operator*(const Matrix4x4 &mat, const Point3 &point)
-{
-	float x = mat(0, 0) * point[0] + mat(0, 1) * point[1] + mat(0, 2) * point[2] + mat(0, 3);
-	float y = mat(1, 0) * point[0] + mat(1, 1) * point[1] + mat(1, 2) * point[2] + mat(1, 3);
-	float z = mat(2, 0) * point[0] + mat(2, 1) * point[1] + mat(2, 2) * point[2] + mat(2, 3);
-	float w = mat(3, 0) * point[0] + mat(3, 1) * point[1] + mat(3, 2) * point[2] + mat(3, 3);
-	
-	// Apply perspective division if needed
-	if (w != 0.0 && w != 1.0)
-	{
-		x /= w;
-		y /= w;
-		z /= w;
-	}
-	return Point3(x, y, z);
 }
 
 Matrix4x4	translationMatrix(const Vector3 &translation)

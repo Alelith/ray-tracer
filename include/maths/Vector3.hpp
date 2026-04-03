@@ -37,46 +37,47 @@ class Vector3
 
 		Vector3			&operator=(const Vector3 &other) = default;
 
-		Vector3			operator-() const;
-		float			&operator[](int index);
-		float			operator[](int index) const;
+		inline Vector3		operator-() const { return Vector3(-v[0], -v[1], -v[2]); }
+		inline float		&operator[](int index) { return v[index]; }
+		inline float		operator[](int index) const { return v[index]; }
 
-		Vector3 		operator+=(const Vector3 &other);
-		Vector3 		operator-=(const Vector3 &other);
-		Vector3 		operator*=(const Vector3 &other);
-		Vector3 		operator*=(float scalar);
-		Vector3 		operator/=(float scalar);
+		inline Vector3 		operator+=(const Vector3 &other) { v[0] += other[0]; v[1] += other[1]; v[2] += other[2]; return *this; }
+		inline Vector3 		operator-=(const Vector3 &other) { v[0] -= other[0]; v[1] -= other[1]; v[2] -= other[2]; return *this; }
+		inline Vector3 		operator*=(const Vector3 &other) { v[0] *= other[0]; v[1] *= other[1]; v[2] *= other[2]; return *this; }
+		inline Vector3 		operator*=(float scalar) { v[0] *= scalar; v[1] *= scalar; v[2] *= scalar; return *this; }
+		inline Vector3 		operator/=(float scalar) { v[0] /= scalar; v[1] /= scalar; v[2] /= scalar; return *this; }
 
-		float			length_sqrd() const;
-		float			length() const;
-		Vector3			normalized() const;
+		inline float		length_sqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
+		inline float		length() const { return std::sqrt(length_sqrd()); }
+		inline Vector3		normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3::Zero; }
 
-		bool			isNearZero() const;
+		inline bool			isNearZero() const { return length_sqrd() < 1e-6; }
 
-		float			x() const;
-		float			y() const;
-		float			z() const;
+		inline float		x() const { return v[0]; }
+		inline float		y() const { return v[1]; }
+		inline float		z() const { return v[2]; }
 };
 
 using Color = Vector3;
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec);
 
-Vector3			operator+(const Vector3 &vec1, const Vector3 &vec2);
-Vector3			operator-(const Vector3 &vec1, const Vector3 &vec2);
+inline Vector3			operator+(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() + vec2.x(), vec1.y() + vec2.y(), vec1.z() + vec2.z()); }
+inline Vector3			operator-(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() - vec2.x(), vec1.y() - vec2.y(), vec1.z() - vec2.z()); }
+inline Vector3			operator*(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() * vec2.x(), vec1.y() * vec2.y(), vec1.z() * vec2.z()); }
+inline Vector3			operator*(float scalar, const Vector3 &vec) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
+inline Vector3			operator*(const Vector3 &vec, float scalar) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
+inline Vector3			operator/(const Vector3 &vec, float scalar) { return Vector3(vec.x() / scalar, vec.y() / scalar, vec.z() / scalar); }
 
-Vector3			operator*(const Vector3 &vec1, const Vector3 &vec2);
-Vector3			operator*(float scalar, const Vector3 &vec);
-Vector3			operator*(const Vector3 &vec, float scalar);
-Vector3			operator/(const Vector3 &vec, float scalar);
-
-float			dot(const Vector3 &vec1, const Vector3 &vec2);
-Vector3			cross(const Vector3 &vec1, const Vector3 &vec2);
-
-inline Vector3	reflect(const Vector3 &vec, const Vector3 &normal)
+inline float			dot(const Vector3 &vec1, const Vector3 &vec2) { return vec1.x() * vec2.x() + vec1.y() * vec2.y() + vec1.z() * vec2.z(); }
+inline Vector3			cross(const Vector3 &vec1, const Vector3 &vec2)
 {
-	return vec - 2 * dot(vec, normal) * normal;
+	return Vector3(vec1.y() * vec2.z() - vec1.z() * vec2.y(),
+					vec1.z() * vec2.x() - vec1.x() * vec2.z(),
+					vec1.x() * vec2.y() - vec1.y() * vec2.x());
 }
+
+inline Vector3	reflect(const Vector3 &vec, const Vector3 &normal) { return vec - 2 * dot(vec, normal) * normal; }
 
 inline Vector3	refract(const Vector3 &uv, const Vector3 &normal, float eta_over_eta_prime)
 {

@@ -15,10 +15,10 @@ class Ray
 		Ray(const Ray &other) = default;
 		~Ray() = default;
 
-		Point3	getOrigin() const;
-		Vector3	getDirection() const;
+		inline Point3	getOrigin() const { return origin; }
+		inline Vector3	getDirection() const { return direction; }
 
-		Point3	at(float t) const;
+		inline Point3	at(float t) const { return origin + direction * t; }
 };
 
 std::ostream	&operator<<(std::ostream &os, const Ray &ray);

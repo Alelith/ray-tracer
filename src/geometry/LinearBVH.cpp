@@ -202,13 +202,13 @@ bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) con
 
 	Limits currentLimits = limits;
 
-	stack<int> nodesToVisit;
-	nodesToVisit.push(0); // Start with the root node
+	int nodesToVisit[64];
+	int top = 0;
+	nodesToVisit[top++] = 0; // Start with the root node
 
-	while (!nodesToVisit.empty())
+	while (top > 0)
 	{
-		int currentIdx = nodesToVisit.top();
-		nodesToVisit.pop();
+		int currentIdx = nodesToVisit[--top];
 
 		const BVHData &currentNode = bvhData[currentIdx];
 
@@ -224,8 +224,8 @@ bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) con
 			}
 			else
 			{
-				nodesToVisit.push(currentNode.rightChildIdx);
-				nodesToVisit.push(currentIdx + 1);
+				nodesToVisit[top++] = currentNode.rightChildIdx;
+				nodesToVisit[top++] = currentIdx + 1;
 			}
 		}
 	}

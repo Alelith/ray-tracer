@@ -14,17 +14,17 @@ class Limits
 		Limits(float min, float max);
 		~Limits() = default;
 
-		float	getMin() const;
-		float	getMax() const;
+		inline float	getMin() const { return min; }
+		inline float	getMax() const { return max; }
 
-		float	getCenter() const;
-		float	getLength() const;
+		inline float	getCenter() const { return (min + max) / 2.0f; }
+		inline float	getLength() const { return max - min; }
 
-		bool	isBetween(float t) const;
-		float	clamp(float t) const;
-		Limits	expand(float delta) const;
+		inline bool		isBetween(float t) const { return t >= min && t <= max; }
+		inline float	clamp(float t) const { return std::max(min, std::min(max, t)); }
+		inline Limits	expand(float delta) const { return Limits(min - delta, max + delta); }
 };
 
-Limits	getInterval(const Limits &a, const Limits &b);
+inline Limits	getInterval(const Limits &a, const Limits &b) { return Limits(std::max(a.getMin(), b.getMin()), std::min(a.getMax(), b.getMax())); }
 
 #endif /* LIMITS_HPP */
