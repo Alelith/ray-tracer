@@ -1,6 +1,6 @@
 #include "LinearBVH.hpp"
 
-int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
+RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 {
 	AABB nodeBox = data[start].box;
 	for (int i = start + 1; i < end; i++)
@@ -57,7 +57,7 @@ int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 	}
 }
 
-int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int end)
+RT_CALLABLE int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int end)
 {
 	float minCost = INFINITY;
 	int res = start + (end - start) / 2;
@@ -82,7 +82,7 @@ int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int end)
 	return res;
 }
 
-LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms(worldGeoms)
+RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms(worldGeoms)
 {
 	vector<BVHData>	tmpData;
 	for (size_t i = 0; i < worldGeoms.spheres.geomIdx.size(); i++)
@@ -160,7 +160,7 @@ LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms(worldGeoms)
 	buildNode(tmpData, 0, tmpData.size());
 }
 
-static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
+RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
 {
 	bool hit = false;
 	switch (geomData.type)
@@ -196,7 +196,7 @@ static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const
 	return false;
 }
 
-bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) const
+RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) const
 {
 	bool hitAnything = false;
 

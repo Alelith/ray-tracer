@@ -1,6 +1,6 @@
 #include "Solver.hpp"
 
-Solutions	solveCardano(float a, float b, float c, float d)
+RT_CALLABLE Solutions	solveCardano(float a, float b, float c, float d)
 {
 	Solutions	sols;
 	if (a == 0.0)

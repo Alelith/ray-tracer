@@ -1,6 +1,6 @@
 #include "Solver.hpp"
 
-Solutions	solveFerrari(float a, float b, float c, float d, float e)
+RT_CALLABLE Solutions	solveFerrari(float a, float b, float c, float d, float e)
 {
 	Solutions	sols;
 	if (a == 0.0)

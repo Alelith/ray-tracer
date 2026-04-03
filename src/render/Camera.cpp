@@ -60,10 +60,10 @@ void	Camera::initialize()
 	float	viewportWidth = aspectRatio * viewportHeight;
 
 	Vector3	w = -normal.normalized();
-	Vector3	u = cross(Vector3::Up, w);
+	Vector3	u = cross(Vector3(0, 1, 0), w);
 	float	uLength = u.length();
 	if (uLength < 1e-6)
-		u = cross(Vector3::Right, w).normalized();
+		u = cross(Vector3(1, 0, 0), w).normalized();
 	else
 		u = u / uLength;
 	Vector3	v = cross(w, u);
@@ -125,7 +125,7 @@ Color	Camera::rayColor(const Ray &ray, const LinearBVH &geometries, const Materi
 		{
 			Vector3 unitDir = currentRay.getDirection().normalized();
 			float t = 0.5 * (unitDir.y() + 1.0);
-			Color backgroundColor = (1.0 - t) * Color::DarkGray + t * Color::Black;
+			Color backgroundColor = (1.0 - t) * Color(0.25, 0.25, 0.25) + t * Color(0, 0, 0);
 			accumulatedColor += throughput * backgroundColor; // Background color
 			break;
 		}

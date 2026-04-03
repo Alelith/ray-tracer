@@ -10,15 +10,15 @@ class Ray
 		Point3	origin;
 		Vector3	direction;
 	public:
-		Ray();
-		Ray(const Point3 &origin, const Vector3 &direction);
-		Ray(const Ray &other) = default;
-		~Ray() = default;
+		RT_CALLABLE Ray();
+		RT_CALLABLE Ray(const Point3 &origin, const Vector3 &direction);
+		RT_CALLABLE Ray(const Ray &other) = default;
+		RT_CALLABLE ~Ray() = default;
 
-		inline Point3	getOrigin() const { return origin; }
-		inline Vector3	getDirection() const { return direction; }
+		inline RT_CALLABLE Point3	getOrigin() const { return origin; }
+		inline RT_CALLABLE Vector3	getDirection() const { return direction; }
 
-		inline Point3	at(float t) const { return origin + direction * t; }
+		inline RT_CALLABLE Point3	at(float t) const { return origin + direction * t; }
 };
 
 std::ostream	&operator<<(std::ostream &os, const Ray &ray);

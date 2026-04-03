@@ -12,20 +12,20 @@ class AABB
 		Limits	yLimits;
 		Limits	zLimits;
 	public:
-		AABB();
-		AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits);
-		AABB(const Point3 &a, const Point3 &b);
-		AABB(const AABB &box0, const AABB &box1);
-		AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform);
-		~AABB() = default;
+		RT_CALLABLE AABB();
+		RT_CALLABLE AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits);
+		RT_CALLABLE AABB(const Point3 &a, const Point3 &b);
+		RT_CALLABLE AABB(const AABB &box0, const AABB &box1);
+		RT_CALLABLE AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform);
+		RT_CALLABLE ~AABB() = default;
 
-		const Limits	&getXLimits() const;
-		const Limits	&getYLimits() const;
-		const Limits	&getZLimits() const;
+		const RT_CALLABLE Limits	&getXLimits() const;
+		const RT_CALLABLE Limits	&getYLimits() const;
+		const RT_CALLABLE Limits	&getZLimits() const;
 
-		float			getArea() const;
+		RT_CALLABLE float			getArea() const;
 
-		bool			hit(const Ray &ray, const Limits &limits) const;
+		RT_CALLABLE bool			hit(const Ray &ray, const Limits &limits) const;
 };
 
 #endif /* AABB_HPP */

@@ -1,6 +1,6 @@
 #include "Solver.hpp"
 
-Solutions	solveLinear(float a, float b)
+RT_CALLABLE Solutions	solveLinear(float a, float b)
 {
 	Solutions	sols;
 	if (a != 0.0)

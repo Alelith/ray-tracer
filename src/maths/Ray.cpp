@@ -1,8 +1,8 @@
 #include "Ray.hpp"
 
-Ray::Ray() : origin(Point3::Origin), direction(Vector3::Forward) {}
+RT_CALLABLE Ray::Ray() : origin(Point3(0, 0, 0)), direction(Vector3(0, 0, 1)) {}
 
-Ray::Ray(const Point3 &origin, const Vector3 &direction) : origin(origin), direction(direction) {}
+RT_CALLABLE Ray::Ray(const Point3 &origin, const Vector3 &direction) : origin(origin), direction(direction) {}
 
 std::ostream	&operator<<(std::ostream &os, const Ray &ray)
 {

@@ -2,10 +2,10 @@
 
 Transform::Transform()
 {
-	matrix = Matrix4x4::Identity;
-	inverseMatrix = Matrix4x4::Identity;
-	transposeMatrix = Matrix4x4::Identity;
-	transposeInverseMatrix = Matrix4x4::Identity;
+	matrix = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
+	inverseMatrix = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
+	transposeMatrix = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
+	transposeInverseMatrix = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 }
 
 Transform::Transform(const Point3 &position, const Vector3 &rotation, const Vector3 &scale)

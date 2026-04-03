@@ -1,10 +1,10 @@
 #include "Vector3.hpp"
 
-Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
+RT_CALLABLE Vector3::Vector3() : v{0.0, 0.0, 0.0} {}
 
-Vector3::Vector3(float x, float y, float z) : v{x, y, z} {}
+RT_CALLABLE Vector3::Vector3(float x, float y, float z) : v{x, y, z} {}
 
-const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
+/*const Vector3	Vector3::Zero(0.0, 0.0, 0.0);
 const Vector3	Vector3::Up(0.0, 1.0, 0.0);
 const Vector3	Vector3::Right(1.0, 0.0, 0.0);
 const Vector3	Vector3::Forward(0.0, 0.0, 1.0);
@@ -23,7 +23,7 @@ const Vector3	Vector3::Green(0.0, 1.0, 0.0);
 const Vector3	Vector3::Blue(0.0, 0.0, 1.0);
 const Vector3	Vector3::Yellow(1.0, 1.0, 0.0);
 const Vector3	Vector3::Cyan(0.0, 1.0, 1.0);
-const Vector3	Vector3::Magenta(1.0, 0.0, 1.0);
+const Vector3	Vector3::Magenta(1.0, 0.0, 1.0);*/
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec)
 {

@@ -1,13 +1,13 @@
 #include "Geometry.hpp"
 
-int	WorldGeometries::totalCount() const
+RT_CALLABLE int	WorldGeometries::totalCount() const
 {
 	return static_cast<int>(spheres.inverseTransform.size() + planes.inverseTransform.size() + cylinders.inverseTransform.size() +
 							cones.inverseTransform.size() + hyperboloids.inverseTransform.size() + tori.inverseTransform.size() +
 							kisses.inverseTransform.size() + triangles.v0.size());
 }
 
-AABB &WorldGeometries::operator[](int index)
+RT_CALLABLE AABB &WorldGeometries::operator[](int index)
 {
 	for (size_t i = 0; i < spheres.geomIdx.size(); i++)
 	{
@@ -56,11 +56,9 @@ AABB &WorldGeometries::operator[](int index)
 		if (triangles.geomIdx[i] == index)
 			return triangles.boundingBox[i];
 	}
-
-	throw std::runtime_error("Geometry index not found in WorldGeometries");
 }
 
-const AABB &WorldGeometries::operator[](int index) const
+const RT_CALLABLE AABB &WorldGeometries::operator[](int index) const
 {
 	for (size_t i = 0; i < spheres.geomIdx.size(); i++)
 	{
@@ -109,18 +107,16 @@ const AABB &WorldGeometries::operator[](int index) const
 		if (triangles.geomIdx[i] == index)
 			return triangles.boundingBox[i];
 	}
-
-	throw std::runtime_error("Geometry index not found in WorldGeometries");
 }
 
-Ray	getLocalRay(const Matrix4x4 &inverse, const Ray &ray)
+RT_CALLABLE Ray	getLocalRay(const Matrix4x4 &inverse, const Ray &ray)
 {
 	const Point3	&wo = ray.getOrigin();
 	return Ray(inverse * wo,
 			   inverse * ray.getDirection());
 }
 
-bool	geometryHit(const WorldGeometries &g, const Ray &ray, const Limits &limits, HitRecord &record)
+RT_CALLABLE bool	geometryHit(const WorldGeometries &g, const Ray &ray, const Limits &limits, HitRecord &record)
 {
 	HitRecord	tmpRecord;
 	bool		hitAnything = false;

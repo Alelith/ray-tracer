@@ -54,13 +54,13 @@ $(OBJSF):
 	@touch $@
 
 $(NAME): $(OBJS)
-	@$(CXX) $(CXXFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
+	@$(CUDA) $(CUDAFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
 	@echo -e "$(GREEN)$(NAME) compiled!$(DEF_COLOR)"
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp | $(OBJSF)
 	@echo -e "$(CYAN)Compiling: $<$(DEF_COLOR)"
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCLUDES)
+	@$(CUDA) -x cu $(CUDAFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean:
 	@echo -e "$(RED)Removing .o object files...$(DEF_COLOR)"

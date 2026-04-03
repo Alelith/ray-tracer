@@ -26,13 +26,13 @@ int main()
 	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
 	makeSphere(Point3( 0.0,   1.0,  -0.5), 0.25, worldGeoms);   // above
 
-	addMaterial(Color(0, 1, 0), 0.0, 0.0, 1.0, 1.5, Color::Black, 1.0, materials); // centre
-	addMaterial(Color(1, 0, 1), 0.5, 1.0, 0.0, 0.0, Color::Black, 1.0, materials); // right
-	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color::Black, 1.0, materials); // left
-	addMaterial(Color(0.0, 0.8, 0.8), 0.0, 1.0, 0.0, 0.0, Color::Black, 1.0, materials); // ground
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color::Magenta, 50.0, materials); // above
+	addMaterial(Color(0, 1, 0), 0.0, 0.0, 1.0, 1.5, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
+	addMaterial(Color(1, 0, 1), 0.5, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
+	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
+	addMaterial(Color(0.0, 0.8, 0.8), 0.0, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.0, 1.0), 50.0, materials); // above
 
-	Camera camera(16.0 / 9.0, 960, 25, 25, 90, Point3(0, 0, 0), Vector3::Backward);
+	Camera camera(16.0 / 9.0, 960, 25, 25, 90, Point3(0, 0, 0), Vector3(0.0, 0.0, -1.0));
 	LinearBVH bvh(worldGeoms);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -126,13 +126,13 @@ int main()
 	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
 	makeSphere(Point3( 0.0,   1.0,  -0.5), 0.25, worldGeoms);   // above
 
-	addMaterial(Color(0, 1, 0), 0.0, 0.0, 1.0, 1.5, Color::Black, 1.0, materials); // centre
-	addMaterial(Color(1, 0, 1), 0.5, 1.0, 0.0, 0.0, Color::Black, 1.0, materials); // right
-	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color::Black, 1.0, materials); // left
-	addMaterial(Color(0.0, 0.8, 0.8), 0.0, 1.0, 0.0, 0.0, Color::Black, 1.0, materials); // ground
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color::Magenta, 50.0, materials); // above
+	addMaterial(Color(0, 1, 0), 0.0, 0.0, 1.0, 1.5, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
+	addMaterial(Color(1, 0, 1), 0.5, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
+	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
+	addMaterial(Color(0.0, 0.8, 0.8), 0.0, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.0, 1.0), 50.0, materials); // above
 
-	Camera camera(16.0 / 9.0, 960, 25, 25, 90, Point3(0, 0, 0), Vector3::Backward);
+	Camera camera(16.0 / 9.0, 960, 25, 25, 90, Point3(0, 0, 0), Vector3(0.0, 0.0, -1.0));
 	LinearBVH bvh(worldGeoms);
 
 	Timer timer;

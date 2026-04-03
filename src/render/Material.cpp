@@ -32,7 +32,7 @@ ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitReco
 			reflected += mat.roughness * Random::global().randomInUnitSphere();
 
 			result.scatteredRay = Ray(record.point, reflected);
-			result.attenuation = Color::White;
+			result.attenuation = Color(1.0, 1.0, 1.0);
 		}
 		else
 		{

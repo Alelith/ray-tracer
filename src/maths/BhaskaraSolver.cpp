@@ -1,6 +1,6 @@
 #include "Solver.hpp"
 
-Solutions	solveBhaskara(float a, float b, float c)
+RT_CALLABLE Solutions	solveBhaskara(float a, float b, float c)
 {
 	Solutions	sols;
 	if (a == 0.0)

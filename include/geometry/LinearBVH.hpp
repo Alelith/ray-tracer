@@ -34,14 +34,14 @@ class LinearBVH
 		vector<BVHData>	bvhData;
 		const WorldGeometries &worldGeoms;
 
-		int	buildNode(vector<BVHData> &data, int start, int end);
+		RT_CALLABLE int	buildNode(vector<BVHData> &data, int start, int end);
 
-		int	bestSplit(const vector<BVHData> &data, int start, int end);
+		RT_CALLABLE int	bestSplit(const vector<BVHData> &data, int start, int end);
 	public:
-		LinearBVH(const WorldGeometries &worldGeoms);
-		~LinearBVH() = default;
+		RT_CALLABLE LinearBVH(const WorldGeometries &worldGeoms);
+		RT_CALLABLE ~LinearBVH() = default;
 
-		bool	hit(const Ray &ray, const Limits &limits, HitRecord &record) const;
+		RT_CALLABLE bool	hit(const Ray &ray, const Limits &limits, HitRecord &record) const;
 };
 
 #endif /* LINEARBVH_HPP */

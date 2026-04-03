@@ -1,20 +1,20 @@
 #include "AABB.hpp"
 
-AABB::AABB() : xLimits(Limits()), yLimits(Limits()), zLimits(Limits()) {}
+RT_CALLABLE AABB::AABB() : xLimits(Limits()), yLimits(Limits()), zLimits(Limits()) {}
 
-AABB::AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits) :
+RT_CALLABLE AABB::AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits) :
 	xLimits(xLimits), yLimits(yLimits), zLimits(zLimits) {}
 
-AABB::AABB(const Point3 &a, const Point3 &b) :
+RT_CALLABLE AABB::AABB(const Point3 &a, const Point3 &b) :
 	xLimits(Limits(std::min(a[0], b[0]), std::max(a[0], b[0]))),
 	yLimits(Limits(std::min(a[1], b[1]), std::max(a[1], b[1]))),
 	zLimits(Limits(std::min(a[2], b[2]), std::max(a[2], b[2]))) {}
 
-AABB::AABB(const AABB &box0, const AABB &box1) : xLimits(getInterval(box0.getXLimits(), box1.getXLimits())),
-												yLimits(getInterval(box0.getYLimits(), box1.getYLimits())),
-												zLimits(getInterval(box0.getZLimits(), box1.getZLimits())) {}
+RT_CALLABLE AABB::AABB(const AABB &box0, const AABB &box1) : xLimits(getInterval(box0.getXLimits(), box1.getXLimits())),
+																yLimits(getInterval(box0.getYLimits(), box1.getYLimits())),
+																zLimits(getInterval(box0.getZLimits(), box1.getZLimits())) {}
 
-AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform)
+RT_CALLABLE AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform)
 {
 	Point3	corners[8];
 	corners[0] = Point3(localMin[0], localMin[1], localMin[2]);
@@ -46,16 +46,16 @@ AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &tran
 }
 
 
-const Limits	&AABB::getXLimits() const { return xLimits; }
-const Limits	&AABB::getYLimits() const { return yLimits; }
-const Limits	&AABB::getZLimits() const { return zLimits; }
+const RT_CALLABLE Limits	&AABB::getXLimits() const { return xLimits; }
+const RT_CALLABLE Limits	&AABB::getYLimits() const { return yLimits; }
+const RT_CALLABLE Limits	&AABB::getZLimits() const { return zLimits; }
 
-float	AABB::getArea() const
+RT_CALLABLE float	AABB::getArea() const
 {
 	return 2 * (xLimits.getLength() * yLimits.getLength() + xLimits.getLength() * zLimits.getLength() + yLimits.getLength() * zLimits.getLength());
 }
 
-static const Limits& getLimits(int axis, const AABB &box)
+static const RT_CALLABLE Limits& getLimits(int axis, const AABB &box)
 {
 	if (axis == 0)
 		return box.getXLimits();
@@ -65,7 +65,7 @@ static const Limits& getLimits(int axis, const AABB &box)
 		return box.getZLimits();
 }
 
-bool	AABB::hit(const Ray &ray, const Limits &limits) const
+RT_CALLABLE bool	AABB::hit(const Ray &ray, const Limits &limits) const
 {
 	float	tMin = limits.getMin();
 	float	tMax = limits.getMax();

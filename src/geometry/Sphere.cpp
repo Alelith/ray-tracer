@@ -1,8 +1,8 @@
 #include "Geometry.hpp"
 
-void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
+RT_CALLABLE void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
 {
-	Transform	t = Transform(center, Vector3::Up, Vector3(radius, radius, radius));
+	Transform	t = Transform(center, Vector3(0.0, 1.0, 0.0), Vector3(radius, radius, radius));
 	AABB		box(Point3(-1, -1, -1), Point3(1, 1, 1), t);
 	int			idx = worldGeoms.totalCount();  // Calculate index BEFORE adding
 	worldGeoms.spheres.inverseTransform.emplace_back(t.getInverseMatrix());
@@ -11,7 +11,7 @@ void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
 	worldGeoms.spheres.geomIdx.emplace_back(idx);
 }
 
-bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
+RT_CALLABLE bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
 {
 	Ray		localRay = getLocalRay(invTransform, ray);
 	Point3	o = localRay.getOrigin();
@@ -46,7 +46,7 @@ bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &lim
 	return true;
 }
 
-bool	spheresHit(const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record)
+RT_CALLABLE bool	spheresHit(const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record)
 {
 	HitRecord	tmpRecord;
 	bool		hitAnything = false;

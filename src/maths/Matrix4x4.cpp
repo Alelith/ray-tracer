@@ -1,23 +1,23 @@
 #include "Matrix4x4.hpp"
 #include "Point3.hpp"
 
-Matrix4x4::Matrix4x4() : m{{0.0, 0.0, 0.0, 0.0},
+RT_CALLABLE Matrix4x4::Matrix4x4() : m{{0.0, 0.0, 0.0, 0.0},
 							 {0.0, 0.0, 0.0, 0.0},
 							 {0.0, 0.0, 0.0, 0.0},
 							 {0.0, 0.0, 0.0, 1.0}} {}
 
-Matrix4x4::Matrix4x4(const float values[4][4])
+RT_CALLABLE Matrix4x4::Matrix4x4(const float values[4][4])
 {	
 	for (int i = 0; i < 4; ++i)
 		for (int j = 0; j < 4; ++j)
 			m[i][j] = values[i][j];
 }
 
-static const float	s_identity[4][4] = {{1.0, 0.0, 0.0, 0.0},
+/*static const float	s_identity[4][4] = {{1.0, 0.0, 0.0, 0.0},
 										{0.0, 1.0, 0.0, 0.0},
 										{0.0, 0.0, 1.0, 0.0},
 										{0.0, 0.0, 0.0, 1.0}};
-const Matrix4x4	Matrix4x4::Identity(s_identity);
+const Matrix4x4	Matrix4x4::Identity(s_identity);*/
 
 std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat)
 {
@@ -39,18 +39,18 @@ std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat)
 	return os;
 }
 
-Matrix4x4	translationMatrix(const Vector3 &translation)
+RT_CALLABLE Matrix4x4	translationMatrix(const Vector3 &translation)
 {
-	Matrix4x4 result = Matrix4x4::Identity;
+	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 	result(0, 3) = translation[0];
 	result(1, 3) = translation[1];
 	result(2, 3) = translation[2];
 	return result;
 }
 
-Matrix4x4	rotationMatrix(const Vector3 &rotation)
+RT_CALLABLE Matrix4x4	rotationMatrix(const Vector3 &rotation)
 {
-	Matrix4x4 result = Matrix4x4::Identity;
+	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 	Vector3 newY = rotation.normalized();
 	Vector3 newX = Vector3(0.0, 1.0, 0.0).normalized();
 	if (std::abs(newY[0]) < 0.999)
@@ -70,40 +70,40 @@ Matrix4x4	rotationMatrix(const Vector3 &rotation)
 	return result;
 }
 
-Matrix4x4	scaleMatrix(const Vector3 &scale)
+RT_CALLABLE Matrix4x4	scaleMatrix(const Vector3 &scale)
 {
-	Matrix4x4 result = Matrix4x4::Identity;
+	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 	result(0, 0) = scale[0];
 	result(1, 1) = scale[1];
 	result(2, 2) = scale[2];
 	return result;
 }
 
-Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
+RT_CALLABLE Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
 {
-	Matrix4x4 result = Matrix4x4::Identity;
+	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 	result(0, 3) = -translation[0];
 	result(1, 3) = -translation[1];
 	result(2, 3) = -translation[2];
 	return result;
 }
 
-Matrix4x4	inverseRotationMatrix(const Vector3 &rotation)
+RT_CALLABLE Matrix4x4	inverseRotationMatrix(const Vector3 &rotation)
 {
 	Matrix4x4 rotMat = rotationMatrix(rotation);
 	return transpose(rotMat);
 }
 
-Matrix4x4	inverseScaleMatrix(const Vector3 &scale)
+RT_CALLABLE Matrix4x4	inverseScaleMatrix(const Vector3 &scale)
 {
-	Matrix4x4 result = Matrix4x4::Identity;
+	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
 	result(0, 0) = (scale[0] != 0.0) ? 1.0 / scale[0] : 0.0;
 	result(1, 1) = (scale[1] != 0.0) ? 1.0 / scale[1] : 0.0;
 	result(2, 2) = (scale[2] != 0.0) ? 1.0 / scale[2] : 0.0;
 	return result;
 }
 
-Matrix4x4	transpose(const Matrix4x4 &mat)
+RT_CALLABLE Matrix4x4	transpose(const Matrix4x4 &mat)
 {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i)
