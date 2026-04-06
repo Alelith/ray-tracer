@@ -1,9 +1,9 @@
 #ifndef AABB_HPP
 # define AABB_HPP
 
-#include "Ray.hpp"
-#include "Limits.hpp"
-#include "Transform.hpp"
+# include "Ray.hpp"
+# include "Limits.hpp"
+# include "Matrix4x4.hpp"
 
 class AABB
 {
@@ -16,7 +16,7 @@ class AABB
 		RT_CALLABLE AABB(const Limits &xLimits, const Limits &yLimits, const Limits &zLimits);
 		RT_CALLABLE AABB(const Point3 &a, const Point3 &b);
 		RT_CALLABLE AABB(const AABB &box0, const AABB &box1);
-		RT_CALLABLE AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform);
+		RT_CALLABLE AABB(const Point3 &localMin, const Point3 &localMax, const Matrix4x4 &masterMat);
 		RT_CALLABLE ~AABB() = default;
 
 		const RT_CALLABLE Limits	&getXLimits() const;

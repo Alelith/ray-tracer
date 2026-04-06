@@ -3,39 +3,36 @@
 
 # include "Solver.hpp"
 # include "AABB.hpp"
-# include "Transform.hpp"
 # include "HitRecord.hpp"
 # include "Limits.hpp"
 # include <cstdint>
-# include <vector>
-
-using std::vector;
 
 struct SimpleGeometryData
 {
-	vector<Matrix4x4>		inverseTransform;
-	vector<Matrix4x4>		transposeInverseTransform;
-	vector<AABB>			boundingBox;
-	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
+	Matrix4x4	*inverseTransform = nullptr;
+	AABB		*boundingBox = nullptr;
+	int			*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
+	size_t		count = 0;
 };
 
 struct ParametrizedGeometryData
 {
-	vector<Matrix4x4>		inverseTransform;
-	vector<Matrix4x4>		transposeInverseTransform;
-	vector<float>			param;
-	vector<AABB>			boundingBox;
-	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
+	Matrix4x4	*inverseTransform = nullptr;
+	float		*param = nullptr;
+	AABB		*boundingBox = nullptr;
+	int			*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
+	size_t		count = 0;
 };
 
 struct WorldGeometryData
 {
-	vector<Point3>			v0;
-	vector<Point3>			v1;
-	vector<Point3>			v2;
-	vector<Vector3>			triNormal;
-	vector<AABB>			boundingBox;
-	vector<int>				geomIdx; // Index to identify which geometry was hit in the original list
+	Point3	*v0 = nullptr;
+	Point3	*v1 = nullptr;
+	Point3	*v2 = nullptr;
+	Vector3	*triNormal = nullptr;
+	AABB	*boundingBox = nullptr;
+	int		*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
+	size_t	count = 0;
 };
 
 struct WorldGeometries
@@ -49,16 +46,12 @@ struct WorldGeometries
 	ParametrizedGeometryData	kisses;
 	WorldGeometryData			triangles;
 
-	RT_CALLABLE int	totalCount() const;
-
-	RT_CALLABLE AABB &operator[](int index);
-
-	const RT_CALLABLE AABB &operator[](int index) const;
+	RT_CALLABLE size_t	totalCount() const;
 };
 
-RT_CALLABLE Ray				getLocalRay     (const Matrix4x4 &inverse, const Ray &ray);
+RT_CALLABLE Ray		getLocalRay     (const Matrix4x4 &inverse, const Ray &ray);
 
-RT_CALLABLE void			makeSphere      (const Point3 &center, float radius, WorldGeometries &worldGeoms);
+RT_CALLABLE void	makeSphere      (const Point3 &center, float radius, WorldGeometries &worldGeoms);
 /*void			makePlane       (const Point3 &point, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
@@ -67,9 +60,6 @@ void			makeTorus       (float majorRadius, float minorRadius, const Point3 &cent
 void			makeKiss        (float sharpness, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);*/
 
-RT_CALLABLE bool			sphereHits      (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
-RT_CALLABLE bool			spheresHit      (const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record);
-
-RT_CALLABLE bool			geometryHit     (const WorldGeometries &g, const Ray &ray, const Limits &limits, HitRecord &record);
+RT_CALLABLE bool	sphereHits      (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
 
 #endif /* GEOMETRY_HPP */

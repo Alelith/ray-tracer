@@ -14,7 +14,7 @@ RT_CALLABLE AABB::AABB(const AABB &box0, const AABB &box1) : xLimits(getInterval
 																yLimits(getInterval(box0.getYLimits(), box1.getYLimits())),
 																zLimits(getInterval(box0.getZLimits(), box1.getZLimits())) {}
 
-RT_CALLABLE AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Transform &transform)
+RT_CALLABLE AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Matrix4x4 &masterMat)
 {
 	Point3	corners[8];
 	corners[0] = Point3(localMin[0], localMin[1], localMin[2]);
@@ -26,12 +26,12 @@ RT_CALLABLE AABB::AABB(const Point3 &localMin, const Point3 &localMax, const Tra
 	corners[6] = Point3(localMax[0], localMax[1], localMin[2]);
 	corners[7] = Point3(localMax[0], localMax[1], localMax[2]);
 
-	Point3	wmin = transform.getMatrix() * corners[0];
+	Point3	wmin = masterMat * corners[0];
 	Point3	wmax = wmin;
 	
 	for (int i = 1; i < 8; i++)
 	{
-		Point3 wc = transform.getMatrix() * corners[i];
+		Point3 wc = masterMat * corners[i];
 		wmin[0] = std::min(wmin[0], wc[0]);
 		wmin[1] = std::min(wmin[1], wc[1]);
 		wmin[2] = std::min(wmin[2], wc[2]);

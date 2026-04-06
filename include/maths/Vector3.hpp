@@ -20,63 +20,42 @@ class Vector3
 		RT_CALLABLE Vector3(const Vector3 &other) = default;
 		RT_CALLABLE ~Vector3() = default;
 
-		/*static const	Vector3 Zero;
-		static const	Vector3 Up;
-		static const	Vector3 Right;
-		static const	Vector3 Forward;
-		static const	Vector3 Down;
-		static const	Vector3 Left;
-		static const	Vector3 Backward;
-		static const	Vector3 One;
-
-		static const	Vector3 White;
-		static const	Vector3 Black;
-		static const	Vector3 Gray;
-		static const	Vector3 LightGray;
-		static const	Vector3 DarkGray;
-		static const	Vector3 Red;
-		static const	Vector3 Green;
-		static const	Vector3 Blue;
-		static const	Vector3 Yellow;
-		static const	Vector3 Cyan;
-		static const	Vector3 Magenta;*/
-
 		RT_CALLABLE Vector3			&operator=(const Vector3 &other) = default;
 
-		inline RT_CALLABLE Vector3		operator-() const { return Vector3(-v[0], -v[1], -v[2]); }
-		inline RT_CALLABLE float		&operator[](int index) { return v[index]; }
-		inline RT_CALLABLE float		operator[](int index) const { return v[index]; }
+		inline RT_CALLABLE Vector3	operator-() const { return Vector3(-v[0], -v[1], -v[2]); }
+		inline RT_CALLABLE float	&operator[](int index) { return v[index]; }
+		inline RT_CALLABLE float	operator[](int index) const { return v[index]; }
 
-		inline RT_CALLABLE Vector3 		operator+=(const Vector3 &other) { v[0] += other[0]; v[1] += other[1]; v[2] += other[2]; return *this; }
-		inline RT_CALLABLE Vector3 		operator-=(const Vector3 &other) { v[0] -= other[0]; v[1] -= other[1]; v[2] -= other[2]; return *this; }
-		inline RT_CALLABLE Vector3 		operator*=(const Vector3 &other) { v[0] *= other[0]; v[1] *= other[1]; v[2] *= other[2]; return *this; }
-		inline RT_CALLABLE Vector3 		operator*=(float scalar) { v[0] *= scalar; v[1] *= scalar; v[2] *= scalar; return *this; }
-		inline RT_CALLABLE Vector3 		operator/=(float scalar) { v[0] /= scalar; v[1] /= scalar; v[2] /= scalar; return *this; }
+		inline RT_CALLABLE Vector3 	operator+=(const Vector3 &other) { v[0] += other[0]; v[1] += other[1]; v[2] += other[2]; return *this; }
+		inline RT_CALLABLE Vector3 	operator-=(const Vector3 &other) { v[0] -= other[0]; v[1] -= other[1]; v[2] -= other[2]; return *this; }
+		inline RT_CALLABLE Vector3 	operator*=(const Vector3 &other) { v[0] *= other[0]; v[1] *= other[1]; v[2] *= other[2]; return *this; }
+		inline RT_CALLABLE Vector3 	operator*=(float scalar) { v[0] *= scalar; v[1] *= scalar; v[2] *= scalar; return *this; }
+		inline RT_CALLABLE Vector3 	operator/=(float scalar) { v[0] /= scalar; v[1] /= scalar; v[2] /= scalar; return *this; }
 
-		inline RT_CALLABLE float		length_sqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
-		inline RT_CALLABLE float		length() const { return std::sqrt(length_sqrd()); }
-		inline RT_CALLABLE Vector3		normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3(0, 0, 0); }
+		inline RT_CALLABLE float	length_sqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
+		inline RT_CALLABLE float	length() const { return std::sqrt(length_sqrd()); }
+		inline RT_CALLABLE Vector3	normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3(0, 0, 0); }
 
-		inline RT_CALLABLE bool			isNearZero() const { return length_sqrd() < 1e-6; }
+		inline RT_CALLABLE bool		isNearZero() const { return length_sqrd() < 1e-6; }
 
-		inline RT_CALLABLE float		x() const { return v[0]; }
-		inline RT_CALLABLE float		y() const { return v[1]; }
-		inline RT_CALLABLE float		z() const { return v[2]; }
+		inline RT_CALLABLE float	x() const { return v[0]; }
+		inline RT_CALLABLE float	y() const { return v[1]; }
+		inline RT_CALLABLE float	z() const { return v[2]; }
 };
 
 using Color = Vector3;
 
 std::ostream	&operator<<(std::ostream &os, const Vector3 &vec);
 
-inline RT_CALLABLE Vector3			operator+(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() + vec2.x(), vec1.y() + vec2.y(), vec1.z() + vec2.z()); }
-inline RT_CALLABLE Vector3			operator-(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() - vec2.x(), vec1.y() - vec2.y(), vec1.z() - vec2.z()); }
-inline RT_CALLABLE Vector3			operator*(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() * vec2.x(), vec1.y() * vec2.y(), vec1.z() * vec2.z()); }
-inline RT_CALLABLE Vector3			operator*(float scalar, const Vector3 &vec) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
-inline RT_CALLABLE Vector3			operator*(const Vector3 &vec, float scalar) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
-inline RT_CALLABLE Vector3			operator/(const Vector3 &vec, float scalar) { return Vector3(vec.x() / scalar, vec.y() / scalar, vec.z() / scalar); }
+inline RT_CALLABLE Vector3	operator+(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() + vec2.x(), vec1.y() + vec2.y(), vec1.z() + vec2.z()); }
+inline RT_CALLABLE Vector3	operator-(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() - vec2.x(), vec1.y() - vec2.y(), vec1.z() - vec2.z()); }
+inline RT_CALLABLE Vector3	operator*(const Vector3 &vec1, const Vector3 &vec2) { return Vector3(vec1.x() * vec2.x(), vec1.y() * vec2.y(), vec1.z() * vec2.z()); }
+inline RT_CALLABLE Vector3	operator*(float scalar, const Vector3 &vec) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
+inline RT_CALLABLE Vector3	operator*(const Vector3 &vec, float scalar) { return Vector3(scalar * vec.x(), scalar * vec.y(), scalar * vec.z()); }
+inline RT_CALLABLE Vector3	operator/(const Vector3 &vec, float scalar) { return Vector3(vec.x() / scalar, vec.y() / scalar, vec.z() / scalar); }
 
-inline RT_CALLABLE float			dot(const Vector3 &vec1, const Vector3 &vec2) { return vec1.x() * vec2.x() + vec1.y() * vec2.y() + vec1.z() * vec2.z(); }
-inline RT_CALLABLE Vector3			cross(const Vector3 &vec1, const Vector3 &vec2)
+inline RT_CALLABLE float	dot(const Vector3 &vec1, const Vector3 &vec2) { return vec1.x() * vec2.x() + vec1.y() * vec2.y() + vec1.z() * vec2.z(); }
+inline RT_CALLABLE Vector3	cross(const Vector3 &vec1, const Vector3 &vec2)
 {
 	return Vector3(vec1.y() * vec2.z() - vec1.z() * vec2.y(),
 					vec1.z() * vec2.x() - vec1.x() * vec2.z(),

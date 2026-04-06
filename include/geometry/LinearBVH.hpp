@@ -2,10 +2,9 @@
 # define LINEARBVH_HPP
 
 # include "Geometry.hpp"
+# include <vector>
 
-# include <stack>
-
-using std::stack;
+using std::vector;
 
 enum GeomType
 {
@@ -31,12 +30,13 @@ struct BVHData
 class LinearBVH
 {
 	private:
-		vector<BVHData>	bvhData;
-		const WorldGeometries &worldGeoms;
+		BVHData					*bvhData;
+		size_t					count;
+		const WorldGeometries	&worldGeoms;
 
 		RT_CALLABLE int	buildNode(vector<BVHData> &data, int start, int end);
 
-		RT_CALLABLE int	bestSplit(const vector<BVHData> &data, int start, int end);
+		RT_CALLABLE int	bestSplit(vector<BVHData> &data, int start, int end);
 	public:
 		RT_CALLABLE LinearBVH(const WorldGeometries &worldGeoms);
 		RT_CALLABLE ~LinearBVH() = default;

@@ -33,7 +33,7 @@ vector<int>	Camera::getImage()
 	vector<int> imageData(imageWidth * imageHeight);
 
 	Limits intensity(0, 0.999);
-	for (size_t i = 0; i < buffer.size(); i++)
+	for (size_t i = 0; i < static_cast<size_t>(imageWidth * imageHeight); i++)
 	{
 		Color avgColor = buffer[i] / iteration;
 		imageData[i] = (static_cast<int>(256 * intensity.clamp(linearToGamma(avgColor.x())))) << 16 |
@@ -48,7 +48,7 @@ void	Camera::initialize()
 	imageHeight = static_cast<int>(imageWidth / aspectRatio);
 	imageHeight = imageHeight < 1 ? 1 : imageHeight;
 
-	buffer.resize(imageWidth * imageHeight);
+	buffer = new Color[imageWidth * imageHeight];
 	iteration = 0;
 
 	pixelSamplesScale = 1.0 / samplesPerPixel;

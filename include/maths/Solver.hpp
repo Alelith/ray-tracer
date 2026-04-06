@@ -14,6 +14,7 @@ struct Solution
 	float	real;
 	float	imaginary;
 	bool	isComplex;
+
 	RT_CALLABLE Solution();
 	RT_CALLABLE Solution(float real, float imaginary, bool isComplex);
 };

@@ -2,13 +2,34 @@
 
 RT_CALLABLE void	makeSphere(const Point3 &center, float radius, WorldGeometries &worldGeoms)
 {
-	Transform	t = Transform(center, Vector3(0.0, 1.0, 0.0), Vector3(radius, radius, radius));
-	AABB		box(Point3(-1, -1, -1), Point3(1, 1, 1), t);
-	int			idx = worldGeoms.totalCount();  // Calculate index BEFORE adding
-	worldGeoms.spheres.inverseTransform.emplace_back(t.getInverseMatrix());
-	worldGeoms.spheres.transposeInverseTransform.emplace_back(t.getTransposeInverseMatrix());
-	worldGeoms.spheres.boundingBox.emplace_back(box);
-	worldGeoms.spheres.geomIdx.emplace_back(idx);
+	Matrix4x4	master = masterMatrix(center.toVector(), Vector3(0, 1, 0), Vector3(radius, radius, radius));
+	AABB		box(Point3(-1, -1, -1), Point3(1, 1, 1), master);
+	int			idx = worldGeoms.totalCount();
+
+	size_t currentCount = worldGeoms.spheres.count;
+	
+	Matrix4x4* newInverse = new Matrix4x4[currentCount + 1];
+	AABB* newAABB = new AABB[currentCount + 1];
+	int* newGeomIdx = new int[currentCount + 1];
+
+	for (size_t i = 0; i < currentCount; i++) {
+		newInverse[i] = worldGeoms.spheres.inverseTransform[i];
+		newAABB[i] = worldGeoms.spheres.boundingBox[i];
+		newGeomIdx[i] = worldGeoms.spheres.geomIdx[i];
+	}
+
+	newInverse[currentCount] = master.inverse();
+	newAABB[currentCount] = box;
+	newGeomIdx[currentCount] = idx;
+
+	delete[] worldGeoms.spheres.inverseTransform;
+	delete[] worldGeoms.spheres.boundingBox;
+	delete[] worldGeoms.spheres.geomIdx;
+
+	worldGeoms.spheres.inverseTransform = newInverse;
+	worldGeoms.spheres.boundingBox = newAABB;
+	worldGeoms.spheres.geomIdx = newGeomIdx;
+	worldGeoms.spheres.count++;
 }
 
 RT_CALLABLE bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
@@ -40,27 +61,8 @@ RT_CALLABLE bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const
 
 	Point3	localHit = o + root * d;
 	Vector3	localNormal = localHit.toVector().normalized();
-	Vector3	worldNormal = (transpose(invTransform) * localNormal).normalized();
+	Vector3	worldNormal = (invTransform.transpose() * localNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
 	
 	return true;
-}
-
-RT_CALLABLE bool	spheresHit(const SimpleGeometryData &spheres, const Ray &ray, Limits &limits, HitRecord &record)
-{
-	HitRecord	tmpRecord;
-	bool		hitAnything = false;
-
-	for (size_t i = 0; i < spheres.inverseTransform.size(); ++i)
-	{
-		if (sphereHits(spheres.inverseTransform[i], ray, limits, tmpRecord))
-		{
-			hitAnything = true;
-			record = tmpRecord;
-			record.geomIdx = spheres.geomIdx[i]; // Store the index of the hit geometry
-			limits = Limits(limits.getMin(), record.t); // Update limits to find closest hit
-		}
-	}
-
-	return hitAnything;
 }

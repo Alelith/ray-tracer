@@ -14,7 +14,7 @@ WHITE = \033[0;97m
 INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -O3 -std=c++17
+CXXFLAGS = -Wall -Wextra -Werror -O0 -g -std=c++17
 CUDA = nvcc
 CUDAFLAGS = -std=c++17
 LDFLAGS = -lm -lSDL2
@@ -23,7 +23,7 @@ SRC_DIR = src/
 OBJ_DIR = obj/
 
 GEOMETRY_DIR = geometry/
-GEOMETRY_FILES = Geometry Sphere Transform Limits AABB LinearBVH
+GEOMETRY_FILES = Geometry Sphere Limits AABB LinearBVH
 
 MATHS_DIR = maths/
 MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \
@@ -54,13 +54,13 @@ $(OBJSF):
 	@touch $@
 
 $(NAME): $(OBJS)
-	@$(CUDA) $(CUDAFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
 	@echo -e "$(GREEN)$(NAME) compiled!$(DEF_COLOR)"
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp | $(OBJSF)
 	@echo -e "$(CYAN)Compiling: $<$(DEF_COLOR)"
 	@mkdir -p $(dir $@)
-	@$(CUDA) -x cu $(CUDAFLAGS) -c $< -o $@ $(INCLUDES)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean:
 	@echo -e "$(RED)Removing .o object files...$(DEF_COLOR)"

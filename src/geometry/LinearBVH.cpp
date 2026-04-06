@@ -7,8 +7,15 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 		nodeBox = AABB(nodeBox, data[i].box);
 	if (end - start == 1)
 	{
-		bvhData.push_back(data[start]);
-		return bvhData.size() - 1;
+		BVHData* newData = new BVHData[count + 1];
+		for (size_t k = 0; k < count; k++)
+			newData[k] = bvhData[k];
+		newData[count] = data[start];
+		delete[] bvhData;
+		bvhData = newData;
+		count++;
+
+		return count - 1;
 	}
 	else
 	{
@@ -45,19 +52,28 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 		
 		BVHData nodeData;
 		nodeData.geomIdx = -1; // Internal node
-		nodeData.type = NONE; // Internal node
+		nodeData.type = NONE;
+		nodeData.rightChildIdx = 0;
 		nodeData.box = nodeBox;
-		bvhData.push_back(nodeData);
 
-		int nodeIdx = bvhData.size() - 1;
+		BVHData* newData = new BVHData[count + 1];
+		for (size_t k = 0; k < count; k++)
+			newData[k] = bvhData[k];
+		newData[count] = nodeData;
+		delete[] bvhData;
+		bvhData = newData;
+		count++;
+
+		int nodeIdx = count - 1;
 
 		buildNode(data, start, mid);
-		bvhData[nodeIdx].rightChildIdx = buildNode(data, mid, end);
+		int rIdx = buildNode(data, mid, end);
+		bvhData[nodeIdx].rightChildIdx = rIdx;
 		return nodeIdx;
 	}
 }
 
-RT_CALLABLE int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int end)
+RT_CALLABLE int	LinearBVH::bestSplit(vector<BVHData> &data, int start, int end)
 {
 	float minCost = INFINITY;
 	int res = start + (end - start) / 2;
@@ -82,10 +98,12 @@ RT_CALLABLE int	LinearBVH::bestSplit(const vector<BVHData> &data, int start, int
 	return res;
 }
 
-RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms(worldGeoms)
+RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) 
+	: bvhData(nullptr), count(0), worldGeoms(worldGeoms)
 {
 	vector<BVHData>	tmpData;
-	for (size_t i = 0; i < worldGeoms.spheres.geomIdx.size(); i++)
+
+	for (size_t i = 0; i < worldGeoms.spheres.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -94,7 +112,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.spheres.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.planes.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.planes.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -103,7 +121,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.planes.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.cylinders.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.cylinders.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -112,7 +130,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.cylinders.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.cones.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.cones.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -121,7 +139,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.cones.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.hyperboloids.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.hyperboloids.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -130,7 +148,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.hyperboloids.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.tori.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.tori.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -139,7 +157,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.tori.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.kisses.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.kisses.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
@@ -148,7 +166,7 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : worldGeoms
 		data.box = worldGeoms.kisses.boundingBox[i];
 		tmpData.push_back(data);
 	}
-	for (size_t i = 0; i < worldGeoms.triangles.geomIdx.size(); i++)
+	for (size_t i = 0; i < worldGeoms.triangles.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;

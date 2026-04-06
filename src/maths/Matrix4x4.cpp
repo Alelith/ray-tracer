@@ -79,6 +79,14 @@ RT_CALLABLE Matrix4x4	scaleMatrix(const Vector3 &scale)
 	return result;
 }
 
+RT_CALLABLE Matrix4x4	masterMatrix(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale)
+{
+	Matrix4x4 transMat = translationMatrix(translation);
+	Matrix4x4 rotMat = rotationMatrix(rotation);
+	Matrix4x4 scaleMat = scaleMatrix(scale);
+	return transMat * rotMat * scaleMat;
+}
+
 RT_CALLABLE Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
 {
 	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
@@ -91,7 +99,7 @@ RT_CALLABLE Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
 RT_CALLABLE Matrix4x4	inverseRotationMatrix(const Vector3 &rotation)
 {
 	Matrix4x4 rotMat = rotationMatrix(rotation);
-	return transpose(rotMat);
+	return rotMat.transpose();
 }
 
 RT_CALLABLE Matrix4x4	inverseScaleMatrix(const Vector3 &scale)
@@ -101,6 +109,14 @@ RT_CALLABLE Matrix4x4	inverseScaleMatrix(const Vector3 &scale)
 	result(1, 1) = (scale[1] != 0.0) ? 1.0 / scale[1] : 0.0;
 	result(2, 2) = (scale[2] != 0.0) ? 1.0 / scale[2] : 0.0;
 	return result;
+}
+
+RT_CALLABLE Matrix4x4	inverseMasterMatrix(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale)
+{
+	Matrix4x4 invScaleMat = inverseScaleMatrix(scale);
+	Matrix4x4 invRotMat = inverseRotationMatrix(rotation);
+	Matrix4x4 invTransMat = inverseTranslationMatrix(translation);
+	return invScaleMat * invRotMat * invTransMat;
 }
 
 RT_CALLABLE Matrix4x4	transpose(const Matrix4x4 &mat)

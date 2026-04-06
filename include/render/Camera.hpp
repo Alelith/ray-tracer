@@ -1,17 +1,10 @@
 #ifndef CAMERA_HPP
 # define CAMERA_HPP
 
-# include "Ray.hpp"
-# include "Random.hpp"
-# include "Geometry.hpp"
 # include "Material.hpp"
 # include "LinearBVH.hpp"
-# include <iostream>
-# include <vector>
 # include <cmath>
 # include <thread>
-
-using std::vector;
 
 class Camera
 {
@@ -36,8 +29,8 @@ class Camera
 		Vector3	pixelDeltaU;
 		Vector3	pixelDeltaV;
 
-		vector<Color>	buffer;
-		int				iteration;
+		Color	*buffer;
+		int		iteration;
 
 		void	initialize();
 		Ray		getRay(float u, float v) const;

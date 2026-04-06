@@ -1,6 +1,4 @@
 #include "Camera.hpp"
-#include "Material.hpp"
-#include "Geometry.hpp"
 #include "Timer.hpp"
 #include "LinearBVH.hpp"
 #include "debug/PrintPPM.hpp"
@@ -21,18 +19,22 @@ int main()
 	Materials materials;
 
 	makeSphere(Point3( 0.0,   0.0,  -2), 0.5, worldGeoms);   // centre
-	makeSphere(Point3( 1.0,   0.0,  -1),  0.5, worldGeoms);   // right
-	makeSphere(Point3( -1.0,   0.0,  -1),  0.5, worldGeoms);   // left
+	makeSphere(Point3( 3.0,   0.0,  -1),  0.5, worldGeoms);   // right
+	makeSphere(Point3( -3.0,   0.0,  -1),  0.5, worldGeoms);   // left
 	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
-	makeSphere(Point3( 0.0,   1.0,  -0.5), 0.25, worldGeoms);   // above
+	makeSphere(Point3( 0.0,   1.0,  -0.5), 0.5, worldGeoms);   // above
+	makeSphere(Point3( -1.5,   1.0, 0), 0.25, worldGeoms);   // above
+	makeSphere(Point3( 1.5,   1.0,  0), 0.25, worldGeoms);   // above
 
 	addMaterial(Color(0, 1, 0), 0.0, 0.0, 1.0, 1.5, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
 	addMaterial(Color(1, 0, 1), 0.5, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
 	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
-	addMaterial(Color(0.0, 0.8, 0.8), 0.0, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
+	addMaterial(Color(0.0, 0.8, 0.8), 1.0, 0.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
 	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.0, 1.0), 50.0, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
 
-	Camera camera(16.0 / 9.0, 960, 25, 25, 90, Point3(0, 0, 0), Vector3(0.0, 0.0, -1.0));
+	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2, -7), Vector3(0.0, -0.5, 1.0));
 	LinearBVH bvh(worldGeoms);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -41,7 +43,9 @@ int main()
 		return 1;
 	}
 
-	SDL_Window* win = SDL_CreateWindow("Ray Tracer", 100, 100, 960, 540, SDL_WINDOW_SHOWN);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+	SDL_Window* win = SDL_CreateWindow("Ray Tracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
 	if (win == nullptr)
 	{
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -58,7 +62,7 @@ int main()
 		return 1;
 	}
 
-	SDL_Texture* texture = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 960, 540);
+	SDL_Texture* texture = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 3840, 2160);
 	if (texture == nullptr)
 	{
 		SDL_DestroyRenderer(ren);
@@ -96,7 +100,7 @@ int main()
 			std::cerr << " [Render time: " << timer.elapsedMilliseconds() << " ms]" << std::flush;
 
 			vector<int> imageData = camera.getImage();
-			int width = 960;
+			int width = 3840;
 			SDL_UpdateTexture(texture, nullptr, imageData.data(), width * sizeof(int));
 			i++;
 		}
