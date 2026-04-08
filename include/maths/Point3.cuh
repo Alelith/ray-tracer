@@ -61,4 +61,10 @@ inline RT_CALLABLE Vector3	operator-(const Point3 &p1, const Point3 &p2)
 	return Vector3(p1.x() - p2.x(), p1.y() - p2.y(), p1.z() - p2.z());
 }
 
+inline RT_CALLABLE float	dot(const Point3 &p1, const Point3 &p2) { return p1.x() * p2.x() + p1.y() * p2.y() + p1.z() * p2.z(); }
+
+inline RT_CALLABLE float	dot(const Point3 &point, const Vector3 &vec) { return point.x() * vec.x() + point.y() * vec.y() + point.z() * vec.z(); }
+
+inline RT_CALLABLE float	dot(const Vector3 &vec, const Point3 &point) { return vec.x() * point.x() + vec.y() * point.y() + vec.z() * point.z(); }
+
 #endif /* POINT3_HPP */

@@ -19,7 +19,9 @@ RT_CALLABLE Solutions	solveCardano(float a, float b, float c, float d)
 	if (discriminant < 0.0)
 	{
 		float r     = sqrtf(-p * p * p / 27.0f);
-		float theta = acosf(-q / (2.0f * r)) / 3.0f;
+		float acosArg = -q / (2.0f * r);
+		acosArg = fmaxf(-1.0f, fminf(1.0f, acosArg));
+		float theta = acosf(acosArg) / 3.0f;
 		float rho   = 2.0f * cbrtf(r);
 
 		sols.push(rho * cosf(theta) + offset, 0.0, false);

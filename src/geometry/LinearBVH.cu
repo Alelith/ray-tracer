@@ -200,8 +200,9 @@ RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray
 			// Implement hyperboloid hit logic
 			break;
 		case TORUS:
-			// Implement torus hit logic
-			break;
+			hit = torusHits(worldGeoms.tori.inverseTransform[geomData.geomIdx], worldGeoms.tori.param[geomData.geomIdx], ray, limits, record);
+			if (hit) record.geomIdx = worldGeoms.tori.geomIdx[geomData.geomIdx];
+			return hit;
 		case KISS:
 			// Implement kiss hit logic
 			break;
