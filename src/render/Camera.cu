@@ -96,6 +96,7 @@ Camera::Camera(float aspectRatio, int imageWidth, int samplesPerPixel, int maxDe
 Camera::~Camera()
 {
 	cudaFree(cudaRenderData.buffer);
+	cudaFree(cudaRenderData.pingPongBuffer);
 	cudaFree(cudaRenderData.normalBuffer);
 	cudaFree(cudaRenderData.positionBuffer);
 	cudaFree(cudaRenderData.albedoBuffer);
@@ -183,14 +184,17 @@ void	Camera::initialize(const LinearBVH &geometries, const Materials &materials)
 	cudaRenderData.pixelDeltaV = pixelDeltaV;
 
 	Color *d_buffer;
+	Color *d_pingPongBuffer;
 	Vector3 *d_normalBuffer;
 	Point3 *d_positionBuffer;
 	Color *d_albedoBuffer;
 	cudaMalloc(&d_buffer, imageWidth * imageHeight * sizeof(Color));
+	cudaMalloc(&d_pingPongBuffer, imageWidth * imageHeight * sizeof(Color));
 	cudaMalloc(&d_normalBuffer, imageWidth * imageHeight * sizeof(Vector3));
 	cudaMalloc(&d_positionBuffer, imageWidth * imageHeight * sizeof(Point3));
 	cudaMalloc(&d_albedoBuffer, imageWidth * imageHeight * sizeof(Color));
 	cudaRenderData.buffer = d_buffer;
+	cudaRenderData.pingPongBuffer = d_pingPongBuffer;
 	cudaRenderData.normalBuffer = d_normalBuffer;
 	cudaRenderData.positionBuffer = d_positionBuffer;
 	cudaRenderData.albedoBuffer = d_albedoBuffer;

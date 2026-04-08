@@ -21,7 +21,7 @@ SRC_DIR = src/
 OBJ_DIR = obj/
 
 GEOMETRY_DIR = geometry/
-GEOMETRY_FILES = Geometry Sphere Torus Limits AABB LinearBVH
+GEOMETRY_FILES = Geometry Sphere Torus Cylinder Cone Limits AABB LinearBVH
 
 MATHS_DIR = maths/
 MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \

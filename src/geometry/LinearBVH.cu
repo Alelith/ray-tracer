@@ -191,11 +191,13 @@ RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray
 			// Implement plane hit logic
 			break;
 		case CYLINDER:
-			// Implement cylinder hit logic
-			break;
+			hit = cylinderHits(worldGeoms.cylinders.inverseTransform[geomData.geomIdx], ray, limits, record);
+			if (hit) record.geomIdx = worldGeoms.cylinders.geomIdx[geomData.geomIdx];
+			return hit;
 		case CONE:
-			// Implement cone hit logic
-			break;
+			hit = coneHits(worldGeoms.cones.inverseTransform[geomData.geomIdx], ray, limits, record);
+			if (hit) record.geomIdx = worldGeoms.cones.geomIdx[geomData.geomIdx];
+			return hit;
 		case HYPERBOLOID:
 			// Implement hyperboloid hit logic
 			break;

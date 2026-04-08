@@ -18,25 +18,32 @@ int main()
 	WorldGeometries worldGeoms;
 	Materials materials;
 
-	//makeSphere(Point3( 0.0,   0.0,  -2), 0.5, worldGeoms);   // centre
+	makeSphere(Point3( 0.0,   0.5,  -2), 0.125, worldGeoms);   // centre
 	makeTorus(1.25, 0.5, Point3(0.0, 0.0, -2), Vector3(0, 1, 0), worldGeoms);
-	makeSphere(Point3( 3.0,   0.0,  -1),  0.5, worldGeoms);   // right
+	makeCylinder(0.5, 0.75, Point3(3.0, 0.0, -1), Vector3(0.25, 1, -0.25), worldGeoms);   // right
+	makeSphere(Point3( 3.7,   1.0,  -1),  0.5, worldGeoms);   // right
 	makeSphere(Point3( -3.0,   0.0,  -1),  0.5, worldGeoms);   // left
+	makeCone(0.5, 1.0, Point3(-4, 2, -1), Vector3(-0.25, -1, 0.25), worldGeoms);   // left
 	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
-	makeSphere(Point3( 0.0,   2.0,  -2), 0.5, worldGeoms);   // above
+	makeSphere(Point3( 0.0,   2.0,  -2), 0.25, worldGeoms);   // above
 	makeSphere(Point3( -1.5,   2.0, -2), 0.25, worldGeoms);   // above
 	makeSphere(Point3( 1.5,   2.0,  -2), 0.25, worldGeoms);   // above
+	makeTorus(0.75, 0.125, Point3( 0.0,   1.5,  -2), Vector3(0, 1, 0), worldGeoms);   // above
 
-	addMaterial(Color(0, 1, 0), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 0.0, materials); // centre
+	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
+	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 0.0, materials); // centre
 	addMaterial(Color(1, 0, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
+	addMaterial(Color(1, 0.75, 0.5), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
 	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
+	addMaterial(Color(0.6, 0.75, 0.3), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
 	addMaterial(Color(0.0, 0.8, 0.8), 1.0, 0.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 50.0, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 70.0, materials); // above
 	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
 	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, materials); // above
 
 	LinearBVH bvh(worldGeoms);
-	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2, -7), Vector3(0.0, -0.5, 1.0), bvh, materials);
+	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{

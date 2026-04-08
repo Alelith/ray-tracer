@@ -18,6 +18,7 @@ struct RenderData
 	Point3	*positionBuffer;
 	Color	*albedoBuffer;
 	Color	*buffer;
+	Color	*pingPongBuffer;
 
 	Material	*materials;
 	LinearBVH	*linearbvh;
