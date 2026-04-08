@@ -13,10 +13,8 @@ WHITE = \033[0;97m
 
 INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
-CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -O0 -g -std=c++17
 CUDA = nvcc
-CUDAFLAGS = -std=c++17
+CUDAFLAGS = -std=c++17 -rdc=true --expt-relaxed-constexpr -w
 LDFLAGS = -lm -lSDL2
 
 SRC_DIR = src/
@@ -42,7 +40,7 @@ SRC_FILES += $(addprefix $(GEOMETRY_DIR), $(GEOMETRY_FILES))
 SRC_FILES += $(addprefix $(MATHS_DIR), $(MATHS_FILES))
 SRC_FILES += $(addprefix $(RENDER_DIR), $(RENDER_FILES))
 SRC_FILES += $(addprefix $(DEBUG_DIR), $(DEBUG_FILES))
-SRCS = $(addprefix $(SRC_DIR), $(addsuffix .cpp, $(SRC_FILES)))
+SRCS = $(addprefix $(SRC_DIR), $(addsuffix .cu, $(SRC_FILES)))
 OBJS = $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
 OBJSF = .cache_exists
 
@@ -54,13 +52,13 @@ $(OBJSF):
 	@touch $@
 
 $(NAME): $(OBJS)
-	@$(CXX) $(CXXFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
+	@$(CUDA) $(CUDAFLAGS) $(OBJS) $(INCLUDES) -o $(NAME) $(LDFLAGS)
 	@echo -e "$(GREEN)$(NAME) compiled!$(DEF_COLOR)"
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp | $(OBJSF)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cu | $(OBJSF)
 	@echo -e "$(CYAN)Compiling: $<$(DEF_COLOR)"
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCLUDES)
+	@$(CUDA) $(CUDAFLAGS) -c $< -o $@ $(INCLUDES)
 
 clean:
 	@echo -e "$(RED)Removing .o object files...$(DEF_COLOR)"
