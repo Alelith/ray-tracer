@@ -38,11 +38,18 @@ class Vector3
 		inline RT_CALLABLE Vector3 	operator*=(float scalar) { v[0] *= scalar; v[1] *= scalar; v[2] *= scalar; return *this; }
 		inline RT_CALLABLE Vector3 	operator/=(float scalar) { v[0] /= scalar; v[1] /= scalar; v[2] /= scalar; return *this; }
 
-		inline RT_CALLABLE float	length_sqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
-		inline RT_CALLABLE float	length() const { return sqrtf(length_sqrd()); }
+		inline RT_CALLABLE float	lengthSqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
+		inline RT_CALLABLE float	length() const { return sqrtf(lengthSqrd()); }
 		inline RT_CALLABLE Vector3	normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3(0, 0, 0); }
 
-		inline RT_CALLABLE bool		isNearZero() const { return length_sqrd() < 1e-6; }
+		inline RT_CALLABLE bool		isNearZero() const { return lengthSqrd() < 1e-6; }
+
+		inline RT_CALLABLE Vector3	clamp(float minVal, float maxVal) const
+		{
+			return Vector3(fmaxf(minVal, fminf(maxVal, v[0])),
+						 fmaxf(minVal, fminf(maxVal, v[1])),
+						 fmaxf(minVal, fminf(maxVal, v[2])));
+		}
 
 		inline RT_CALLABLE float	x() const { return v[0]; }
 		inline RT_CALLABLE float	y() const { return v[1]; }
@@ -74,7 +81,7 @@ inline RT_CALLABLE Vector3	refract(const Vector3 &uv, const Vector3 &normal, flo
 {
 	float cos_theta = fminf(dot(-uv, normal), 1.0f);
 	Vector3 r_out_perp = eta_over_eta_prime * (uv + cos_theta * normal);
-	Vector3 r_out_parallel = -sqrtf(fabsf(1.0f - r_out_perp.length_sqrd())) * normal;
+	Vector3 r_out_parallel = -sqrtf(fabsf(1.0f - r_out_perp.lengthSqrd())) * normal;
 	return r_out_perp + r_out_parallel;
 }
 

@@ -41,6 +41,6 @@ struct ScatterResult
 
 void			addMaterial(const Color &color, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength, Materials &materials);
 
-RT_CALLABLE ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record, Random *random);
+RT_CALLABLE ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record, Random &random);
 
 #endif /* MATERIAL_HPP */

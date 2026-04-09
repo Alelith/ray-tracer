@@ -15,16 +15,16 @@ void	addMaterial(const Color &color, float roughness, float metallic, float tran
 	materials.count++;
 }
 
-RT_CALLABLE ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record, Random *random)
+RT_CALLABLE ScatterResult	calculateBounce(const Material &mat, const Ray &ray, const HitRecord &record, Random &random)
 {
 	ScatterResult	result;
 	result.scatter = mat.emmision.isNearZero();
 
-	float randomVal = random->randomfloat();
+	float randomVal = random.randomfloat();
 	if (randomVal < mat.metallic)
 	{
 		Vector3 reflected = reflect(ray.getDirection().normalized(), record.normal);
-		reflected += mat.roughness * random->randomInUnitSphere(); // Placeholder for random roughness
+		reflected += mat.roughness * random.randomInUnitSphere(); // Placeholder for random roughness
 
 		result.scatteredRay = Ray(record.point, reflected);
 		result.attenuation = mat.albedo;
@@ -34,32 +34,32 @@ RT_CALLABLE ScatterResult	calculateBounce(const Material &mat, const Ray &ray, c
 		float	cosTheta = fminf(dot(-ray.getDirection().normalized(), record.normal), 1.0f);
 
 		float	reflectProb = reflectance(cosTheta, mat.ior);
-		randomVal = random->randomfloat();
+		randomVal = random.randomfloat();
 
 		if (randomVal < reflectProb)
 		{
 			Vector3 reflected = reflect(ray.getDirection().normalized(), record.normal);
-			reflected += mat.roughness * random->randomInUnitSphere(); // Placeholder for random roughness
+			reflected += mat.roughness * random.randomInUnitSphere(); // Placeholder for random roughness
 
 			result.scatteredRay = Ray(record.point, reflected);
 			result.attenuation = Color(1.0, 1.0, 1.0);
 		}
 		else
 		{
-			randomVal = random->randomfloat();
+			randomVal = random.randomfloat();
 			if (randomVal < mat.transmission)
 			{
 				float etaiOverEtat = record.frontFace ? (1.0f / mat.ior) : mat.ior;
 
 				Vector3 refractionDir = refract(ray.getDirection().normalized(), record.normal, etaiOverEtat);
-				refractionDir += mat.roughness * random->randomInUnitSphere(); // Placeholder for random roughness
+				refractionDir += mat.roughness * random.randomInUnitSphere(); // Placeholder for random roughness
 
 				result.scatteredRay = Ray(record.point, refractionDir);
 				result.attenuation = mat.albedo;
 			}
 			else
 			{
-				Vector3 scatterDirection = record.normal + random->randomUnitVector3(); // Placeholder for random scatter direction
+				Vector3 scatterDirection = record.normal + random.randomUnitVector3(); // Placeholder for random scatter direction
 				if (scatterDirection.isNearZero())
 					scatterDirection = record.normal;
 

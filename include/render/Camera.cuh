@@ -19,17 +19,23 @@ struct RenderData
 	Color	*albedoBuffer;
 	Color	*buffer;
 	Color	*pingPongBuffer;
+	Color	*colorBuffer;
 
 	Material	*materials;
 	LinearBVH	*linearbvh;
 
-	RT_CALLABLE Ray		getRay(float u, float v) const;
+	float		normalWeight;
+	float		positionWeight;
+	float 		albedoWeight;
+	float		colorWeight;
+
+	RT_CALLABLE Ray		getRay(float u, float v, Random &rand, int iteration) const;
 };
 
 class Camera
 {
 	public:
-		Camera(float aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, float vfov, const Point3 &center, const Vector3 &normal, const LinearBVH &geometries, const Materials &materials);
+		Camera(float aspectRatio, int imageWidth, int samplesPerPixel, int maxDepth, float vfov, const Point3 &center, const Vector3 &normal, const LinearBVH &geometries, const Materials &materials, float normalWeight = 0.25f, float positionWeight = 0.25f, float albedoWeight = 0.25f, float colorWeight = 0.25f);
 		Camera(const Camera &other) = default;
 		~Camera();
 
@@ -54,7 +60,7 @@ class Camera
 		RenderData	cudaRenderData;
 		RenderData	*allocatedCudaRenderData;
 
-		void	initialize(const LinearBVH &geometries, const Materials &materials);
+		void	initialize(const LinearBVH &geometries, const Materials &materials, float normalWeight, float positionWeight, float albedoWeight, float colorWeight);
 };
 
 #endif /* CAMERA_HPP */

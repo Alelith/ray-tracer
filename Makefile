@@ -31,7 +31,7 @@ RENDER_DIR = render/
 RENDER_FILES = Camera Material
 
 DEBUG_DIR = debug/
-DEBUG_FILES = Timer PrintPPM
+DEBUG_FILES = Timer PrintPPM SavePNG
 
 MAIN = main
 

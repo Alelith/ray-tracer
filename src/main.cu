@@ -2,16 +2,46 @@
 #include "Timer.cuh"
 #include "LinearBVH.cuh"
 #include "debug/PrintPPM.cuh"
+#include "debug/SavePNG.cuh"
 
 #include <fstream>
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <cerrno>
 
 #include <SDL2/SDL.h>
 
 using std::cout;
 using std::endl;
+
+static bool ensureRendersDirectory()
+{
+	struct stat st;
+	if (stat("renders", &st) == 0)
+		return S_ISDIR(st.st_mode);
+
+	if (mkdir("renders", 0755) == 0)
+		return true;
+
+	return errno == EEXIST;
+}
+
+static std::string makeRenderOutputPath()
+{
+	std::time_t now = std::time(nullptr);
+	std::tm localTime;
+	localtime_r(&now, &localTime);
+
+	std::ostringstream oss;
+	oss << "renders/" << std::put_time(&localTime, "%d%m%y_%H%M%S") << ".png";
+	return oss.str();
+}
 
 int main()
 {
@@ -19,7 +49,7 @@ int main()
 	Materials materials;
 
 	makeSphere(Point3( 0.0,   0.5,  -2), 0.125, worldGeoms);   // centre
-	makeTorus(1.25, 0.5, Point3(0.0, 0.0, -2), Vector3(0, 1, 0), worldGeoms);
+	makeTorus(1.25, 0.5, Point3(0.0, 0.0, -2), Vector3(0, 1, 0), worldGeoms); // centre
 	makeCylinder(0.5, 0.75, Point3(3.0, 0.0, -1), Vector3(0.25, 1, -0.25), worldGeoms);   // right
 	makeSphere(Point3( 3.7,   1.0,  -1),  0.5, worldGeoms);   // right
 	makeSphere(Point3( -3.0,   0.0,  -1),  0.5, worldGeoms);   // left
@@ -30,20 +60,20 @@ int main()
 	makeSphere(Point3( 1.5,   2.0,  -2), 0.25, worldGeoms);   // above
 	makeTorus(0.75, 0.125, Point3( 0.0,   1.5,  -2), Vector3(0, 1, 0), worldGeoms);   // above
 
-	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
-	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 0.0, materials); // centre
+	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
+	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
 	addMaterial(Color(1, 0, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
 	addMaterial(Color(1, 0.75, 0.5), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
 	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
 	addMaterial(Color(0.6, 0.75, 0.3), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
-	addMaterial(Color(0.0, 0.8, 0.8), 1.0, 0.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
+	addMaterial(Color(1.0, 1, 0.5), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
 	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 70.0, materials); // above
 	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 0.0), 25.0, materials); // above
+	addMaterial(Color(0, 0, 0), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, materials); // above
 
 	LinearBVH bvh(worldGeoms);
-	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials);
+	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials, 128.0, 0.05, 0.005, 0.25);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -81,7 +111,18 @@ int main()
 	}
 
 	Timer timer;
-	int spp = 10000;
+	int spp = 2500;
+	const int imageWidth = 3840;
+	const int imageHeight = 2160;
+	if (!ensureRendersDirectory())
+	{
+		std::cerr << "No se pudo crear/acceder al directorio renders/." << std::endl;
+		SDL_DestroyTexture(texture);
+		SDL_DestroyRenderer(ren);
+		SDL_DestroyWindow(win);
+		SDL_Quit();
+		return 1;
+	}
 	int i = 0;
 	while (true)
 	{
@@ -108,9 +149,17 @@ int main()
 			std::cerr << " [Render time: " << timer.elapsedMilliseconds() << " ms]" << std::flush;
 
 			vector<int> imageData = camera.getImage();
-			int width = 3840;
-			SDL_UpdateTexture(texture, nullptr, imageData.data(), width * sizeof(int));
+			SDL_UpdateTexture(texture, nullptr, imageData.data(), imageWidth * sizeof(int));
 			i++;
+
+			if (i == spp)
+			{
+				const std::string outputPath = makeRenderOutputPath();
+				if (debug::save_png_argb8888(outputPath, imageWidth, imageHeight, imageData))
+					std::cerr << "\nPNG guardado en: " << outputPath << std::endl;
+				else
+					std::cerr << "\nError al guardar PNG en: " << outputPath << std::endl;
+			}
 		}
 		SDL_RenderClear(ren);
 		SDL_RenderCopy(ren, texture, nullptr, nullptr);
