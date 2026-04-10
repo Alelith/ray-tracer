@@ -12,9 +12,12 @@ struct HitRecord
 	bool	frontFace;
 	bool	hit;
 
-	RT_CALLABLE HitRecord() : t(INFINITY), geomIdx(-1), frontFace(false), hit(false) {}
+	float	u;  // texture coordinates
+	float	v;  // texture coordinates
+
+	RT_CALLABLE HitRecord() : t(INFINITY), geomIdx(-1), frontFace(false), hit(false), u(0), v(0) {}
 	RT_CALLABLE HitRecord(bool hit, const Point3 &point, const Vector3 &normal, float t, bool frontFace)
-		: point(point), normal(normal), t(t), geomIdx(-1), frontFace(frontFace), hit(hit) {}
+		: point(point), normal(normal), t(t), geomIdx(-1), frontFace(frontFace), hit(hit), u(0), v(0) {}
 
 	inline RT_CALLABLE void	setFaceNormal(const Ray &ray, const Vector3 &outwardNormal)
 	{

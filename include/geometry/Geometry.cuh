@@ -67,6 +67,7 @@ RT_CALLABLE void	makeSphere      (const Point3 &center, float radius, WorldGeome
 RT_CALLABLE void	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 RT_CALLABLE void	makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 RT_CALLABLE void	makeTorus       (float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
+RT_CALLABLE void	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);
 /*void			makePlane       (const Point3 &point, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeHyperboloid (float waist, float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
@@ -77,5 +78,6 @@ RT_CALLABLE bool	sphereHits      (const Matrix4x4 &inverseTransform, const Ray &
 RT_CALLABLE bool	cylinderHits    (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
 RT_CALLABLE bool	coneHits        (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
 RT_CALLABLE bool	torusHits       (const Matrix4x4 &inverseTransform, float param, const Ray &ray, const Limits &limits, HitRecord &record);
+RT_CALLABLE bool	triangleHits    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, const Ray &ray, const Limits &limits, HitRecord &record);
 
 #endif /* GEOMETRY_HPP */

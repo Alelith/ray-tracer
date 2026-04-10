@@ -21,14 +21,14 @@ SRC_DIR = src/
 OBJ_DIR = obj/
 
 GEOMETRY_DIR = geometry/
-GEOMETRY_FILES = Geometry Sphere Torus Cylinder Cone Limits AABB LinearBVH
+GEOMETRY_FILES = Geometry Sphere Torus Cylinder Cone Triangle Limits AABB LinearBVH
 
 MATHS_DIR = maths/
 MATHS_FILES = BhaskaraSolver CardanoSolver FerrariSolver LinearSolver \
 				Matrix4x4 Point3 Random Ray Solver Vector3
 
 RENDER_DIR = render/
-RENDER_FILES = Camera Material
+RENDER_FILES = Camera Material Texture
 
 DEBUG_DIR = debug/
 DEBUG_FILES = Timer PrintPPM SavePNG

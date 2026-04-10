@@ -209,8 +209,17 @@ RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray
 			// Implement kiss hit logic
 			break;
 		case TRIANGLE:
-			// Implement triangle hit logic
-			break;
+			hit = triangleHits(
+				worldGeoms.triangles.v0[geomData.geomIdx],
+				worldGeoms.triangles.v1[geomData.geomIdx],
+				worldGeoms.triangles.v2[geomData.geomIdx],
+				worldGeoms.triangles.triNormal[geomData.geomIdx],
+				ray,
+				limits,
+				record
+			);
+			if (hit) record.geomIdx = worldGeoms.triangles.geomIdx[geomData.geomIdx];
+			return hit;
 		default:
 			return false;
 	}

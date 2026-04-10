@@ -92,7 +92,7 @@ RT_CALLABLE bool	torusHits(const Matrix4x4 &invTransform, float param, const Ray
 	record.t = bestT;
 	record.point = ray.at(bestT);
 
-	Point3	localHit = o + bestT * d;
+	Point3	localHit = localRay.at(bestT);
 	float	x = localHit.x();
 	float	y = localHit.y();
 	float	z = localHit.z();
@@ -100,6 +100,11 @@ RT_CALLABLE bool	torusHits(const Matrix4x4 &invTransform, float param, const Ray
 	Vector3	localNormal = Vector3(x * (q - 2.0f), y * q, z * (q - 2.0f)).normalized();
 	Vector3	worldNormal = (invTransform.transpose() * localNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
+
+	float distance = sqrtf(x * x + z * z) - 1.0f;
+
+	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI);
+	record.v = 0.5f - atan2f(localHit.y(), distance) / (2.0 * M_PI);
 
 	return true;
 }

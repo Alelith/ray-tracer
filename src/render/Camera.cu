@@ -70,7 +70,7 @@ RT_KERNEL void	prepareFilterKernel(RenderData *data, int iteration)
 	data->colorBuffer[pixelIndex] = data->buffer[pixelIndex] / iteration;
 }
 
-RT_CALLABLE Color	rayColorKernel(const Ray &ray, Random &random, int pixelIndex, RenderData *data, int iteration)
+__device__ Color	rayColorKernel(const Ray &ray, Random &random, int pixelIndex, RenderData *data, int iteration)
 {
 	Ray		currentRay = ray;
 	Color	accumulatedColor(0, 0, 0);

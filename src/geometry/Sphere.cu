@@ -63,6 +63,9 @@ RT_CALLABLE bool	sphereHits(const Matrix4x4 &invTransform, const Ray &ray, const
 	Vector3	localNormal = localHit.toVector().normalized();
 	Vector3	worldNormal = (invTransform.transpose() * localNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
-	
+
+	record.u = 0.5 + atan2(localNormal.z(), localNormal.x()) / (2 * M_PI);
+	record.v = 0.5 - asin(localNormal.y()) / M_PI;
+
 	return true;
 }

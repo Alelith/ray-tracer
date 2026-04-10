@@ -51,7 +51,7 @@ int main()
 	makeSphere(Point3( 0.0,   0.5,  -2), 0.125, worldGeoms);   // centre
 	makeTorus(1.25, 0.5, Point3(0.0, 0.0, -2), Vector3(0, 1, 0), worldGeoms); // centre
 	makeCylinder(0.5, 0.75, Point3(3.0, 0.0, -1), Vector3(0.25, 1, -0.25), worldGeoms);   // right
-	makeSphere(Point3( 3.7,   1.0,  -1),  0.5, worldGeoms);   // right
+	makeSphere(Point3( 4.7,   3.0,  -1),  2, worldGeoms);   // right
 	makeSphere(Point3( -3.0,   0.0,  -1),  0.5, worldGeoms);   // left
 	makeCone(0.5, 1.0, Point3(-4, 2, -1), Vector3(-0.25, -1, 0.25), worldGeoms);   // left
 	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
@@ -60,20 +60,25 @@ int main()
 	makeSphere(Point3( 1.5,   2.0,  -2), 0.25, worldGeoms);   // above
 	makeTorus(0.75, 0.125, Point3( 0.0,   1.5,  -2), Vector3(0, 1, 0), worldGeoms);   // above
 
-	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
-	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 1.0, materials); // centre
-	addMaterial(Color(1, 0, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
-	addMaterial(Color(1, 0.75, 0.5), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // right
-	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
-	addMaterial(Color(0.6, 0.75, 0.3), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, materials); // left
-	addMaterial(Color(1.0, 1, 0.5), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, materials); // ground
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 70.0, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 0.0), 25.0, materials); // above
-	addMaterial(Color(0, 0, 0), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, materials); // above
+	char GravelTexturePaths[5][255] = {"res/Gravel/albedo.jpg", "res/Gravel/roughness.png", "", "", ""};
+	char MetalTexturePaths[5][255] = {"res/Metal/albedo.png", "res/Metal/roughness.png", "res/Metal/metalness.png", "", ""};
+	char WoodTexturePaths[5][255] = {"res/Wood/albedo.jpg", "res/Wood/roughness.jpg", "", "", ""};
+	char WoodEmissiveTexturePaths[5][255] = {"", "res/Wood/roughness.jpg", "", "", "res/Wood/albedo.jpg"};
+
+	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // centre
+	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // centre
+	addMaterial(Color(1, 0, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // right
+	addMaterial(Color(1, 1, 1), 1.0, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, WoodTexturePaths, materials); // right
+	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // left
+	addMaterial(Color(0.6, 0.75, 0.3), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // left
+	addMaterial(Color(1.0, 1, 0.5), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, GravelTexturePaths, materials); // ground
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 70.0, nullptr, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, WoodEmissiveTexturePaths, materials); // above
+	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 0.0), 25.0, nullptr, materials); // above
+	addMaterial(Color(0, 0, 0), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, nullptr, materials); // above
 
 	LinearBVH bvh(worldGeoms);
-	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials, 128.0, 0.05, 0.005, 0.25);
+	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials, 512.0, 0.001, 0.0001, 0.2);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{

@@ -118,5 +118,10 @@ RT_CALLABLE bool	cylinderHits(const Matrix4x4 &invTransform, const Ray &ray, con
 	Vector3 worldNormal = (invTransform.transpose() * bestLocalNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
 
+	Point3 localHit = localRay.at(bestT);
+
+	record.u = 0.5f + atan2f(bestLocalNormal.z(), bestLocalNormal.x()) / (2.0f * M_PI);
+	record.v = localHit.y() + 0.5f;  // Map y from [-0.5, 0.5] to [0, 1]
+
 	return true;
 }
