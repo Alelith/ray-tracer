@@ -16,6 +16,10 @@
 #  define RT_KERNEL
 # endif
 
+# ifndef M_PI_F
+#  define M_PI_F 3.14159265358979323846f
+# endif
+
 class Vector3
 {
 	private:
@@ -40,9 +44,9 @@ class Vector3
 
 		inline RT_CALLABLE float	lengthSqrd() const { return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]; }
 		inline RT_CALLABLE float	length() const { return sqrtf(lengthSqrd()); }
-		inline RT_CALLABLE Vector3	normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3(0, 0, 0); }
+		inline RT_CALLABLE Vector3	normalized() const { float len = length(); return (len != 0.0f) ? Vector3(v[0] / len, v[1] / len, v[2] / len) : Vector3(0.0f, 0.0f, 0.0f); }
 
-		inline RT_CALLABLE bool		isNearZero() const { return lengthSqrd() < 1e-6; }
+		inline RT_CALLABLE bool		isNearZero() const { return lengthSqrd() < 1e-6f; }
 
 		inline RT_CALLABLE Vector3	clamp(float minVal, float maxVal) const
 		{
@@ -87,9 +91,9 @@ inline RT_CALLABLE Vector3	refract(const Vector3 &uv, const Vector3 &normal, flo
 
 inline RT_CALLABLE float	reflectance(float cosine, float ref_idx)
 {
-	float r0 = (1 - ref_idx) / (1 + ref_idx);
+	float r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
 	r0 = r0 * r0;
-	return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 
 #endif /* VECTOR3_HPP */

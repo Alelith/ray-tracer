@@ -139,7 +139,7 @@ void Parser::parseLine(const std::string& line, int lineNumber)
 
 		// Añadimos la esfera a las geometrías y su material asociado a la lista de materiales.
 		// Al hacerlo secuencialmente, el índice del material coincidirá con el índice de la geometría.
-		makeSphere(Point3(px, py, pz), radius, worldGeometries);
+		makeSphere(Point3(px, py, pz), radius, primitives);
 		
 		// Añadimos el material 
 		addMaterial(Color(r, g, b), roughness, metalness, transmission, refraction_idx, Color(er, eg, eb), emission_strength, texturesPaths, materialsList);
@@ -194,9 +194,9 @@ void Parser::parseLine(const std::string& line, int lineNumber)
 		}
 
 		if (type == "cy")
-			makeCylinder(radius, height, Point3(px, py, pz), Vector3(nx, ny, nz), worldGeometries);
+			makeCylinder(radius, height, Point3(px, py, pz), Vector3(nx, ny, nz), primitives);
 		else
-			makeCone(radius, height, Point3(px, py, pz), Vector3(nx, ny, nz), worldGeometries);
+			makeCone(radius, height, Point3(px, py, pz), Vector3(nx, ny, nz), primitives);
 		
 		addMaterial(Color(r, g, b), roughness, metalness, transmission, refraction_idx, Color(er, eg, eb), emission_strength, texturesPaths, materialsList);
 
@@ -249,7 +249,7 @@ void Parser::parseLine(const std::string& line, int lineNumber)
 			}
 		}
 
-		makeTorus(major_radius, minor_radius, Point3(px, py, pz), Vector3(nx, ny, nz), worldGeometries);
+		makeTorus(major_radius, minor_radius, Point3(px, py, pz), Vector3(nx, ny, nz), primitives);
 		
 		addMaterial(Color(r, g, b), roughness, metalness, transmission, refraction_idx, Color(er, eg, eb), emission_strength, texturesPaths, materialsList);
 
@@ -300,7 +300,7 @@ void Parser::parseLine(const std::string& line, int lineNumber)
 			}
 		}
 
-		makeQuad(Point3(px, py, pz), Vector3(ux, uy, uz), Vector3(vx, vy, vz), worldGeometries);
+		makeQuad(Point3(px, py, pz), Vector3(ux, uy, uz), Vector3(vx, vy, vz), primitives);
 
 		addMaterial(Color(r, g, b), roughness, metalness, transmission, refraction_idx, Color(er, eg, eb), emission_strength, texturesPaths, materialsList);
 
@@ -470,51 +470,9 @@ void Parser::parseOBJ(const std::string& objFilePath,
 	delete[] tempMatList.materials; // Liberar ese mini array
 
 	// 2. INYECTAR LAS GEOMETRÍAS DE FORMA MASIVA
-	size_t curTCount = worldGeometries.triangles.count;
-	size_t newTCount = curTCount + numNewTriangles;
-
-	Point3* newV0 = new Point3[newTCount];
-	Point3* newV1 = new Point3[newTCount];
-	Point3* newV2 = new Point3[newTCount];
-	Vector3* newNorm = new Vector3[newTCount];
-	AABB* newAABB = new AABB[newTCount];
-	int* newIdx = new int[newTCount];
-
-	for (size_t i = 0; i < curTCount; ++i) {
-		newV0[i] = worldGeometries.triangles.v0[i];
-		newV1[i] = worldGeometries.triangles.v1[i];
-		newV2[i] = worldGeometries.triangles.v2[i];
-		newNorm[i] = worldGeometries.triangles.triNormal[i];
-		newAABB[i] = worldGeometries.triangles.boundingBox[i];
-		newIdx[i] = worldGeometries.triangles.geomIdx[i];
-	}
-
-	int globalGeomStartIdx = worldGeometries.totalCount();
-
 	for (size_t i = 0; i < numNewTriangles; ++i) {
-		newV0[curTCount + i] = out_v0[i];
-		newV1[curTCount + i] = out_v1[i];
-		newV2[curTCount + i] = out_v2[i];
-		newNorm[curTCount + i] = out_normal[i];
-		newAABB[curTCount + i] = out_aabb[i];
-		newIdx[curTCount + i] = globalGeomStartIdx + i;
+		makeTriangle(out_v0[i], out_v1[i], out_v2[i], out_normal[i], primitives);
 	}
-
-	delete[] worldGeometries.triangles.v0;
-	delete[] worldGeometries.triangles.v1;
-	delete[] worldGeometries.triangles.v2;
-	delete[] worldGeometries.triangles.triNormal;
-	delete[] worldGeometries.triangles.boundingBox;
-	delete[] worldGeometries.triangles.geomIdx;
-
-	worldGeometries.triangles.v0 = newV0;
-	worldGeometries.triangles.v1 = newV1;
-	worldGeometries.triangles.v2 = newV2;
-	worldGeometries.triangles.triNormal = newNorm;
-	worldGeometries.triangles.boundingBox = newAABB;
-	worldGeometries.triangles.geomIdx = newIdx;
-	worldGeometries.triangles.count = newTCount;
-
 	// 3. AÑADIR EL MATERIAL PARA TODOS LOS TRIÁNGULOS A LA VEZ
 	size_t curMCount = materialsList.count;
 	size_t newMCount = curMCount + numNewTriangles;

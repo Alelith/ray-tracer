@@ -96,85 +96,13 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : bvhData(nu
 {
 	vector<BVHData> tmpData;
 
-	for (size_t i = 0; i < worldGeoms.spheres.count; i++)
+	for (size_t i = 0; i < worldGeoms.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
-		data.type = SPHERE;
+		data.type = worldGeoms.primitives[i].type;
 		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.spheres.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.planes.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = PLANE;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.planes.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.cylinders.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = CYLINDER;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.cylinders.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.cones.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = CONE;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.cones.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.hyperboloids.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = HYPERBOLOID;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.hyperboloids.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.tori.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = TORUS;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.tori.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.kisses.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = KISS;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.kisses.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.triangles.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = TRIANGLE;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.triangles.boundingBox[i];
-		tmpData.push_back(data);
-	}
-	for (size_t i = 0; i < worldGeoms.quads.count; i++)
-	{
-		BVHData data;
-		data.geomIdx = i;
-		data.type = QUAD;
-		data.rightChildIdx = -1; // No children in a linear BVH
-		data.box = worldGeoms.quads.boundingBox[i];
+		data.box = worldGeoms.primitives[i].boundingBox;
 		tmpData.push_back(data);
 	}
 
@@ -183,66 +111,22 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : bvhData(nu
 	buildNode(tmpData, 0, tmpData.size());
 }
 
-RT_CALLABLE static bool	hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
+RT_CALLABLE static bool	hitGeometry(const Primitive &primitive, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
 {
+	// Ejecución en la CPU (Host): Mantenemos el switch por seguridad de compilación
 	bool hit = false;
-	switch (geomData.type)
+	switch (primitive.type)
 	{
-		case SPHERE:
-			hit = sphereHits(worldGeoms.spheres.inverseTransform[geomData.geomIdx], ray, limits, record);
-			if (hit) record.geomIdx = worldGeoms.spheres.geomIdx[geomData.geomIdx];
-			return hit;
-		case PLANE:
-			// Implement plane hit logic
-			break;
-		case CYLINDER:
-			hit = cylinderHits(worldGeoms.cylinders.inverseTransform[geomData.geomIdx], ray, limits, record);
-			if (hit) record.geomIdx = worldGeoms.cylinders.geomIdx[geomData.geomIdx];
-			return hit;
-		case CONE:
-			hit = coneHits(worldGeoms.cones.inverseTransform[geomData.geomIdx], ray, limits, record);
-			if (hit) record.geomIdx = worldGeoms.cones.geomIdx[geomData.geomIdx];
-			return hit;
-		case HYPERBOLOID:
-			// Implement hyperboloid hit logic
-			break;
-		case TORUS:
-			hit = torusHits(worldGeoms.tori.inverseTransform[geomData.geomIdx], worldGeoms.tori.param[geomData.geomIdx], ray, limits, record);
-			if (hit) record.geomIdx = worldGeoms.tori.geomIdx[geomData.geomIdx];
-			return hit;
-		case KISS:
-			// Implement kiss hit logic
-			break;
-		case TRIANGLE:
-			hit = triangleHits(
-			worldGeoms.triangles.v0[geomData.geomIdx],
-			worldGeoms.triangles.v1[geomData.geomIdx],
-			worldGeoms.triangles.v2[geomData.geomIdx],
-			worldGeoms.triangles.triNormal[geomData.geomIdx],
-			ray,
-			limits,
-			record
-			);
-			if (hit) record.geomIdx = worldGeoms.triangles.geomIdx[geomData.geomIdx];
-			return hit;
-		case QUAD:
-			hit = quadHits(
-			worldGeoms.quads.Q[geomData.geomIdx],
-			worldGeoms.quads.u[geomData.geomIdx],
-			worldGeoms.quads.v[geomData.geomIdx],
-			worldGeoms.quads.w[geomData.geomIdx],
-			worldGeoms.quads.quadNormal[geomData.geomIdx],
-			worldGeoms.quads.D[geomData.geomIdx],
-			ray,
-			limits,
-			record
-			);
-			if (hit) record.geomIdx = worldGeoms.quads.geomIdx[geomData.geomIdx];
-			return hit;
-		default:
-			return false;
+		case SPHERE: hit = sphereHits(primitive.inverseTransform, ray, limits, record); break;
+		case CYLINDER: hit = cylinderHits(primitive.inverseTransform, ray, limits, record); break;
+		case CONE: hit = coneHits(primitive.inverseTransform, ray, limits, record); break;
+		case TORUS: hit = torusHits(primitive.inverseTransform, primitive.param, ray, limits, record); break;
+		case TRIANGLE: hit = triangleHits(primitive.data.tris.v0, primitive.data.tris.v1, primitive.data.tris.v2, primitive.data.tris.normal, ray, limits, record); break;
+		case QUAD: hit = quadHits(primitive.data.quad.Q, primitive.data.quad.u, primitive.data.quad.v, primitive.data.quad.w, primitive.data.quad.normal, primitive.data.quad.D, ray, limits, record); break;
+		default: return false;
 	}
-	return false;
+	if (hit) record.geomIdx = primitive.geomIdx;
+	return hit;
 }
 
 RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) const
@@ -265,7 +149,7 @@ RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord 
 		{
 			if (currentNode.geomIdx != -1)
 			{
-				if (hitGeometry(worldGeoms, ray, currentLimits, record, currentNode))
+				if (hitGeometry(worldGeoms.primitives[currentNode.geomIdx], ray, currentLimits, record, currentNode))
 				{
 					currentLimits = Limits(currentLimits.getMin(), record.t); // Update limits to find closest hit
 					hitAnything = true;

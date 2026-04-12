@@ -40,7 +40,12 @@ class Parser {
 		bool parse();
 
 		ParsedCameraData getCameraData() const { return cameraData; }
-		const WorldGeometries& getWorldGeometries() const { return worldGeometries; }
+		WorldGeometries getWorldGeometries() const {
+			WorldGeometries wg;
+			wg.primitives = const_cast<Primitive*>(primitives.data());
+			wg.count = primitives.size();
+			return wg;
+		}
 		const Materials& getMaterials() const { return materialsList; }
 
 	private:
@@ -48,7 +53,7 @@ class Parser {
 		std::ifstream file;
 		
 		ParsedCameraData cameraData; // Datos de la cámara leídos del archivo
-		WorldGeometries worldGeometries = {};
+		PrimitivesList primitives;
 		Materials materialsList = {};
 
 		// Método auxiliar para procesar una línea individual

@@ -1,36 +1,17 @@
 #include "Geometry.cuh"
 
-RT_CALLABLE void	makeCone(float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms)
+void	makeCone(float radius, float height, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives)
 {
 	Matrix4x4	master = masterMatrix(center.toVector(), normal, Vector3(radius, height, radius));
 	AABB		box(Point3(-1, -0.5, -1), Point3(1, 0.5, 1), master);
-	int			idx = worldGeoms.totalCount();
 
-	size_t currentCount = worldGeoms.cones.count;
+	Primitive	prim;
+	prim.type = CONE;
+	prim.geomIdx = primitives.size();
+	prim.boundingBox = box;
+	prim.inverseTransform = master.inverse();
 
-	Matrix4x4*	newInverse = new Matrix4x4[currentCount + 1];
-	AABB*		newAABB = new AABB[currentCount + 1];
-	int*			newGeomIdx = new int[currentCount + 1];
-
-	for (size_t i = 0; i < currentCount; i++)
-	{
-		newInverse[i] = worldGeoms.cones.inverseTransform[i];
-		newAABB[i] = worldGeoms.cones.boundingBox[i];
-		newGeomIdx[i] = worldGeoms.cones.geomIdx[i];
-	}
-
-	newInverse[currentCount] = master.inverse();
-	newAABB[currentCount] = box;
-	newGeomIdx[currentCount] = idx;
-
-	delete[] worldGeoms.cones.inverseTransform;
-	delete[] worldGeoms.cones.boundingBox;
-	delete[] worldGeoms.cones.geomIdx;
-
-	worldGeoms.cones.inverseTransform = newInverse;
-	worldGeoms.cones.boundingBox = newAABB;
-	worldGeoms.cones.geomIdx = newGeomIdx;
-	worldGeoms.cones.count++;
+	primitives.push_back(prim);
 }
 
 RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
@@ -123,7 +104,7 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 	record.setFaceNormal(ray, worldNormal);
 
 	Point3 localHit = localRay.at(bestT);
-	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI);
+	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI_F);
 	record.v = localHit.y() + 0.5f;  // Map y from [-0.5, 0.5] to [0, 1]
 
 	return true;

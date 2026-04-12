@@ -1,6 +1,6 @@
 #include "Geometry.cuh"
 
-RT_CALLABLE void	makeTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms)
+void	makeTriangle(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, PrimitivesList &primitives)
 {
 	Vector3 triNormal = normal;
 	if (triNormal.isNearZero())
@@ -17,48 +17,17 @@ RT_CALLABLE void	makeTriangle(const Point3 &v0, const Point3 &v1, const Point3 &
 		fmaxf(v0.z(), fmaxf(v1.z(), v2.z()))
 	);
 	AABB box(minP, maxP);
-	int idx = worldGeoms.totalCount();
 
-	size_t currentCount = worldGeoms.triangles.count;
+	Primitive	triangle;
+	triangle.type = TRIANGLE;
+	triangle.geomIdx = primitives.size();
+	triangle.boundingBox = box;
+	triangle.data.tris.v0 = v0;
+	triangle.data.tris.v1 = v1;
+	triangle.data.tris.v2 = v2;
+	triangle.data.tris.normal = triNormal.normalized();
 
-	Point3* newV0 = new Point3[currentCount + 1];
-	Point3* newV1 = new Point3[currentCount + 1];
-	Point3* newV2 = new Point3[currentCount + 1];
-	Vector3* newTriNormal = new Vector3[currentCount + 1];
-	AABB* newAABB = new AABB[currentCount + 1];
-	int* newGeomIdx = new int[currentCount + 1];
-
-	for (size_t i = 0; i < currentCount; ++i)
-	{
-		newV0[i] = worldGeoms.triangles.v0[i];
-		newV1[i] = worldGeoms.triangles.v1[i];
-		newV2[i] = worldGeoms.triangles.v2[i];
-		newTriNormal[i] = worldGeoms.triangles.triNormal[i];
-		newAABB[i] = worldGeoms.triangles.boundingBox[i];
-		newGeomIdx[i] = worldGeoms.triangles.geomIdx[i];
-	}
-
-	newV0[currentCount] = v0;
-	newV1[currentCount] = v1;
-	newV2[currentCount] = v2;
-	newTriNormal[currentCount] = triNormal.normalized();
-	newAABB[currentCount] = box;
-	newGeomIdx[currentCount] = idx;
-
-	delete[] worldGeoms.triangles.v0;
-	delete[] worldGeoms.triangles.v1;
-	delete[] worldGeoms.triangles.v2;
-	delete[] worldGeoms.triangles.triNormal;
-	delete[] worldGeoms.triangles.boundingBox;
-	delete[] worldGeoms.triangles.geomIdx;
-
-	worldGeoms.triangles.v0 = newV0;
-	worldGeoms.triangles.v1 = newV1;
-	worldGeoms.triangles.v2 = newV2;
-	worldGeoms.triangles.triNormal = newTriNormal;
-	worldGeoms.triangles.boundingBox = newAABB;
-	worldGeoms.triangles.geomIdx = newGeomIdx;
-	worldGeoms.triangles.count++;
+	primitives.push_back(triangle);
 }
 
 RT_CALLABLE bool	triangleHits(const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, const Ray &ray, const Limits &limits, HitRecord &record)

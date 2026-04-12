@@ -50,9 +50,9 @@ RT_CALLABLE Matrix4x4	translationMatrix(const Vector3 &translation)
 
 RT_CALLABLE Matrix4x4	rotationMatrix(const Vector3 &rotation)
 {
-	float radX = rotation[0] * M_PI / 180.0f;
-	float radY = rotation[1] * M_PI / 180.0f;
-	float radZ = rotation[2] * M_PI / 180.0f;
+	float radX = rotation[0] * M_PI_F / 180.0f;
+	float radY = rotation[1] * M_PI_F / 180.0f;
+	float radZ = rotation[2] * M_PI_F / 180.0f;
 
 	float cx = cosf(radX), sx = sinf(radX);
 	float cy = cosf(radY), sy = sinf(radY);
@@ -110,9 +110,9 @@ RT_CALLABLE Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
 
 RT_CALLABLE Matrix4x4	inverseRotationMatrix(const Vector3 &rotation)
 {
-	float radX = rotation[0] * M_PI / 180.0f;
-	float radY = rotation[1] * M_PI / 180.0f;
-	float radZ = rotation[2] * M_PI / 180.0f;
+	float radX = rotation[0] * M_PI_F / 180.0f;
+	float radY = rotation[1] * M_PI_F / 180.0f;
+	float radZ = rotation[2] * M_PI_F / 180.0f;
 
 	float cx = cosf(radX), sx = sinf(radX);
 	float cy = cosf(radY), sy = sinf(radY);

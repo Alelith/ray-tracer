@@ -1,35 +1,17 @@
 #include "Geometry.cuh"
 
-RT_CALLABLE void	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms)
+void	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives)
 {
 	Matrix4x4	master = masterMatrix(center.toVector(), normal, Vector3(radius, height, radius));
 	AABB		box(Point3(-1, -0.5, -1), Point3(1, 0.5, 1), master);
-	int			idx = worldGeoms.totalCount();
 
-	size_t currentCount = worldGeoms.cylinders.count;
-	
-	Matrix4x4* newInverse = new Matrix4x4[currentCount + 1];
-	AABB* newAABB = new AABB[currentCount + 1];
-	int* newGeomIdx = new int[currentCount + 1];
+	Primitive	prim;
+	prim.type = CYLINDER;
+	prim.geomIdx = primitives.size();
+	prim.boundingBox = box;
+	prim.inverseTransform = master.inverse();
 
-	for (size_t i = 0; i < currentCount; i++) {
-		newInverse[i] = worldGeoms.cylinders.inverseTransform[i];
-		newAABB[i] = worldGeoms.cylinders.boundingBox[i];
-		newGeomIdx[i] = worldGeoms.cylinders.geomIdx[i];
-	}
-
-	newInverse[currentCount] = master.inverse();
-	newAABB[currentCount] = box;
-	newGeomIdx[currentCount] = idx;
-
-	delete[] worldGeoms.cylinders.inverseTransform;
-	delete[] worldGeoms.cylinders.boundingBox;
-	delete[] worldGeoms.cylinders.geomIdx;
-
-	worldGeoms.cylinders.inverseTransform = newInverse;
-	worldGeoms.cylinders.boundingBox = newAABB;
-	worldGeoms.cylinders.geomIdx = newGeomIdx;
-	worldGeoms.cylinders.count++;
+	primitives.push_back(prim);
 }
 
 RT_CALLABLE bool	cylinderHits(const Matrix4x4 &invTransform, const Ray &ray, const Limits &limits, HitRecord &record)
@@ -120,7 +102,7 @@ RT_CALLABLE bool	cylinderHits(const Matrix4x4 &invTransform, const Ray &ray, con
 
 	Point3 localHit = localRay.at(bestT);
 
-	record.u = 0.5f + atan2f(bestLocalNormal.z(), bestLocalNormal.x()) / (2.0f * M_PI);
+	record.u = 0.5f + atan2f(bestLocalNormal.z(), bestLocalNormal.x()) / (2.0f * M_PI_F);
 	record.v = localHit.y() + 0.5f;  // Map y from [-0.5, 0.5] to [0, 1]
 
 	return true;

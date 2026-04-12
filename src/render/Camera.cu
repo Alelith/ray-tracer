@@ -236,7 +236,7 @@ void	Camera::initialize(const LinearBVH &geometries, const Materials &materials,
 	pixelSamplesScale = 1.0 / samplesPerPixel;
 
 	float	focalLength = 1.0;
-	float	theta = vfov * M_PI / 180.0;
+	float	theta = vfov * M_PI_F / 180.0;
 	float	h = tan(theta / 2);
 	float	viewportHeight = 2.0 * h * focalLength;
 	float	viewportWidth = aspectRatio * viewportHeight;

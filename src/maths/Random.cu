@@ -30,26 +30,26 @@ RT_CALLABLE Vector3	Random::randomVector3(float min, float max)
 
 RT_CALLABLE Vector3	Random::randomUnitVector3()
 {
-	float a = randomfloat(0, 2 * M_PI);
-	float z = randomfloat(-1, 1);
-	float r = sqrt(1.0 - z * z);
-	return Vector3(r * cos(a), r * sin(a), z);
+	float a = randomfloat(0.0f, 2.0f * M_PI_F);
+	float z = randomfloat(-1.0f, 1.0f);
+	float r = sqrtf(1.0f - z * z);
+	return Vector3(r * cosf(a), r * sinf(a), z);
 }
 
 RT_CALLABLE Vector3	Random::randomInUnitSphere()
 {
-	return randomUnitVector3() * cbrt(next());
+	return randomUnitVector3() * cbrtf(next());
 }
 
 RT_CALLABLE Vector3	Random::randomInUnitDisk()
 {
-	float r     = sqrt(next());
-	float theta = randomfloat(0, 2 * M_PI);
-	return Vector3(r * cos(theta), r * sin(theta), 0);
+	float r     = sqrtf(next());
+	float theta = randomfloat(0.0f, 2.0f * M_PI_F);
+	return Vector3(r * cosf(theta), r * sinf(theta), 0.0f);
 }
 
 RT_CALLABLE Vector3	Random::randomInHemisphere(const Vector3 &normal)
 {
 	Vector3 v = randomUnitVector3();
-	return dot(v, normal) > 0.0 ? v : -v;
+	return dot(v, normal) > 0.0f ? v : -v;
 }

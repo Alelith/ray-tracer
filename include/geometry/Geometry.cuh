@@ -6,91 +6,72 @@
 # include "HitRecord.cuh"
 # include "Limits.cuh"
 # include <cstdint>
+# include <vector>
 
-struct SimpleGeometryData
+enum GeomType
 {
-	Matrix4x4	*inverseTransform = nullptr;
-	AABB		*boundingBox = nullptr;
-	int			*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
-	size_t		count = 0;
-
-	SimpleGeometryData	cudaCopy() const;
-	void				cudaFreeSimple();
+	SPHERE,
+	PLANE,
+	CYLINDER,
+	CONE,
+	HYPERBOLOID,
+	TORUS,
+	KISS,
+	TRIANGLE,
+	QUAD,
+	NONE
 };
 
-struct ParametrizedGeometryData
+struct Primitive
 {
-	Matrix4x4	*inverseTransform = nullptr;
-	float		*param = nullptr;
-	AABB		*boundingBox = nullptr;
-	int			*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
-	size_t		count = 0;
+	GeomType	type;
+	AABB		boundingBox;
+	int			geomIdx; // Index to identify which geometry was hit in the original list
 
-	ParametrizedGeometryData	cudaCopy() const;
-	void						cudaFreeParametrized();
-};
+	Matrix4x4	inverseTransform; // For simple geometries (sphere, plane, cylinder, cone) to transform rays to local space
+	float		param; // For parametrized geometries (hyperboloid, torus, kiss) to store the additional parameter needed for intersection tests
+	
+	union GeometryData
+	{
+		struct
+		{
+			Point3	v0, v1, v2;
+			Vector3	normal;
+		}	tris;
 
-struct WorldGeometryData
-{
-	Point3	*v0 = nullptr;
-	Point3	*v1 = nullptr;
-	Point3	*v2 = nullptr;
-	Vector3	*triNormal = nullptr;
-	AABB	*boundingBox = nullptr;
-	int		*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
-	size_t	count = 0;
+		struct
+		{
+			Point3	Q;
+			Vector3	u, v, w;
+			Vector3	normal;
+			float	D; // Plane equation parameter for quads
+		}	quad;
 
-	WorldGeometryData	cudaCopy() const;
-	void				cudaFreeWorld();
-};
+		GeometryData() {}
+	} data; // Union to store geometry-specific data if needed (e.g., triangle vertices, quad parameters, etc.)
 
-struct QuadGeometryData
-{
-	Point3	*Q = nullptr;
-	Vector3	*u = nullptr;
-	Vector3	*v = nullptr;
-	Vector3	*w = nullptr;
-	Vector3	*quadNormal = nullptr;
-	float	*D = nullptr;
-	AABB	*boundingBox = nullptr;
-	int		*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
-	size_t	count = 0;
-
-	QuadGeometryData	cudaCopy() const;
-	void				cudaFreeQuad();
+	Primitive() : type(NONE), geomIdx(-1), param(0), data() {}	
 };
 
 struct WorldGeometries
 {
-	SimpleGeometryData			spheres;
-	SimpleGeometryData			planes;
-	SimpleGeometryData			cylinders;
-	SimpleGeometryData			cones;
-	ParametrizedGeometryData	hyperboloids;
-	ParametrizedGeometryData	tori;
-	ParametrizedGeometryData	kisses;
-	WorldGeometryData			triangles;
-	QuadGeometryData			quads;
-
-	RT_CALLABLE size_t	totalCount() const;
+	Primitive	*primitives = nullptr;
+	size_t		count;
 
 	WorldGeometries		cudaCopy() const;
 	void				cudaFreeWorld();
 };
 
+using PrimitivesList = std::vector<Primitive>;
+
 RT_CALLABLE Ray		getLocalRay     (const Matrix4x4 &inverse, const Ray &ray);
 
-RT_CALLABLE void	makeSphere      (const Point3 &center, float radius, WorldGeometries &worldGeoms);
-RT_CALLABLE void	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-RT_CALLABLE void	makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-RT_CALLABLE void	makeTorus       (float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-RT_CALLABLE void	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);
-RT_CALLABLE void	makeQuad        (const Point3 &Q, const Vector3 &u, const Vector3 &v, WorldGeometries &worldGeoms);
-/*void			makePlane       (const Point3 &point, const Vector3 &normal, WorldGeometries &worldGeoms);
-void			makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-void			makeHyperboloid (float waist, float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-void			makeKiss        (float sharpness, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
-void			makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);*/
+void	makeSphere      (const Point3 &center, float radius, PrimitivesList &primitives);
+void	makeCylinder    (float radius, float height, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives);
+void	makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives);
+void	makeTorus       (float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives);
+void	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, PrimitivesList &primitives);
+void	makeQuad        (const Point3 &Q, const Vector3 &u, const Vector3 &v, PrimitivesList &primitives);
 
 RT_CALLABLE bool	sphereHits      (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
 RT_CALLABLE bool	cylinderHits    (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);

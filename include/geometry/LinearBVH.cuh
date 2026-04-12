@@ -6,20 +6,6 @@
 
 using std::vector;
 
-enum GeomType
-{
-	SPHERE,
-	PLANE,
-	CYLINDER,
-	CONE,
-	HYPERBOLOID,
-	TORUS,
-	KISS,
-	TRIANGLE,
-	QUAD,
-	NONE
-};
-
 struct BVHData
 {
 	int			geomIdx;

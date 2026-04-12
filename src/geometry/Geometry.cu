@@ -1,183 +1,23 @@
 #include "Geometry.cuh"
 
-SimpleGeometryData	SimpleGeometryData::cudaCopy() const
-{
-	SimpleGeometryData cudaData;
-	cudaData.count = count;
-
-	if (count > 0)
-	{
-		cudaMalloc(&cudaData.inverseTransform, count * sizeof(Matrix4x4));
-		cudaMemcpy(cudaData.inverseTransform, inverseTransform, count * sizeof(Matrix4x4), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.boundingBox, count * sizeof(AABB));
-		cudaMemcpy(cudaData.boundingBox, boundingBox, count * sizeof(AABB), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.geomIdx, count * sizeof(int));
-		cudaMemcpy(cudaData.geomIdx, geomIdx, count * sizeof(int), cudaMemcpyHostToDevice);
-	}
-
-	return cudaData;
-}
-
-void	SimpleGeometryData::cudaFreeSimple()
-{
-	cudaFree(inverseTransform);
-	cudaFree(boundingBox);
-	cudaFree(geomIdx);
-}
-
-ParametrizedGeometryData	ParametrizedGeometryData::cudaCopy() const
-{
-	ParametrizedGeometryData cudaData;
-	cudaData.count = count;
-
-	if (count > 0)
-	{
-		cudaMalloc(&cudaData.inverseTransform, count * sizeof(Matrix4x4));
-		cudaMemcpy(cudaData.inverseTransform, inverseTransform, count * sizeof(Matrix4x4), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.param, count * sizeof(float));
-		cudaMemcpy(cudaData.param, param, count * sizeof(float), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.boundingBox, count * sizeof(AABB));
-		cudaMemcpy(cudaData.boundingBox, boundingBox, count * sizeof(AABB), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.geomIdx, count * sizeof(int));
-		cudaMemcpy(cudaData.geomIdx, geomIdx, count * sizeof(int), cudaMemcpyHostToDevice);
-	}
-
-	return cudaData;
-}
-
-void	ParametrizedGeometryData::cudaFreeParametrized()
-{
-	cudaFree(inverseTransform);
-	cudaFree(param);
-	cudaFree(boundingBox);
-	cudaFree(geomIdx);
-}
-
-WorldGeometryData	WorldGeometryData::cudaCopy() const
-{
-	WorldGeometryData cudaData;
-	cudaData.count = count;
-
-	if (count > 0)
-	{
-		cudaMalloc(&cudaData.v0, count * sizeof(Point3));
-		cudaMemcpy(cudaData.v0, v0, count * sizeof(Point3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.v1, count * sizeof(Point3));
-		cudaMemcpy(cudaData.v1, v1, count * sizeof(Point3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.v2, count * sizeof(Point3));
-		cudaMemcpy(cudaData.v2, v2, count * sizeof(Point3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.triNormal, count * sizeof(Vector3));
-		cudaMemcpy(cudaData.triNormal, triNormal, count * sizeof(Vector3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.boundingBox, count * sizeof(AABB));
-		cudaMemcpy(cudaData.boundingBox, boundingBox, count * sizeof(AABB), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.geomIdx, count * sizeof(int));
-		cudaMemcpy(cudaData.geomIdx, geomIdx, count * sizeof(int), cudaMemcpyHostToDevice);
-	}
-
-	return cudaData;
-}
-
-void	WorldGeometryData::cudaFreeWorld()
-{
-	cudaFree(v0);
-	cudaFree(v1);
-	cudaFree(v2);
-	cudaFree(triNormal);
-	cudaFree(boundingBox);
-	cudaFree(geomIdx);
-}
-
-QuadGeometryData	QuadGeometryData::cudaCopy() const
-{
-	QuadGeometryData cudaData;
-	cudaData.count = count;
-
-	if (count > 0)
-	{
-		cudaMalloc(&cudaData.Q, count * sizeof(Point3));
-		cudaMemcpy(cudaData.Q, Q, count * sizeof(Point3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.u, count * sizeof(Vector3));
-		cudaMemcpy(cudaData.u, u, count * sizeof(Vector3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.v, count * sizeof(Vector3));
-		cudaMemcpy(cudaData.v, v, count * sizeof(Vector3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.w, count * sizeof(Vector3));
-		cudaMemcpy(cudaData.w, w, count * sizeof(Vector3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.quadNormal, count * sizeof(Vector3));
-		cudaMemcpy(cudaData.quadNormal, quadNormal, count * sizeof(Vector3), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.D, count * sizeof(float));
-		cudaMemcpy(cudaData.D, D, count * sizeof(float), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.boundingBox, count * sizeof(AABB));
-		cudaMemcpy(cudaData.boundingBox, boundingBox, count * sizeof(AABB), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&cudaData.geomIdx, count * sizeof(int));
-		cudaMemcpy(cudaData.geomIdx, geomIdx, count * sizeof(int), cudaMemcpyHostToDevice);
-	}
-
-	return cudaData;
-}
-
-void	QuadGeometryData::cudaFreeQuad()
-{
-	cudaFree(Q);
-	cudaFree(u);
-	cudaFree(v);
-	cudaFree(w);
-	cudaFree(quadNormal);
-	cudaFree(D);
-	cudaFree(boundingBox);
-	cudaFree(geomIdx);
-}
-
-RT_CALLABLE size_t	WorldGeometries::totalCount() const
-{
-	return spheres.count + planes.count + cylinders.count + cones.count +
-		   hyperboloids.count + tori.count + kisses.count + triangles.count + quads.count;
-}
-
 WorldGeometries	WorldGeometries::cudaCopy() const
 {
-	WorldGeometries cudaWorld;
+	WorldGeometries cudaData;
+	cudaData.count = count;
 
-	cudaWorld.spheres = spheres.cudaCopy();
-	cudaWorld.planes = planes.cudaCopy();
-	cudaWorld.cylinders = cylinders.cudaCopy();
-	cudaWorld.cones = cones.cudaCopy();
-	cudaWorld.hyperboloids = hyperboloids.cudaCopy();
-	cudaWorld.tori = tori.cudaCopy();
-	cudaWorld.kisses = kisses.cudaCopy();
-	cudaWorld.triangles = triangles.cudaCopy();
-	cudaWorld.quads = quads.cudaCopy();
+	if (count > 0)
+	{
+		cudaMalloc(&cudaData.primitives, count * sizeof(Primitive));
+		cudaMemcpy(cudaData.primitives, primitives, count * sizeof(Primitive), cudaMemcpyHostToDevice);
+	}
 
-	return cudaWorld;
+	return cudaData;
 }
 
 void	WorldGeometries::cudaFreeWorld()
 {
-	spheres.cudaFreeSimple();
-	planes.cudaFreeSimple();
-	cylinders.cudaFreeSimple();
-	cones.cudaFreeSimple();
-	hyperboloids.cudaFreeParametrized();
-	tori.cudaFreeParametrized();
-	kisses.cudaFreeParametrized();
-	triangles.cudaFreeWorld();
-	quads.cudaFreeQuad();
+	if (count > 0)
+		cudaFree(primitives);
 }
 
 RT_CALLABLE Ray	getLocalRay(const Matrix4x4 &inverse, const Ray &ray)

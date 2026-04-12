@@ -1,42 +1,19 @@
 #include "Geometry.cuh"
 
-RT_CALLABLE void	makeTorus(float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms)
+void	makeTorus(float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, PrimitivesList &primitives)
 {
 	float		r = minorRadius / majorRadius;
 	Matrix4x4	master = masterMatrix(center.toVector(), normal, Vector3(majorRadius, majorRadius, majorRadius));
 	AABB		box(Point3(-(1 + r), -r, -(1 + r)), Point3(1 + r, r, 1 + r), master);
-	int			idx = worldGeoms.totalCount();
 
-	size_t currentCount = worldGeoms.tori.count;
+	Primitive	torus;
+	torus.type = TORUS;
+	torus.geomIdx = primitives.size();
+	torus.boundingBox = box;
+	torus.inverseTransform = master.inverse();
+	torus.param = r;
 
-	Matrix4x4*	newInverse = new Matrix4x4[currentCount + 1];
-	float*		newParam = new float[currentCount + 1];
-	AABB*		newAABB = new AABB[currentCount + 1];
-	int*		newGeomIdx = new int[currentCount + 1];
-
-	for (size_t i = 0; i < currentCount; i++)
-	{
-		newInverse[i] = worldGeoms.tori.inverseTransform[i];
-		newParam[i] = worldGeoms.tori.param[i];
-		newAABB[i] = worldGeoms.tori.boundingBox[i];
-		newGeomIdx[i] = worldGeoms.tori.geomIdx[i];
-	}
-
-	newInverse[currentCount] = master.inverse();
-	newParam[currentCount] = r;
-	newAABB[currentCount] = box;
-	newGeomIdx[currentCount] = idx;
-
-	delete[] worldGeoms.tori.inverseTransform;
-	delete[] worldGeoms.tori.param;
-	delete[] worldGeoms.tori.boundingBox;
-	delete[] worldGeoms.tori.geomIdx;
-
-	worldGeoms.tori.inverseTransform = newInverse;
-	worldGeoms.tori.param = newParam;
-	worldGeoms.tori.boundingBox = newAABB;
-	worldGeoms.tori.geomIdx = newGeomIdx;
-	worldGeoms.tori.count++;
+	primitives.push_back(torus);
 }
 
 RT_CALLABLE bool	torusHits(const Matrix4x4 &invTransform, float param, const Ray &ray, const Limits &limits, HitRecord &record)
@@ -103,8 +80,8 @@ RT_CALLABLE bool	torusHits(const Matrix4x4 &invTransform, float param, const Ray
 
 	float distance = sqrtf(x * x + z * z) - 1.0f;
 
-	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI);
-	record.v = 0.5f - atan2f(localHit.y(), distance) / (2.0 * M_PI);
+	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI_F);
+	record.v = 0.5f - atan2f(localHit.y(), distance) / (2.0 * M_PI_F);
 
 	return true;
 }

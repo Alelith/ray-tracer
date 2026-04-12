@@ -72,18 +72,13 @@ RT_CALLABLE bool	AABB::hit(const Ray &ray, const Limits &limits) const
 
 	for (int axis = 0; axis < 3; axis++)
 	{
-		float	invD = 1.0 / ray.getDirection()[axis];
+		float	invD = 1.0f / ray.getDirection()[axis];
 		float	t0   = (getLimits(axis, *this).getMin() - ray.getOrigin()[axis]) * invD;
 		float	t1   = (getLimits(axis, *this).getMax() - ray.getOrigin()[axis]) * invD;
-		if (invD < 0.0)
-		{
-			float temp = t0;
-			t0 = t1;
-			t1 = temp;
-		}
-		// Intersect: narrow the running [tMin, tMax] window with the slab [t0, t1]
-		tMin = fmaxf(tMin, t0);
-		tMax = fminf(tMax, t1);
+		float	tNear = fminf(t0, t1);
+		float	tFar  = fmaxf(t0, t1);
+		tMin = fmaxf(tMin, tNear);
+		tMax = fminf(tMax, tFar);
 		if (tMax <= tMin)
 			return false;
 	}

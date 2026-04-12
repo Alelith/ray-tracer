@@ -25,8 +25,8 @@ RT_CALLABLE Solutions	solveCardano(float a, float b, float c, float d)
 		float rho   = 2.0f * cbrtf(r);
 
 		sols.push(rho * cosf(theta) + offset, 0.0, false);
-		sols.push(rho * cosf(theta + 2.0f * M_PI / 3.0f) + offset, 0.0, false);
-		sols.push(rho * cosf(theta + 4.0f * M_PI / 3.0f) + offset, 0.0, false);
+		sols.push(rho * cosf(theta + 2.0f * M_PI_F / 3.0f) + offset, 0.0, false);
+		sols.push(rho * cosf(theta + 4.0f * M_PI_F / 3.0f) + offset, 0.0, false);
 	}
 	else
 	{
