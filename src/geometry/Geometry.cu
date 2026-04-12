@@ -97,10 +97,57 @@ void	WorldGeometryData::cudaFreeWorld()
 	cudaFree(geomIdx);
 }
 
+QuadGeometryData	QuadGeometryData::cudaCopy() const
+{
+	QuadGeometryData cudaData;
+	cudaData.count = count;
+
+	if (count > 0)
+	{
+		cudaMalloc(&cudaData.Q, count * sizeof(Point3));
+		cudaMemcpy(cudaData.Q, Q, count * sizeof(Point3), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.u, count * sizeof(Vector3));
+		cudaMemcpy(cudaData.u, u, count * sizeof(Vector3), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.v, count * sizeof(Vector3));
+		cudaMemcpy(cudaData.v, v, count * sizeof(Vector3), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.w, count * sizeof(Vector3));
+		cudaMemcpy(cudaData.w, w, count * sizeof(Vector3), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.quadNormal, count * sizeof(Vector3));
+		cudaMemcpy(cudaData.quadNormal, quadNormal, count * sizeof(Vector3), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.D, count * sizeof(float));
+		cudaMemcpy(cudaData.D, D, count * sizeof(float), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.boundingBox, count * sizeof(AABB));
+		cudaMemcpy(cudaData.boundingBox, boundingBox, count * sizeof(AABB), cudaMemcpyHostToDevice);
+
+		cudaMalloc(&cudaData.geomIdx, count * sizeof(int));
+		cudaMemcpy(cudaData.geomIdx, geomIdx, count * sizeof(int), cudaMemcpyHostToDevice);
+	}
+
+	return cudaData;
+}
+
+void	QuadGeometryData::cudaFreeQuad()
+{
+	cudaFree(Q);
+	cudaFree(u);
+	cudaFree(v);
+	cudaFree(w);
+	cudaFree(quadNormal);
+	cudaFree(D);
+	cudaFree(boundingBox);
+	cudaFree(geomIdx);
+}
+
 RT_CALLABLE size_t	WorldGeometries::totalCount() const
 {
 	return spheres.count + planes.count + cylinders.count + cones.count +
-		   hyperboloids.count + tori.count + kisses.count + triangles.count;
+		   hyperboloids.count + tori.count + kisses.count + triangles.count + quads.count;
 }
 
 WorldGeometries	WorldGeometries::cudaCopy() const
@@ -115,6 +162,7 @@ WorldGeometries	WorldGeometries::cudaCopy() const
 	cudaWorld.tori = tori.cudaCopy();
 	cudaWorld.kisses = kisses.cudaCopy();
 	cudaWorld.triangles = triangles.cudaCopy();
+	cudaWorld.quads = quads.cudaCopy();
 
 	return cudaWorld;
 }
@@ -129,6 +177,7 @@ void	WorldGeometries::cudaFreeWorld()
 	tori.cudaFreeParametrized();
 	kisses.cudaFreeParametrized();
 	triangles.cudaFreeWorld();
+	quads.cudaFreeQuad();
 }
 
 RT_CALLABLE Ray	getLocalRay(const Matrix4x4 &inverse, const Ray &ray)

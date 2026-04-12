@@ -50,24 +50,36 @@ RT_CALLABLE Matrix4x4	translationMatrix(const Vector3 &translation)
 
 RT_CALLABLE Matrix4x4	rotationMatrix(const Vector3 &rotation)
 {
-	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
-	Vector3 newY = rotation.normalized();
-	Vector3 newX = Vector3(0.0, 1.0, 0.0).normalized();
-	if (fabsf(newY[0]) < 0.999f)
-		newX = cross(newY, Vector3(1.0, 0.0, 0.0)).normalized();
-	else
-		newX = cross(newY, Vector3(0.0, 0.0, 1.0)).normalized();
-	Vector3 newZ = cross(newX, newY).normalized();
-	result(0, 0) = newX[0];
-	result(1, 0) = newX[1];
-	result(2, 0) = newX[2];
-	result(0, 1) = newY[0];
-	result(1, 1) = newY[1];
-	result(2, 1) = newY[2];
-	result(0, 2) = newZ[0];
-	result(1, 2) = newZ[1];
-	result(2, 2) = newZ[2];
-	return result;
+	float radX = rotation[0] * M_PI / 180.0f;
+	float radY = rotation[1] * M_PI / 180.0f;
+	float radZ = rotation[2] * M_PI / 180.0f;
+
+	float cx = cosf(radX), sx = sinf(radX);
+	float cy = cosf(radY), sy = sinf(radY);
+	float cz = cosf(radZ), sz = sinf(radZ);
+
+	Matrix4x4 rx = Matrix4x4((const float[4][4]){
+		{1.0f, 0.0f, 0.0f, 0.0f},
+		{0.0f, cx, -sx, 0.0f},
+		{0.0f, sx, cx, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	Matrix4x4 ry = Matrix4x4((const float[4][4]){
+		{cy, 0.0f, sy, 0.0f},
+		{0.0f, 1.0f, 0.0f, 0.0f},
+		{-sy, 0.0f, cy, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	Matrix4x4 rz = Matrix4x4((const float[4][4]){
+		{cz, -sz, 0.0f, 0.0f},
+		{sz, cz, 0.0f, 0.0f},
+		{0.0f, 0.0f, 1.0f, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	return rz * ry * rx;
 }
 
 RT_CALLABLE Matrix4x4	scaleMatrix(const Vector3 &scale)
@@ -98,24 +110,36 @@ RT_CALLABLE Matrix4x4	inverseTranslationMatrix(const Vector3 &translation)
 
 RT_CALLABLE Matrix4x4	inverseRotationMatrix(const Vector3 &rotation)
 {
-	Matrix4x4 result = Matrix4x4((const float[4][4]){{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0}});
-	Vector3 newY = rotation.normalized();
-	Vector3 newX = Vector3(0.0, 1.0, 0.0).normalized();
-	if (fabsf(newY[0]) < 0.999f)
-		newX = cross(newY, Vector3(1.0, 0.0, 0.0)).normalized();
-	else
-		newX = cross(newY, Vector3(0.0, 0.0, 1.0)).normalized();
-	Vector3 newZ = cross(newX, newY).normalized();
-	result(0, 0) = newX[0];
-	result(0, 1) = newX[1];
-	result(0, 2) = newX[2];
-	result(1, 0) = newY[0];
-	result(1, 1) = newY[1];
-	result(1, 2) = newY[2];
-	result(2, 0) = newZ[0];
-	result(2, 1) = newZ[1];
-	result(2, 2) = newZ[2];
-	return result;
+	float radX = rotation[0] * M_PI / 180.0f;
+	float radY = rotation[1] * M_PI / 180.0f;
+	float radZ = rotation[2] * M_PI / 180.0f;
+
+	float cx = cosf(radX), sx = sinf(radX);
+	float cy = cosf(radY), sy = sinf(radY);
+	float cz = cosf(radZ), sz = sinf(radZ);
+
+	Matrix4x4 rx = Matrix4x4((const float[4][4]){
+		{1.0f, 0.0f, 0.0f, 0.0f},
+		{0.0f, cx, sx, 0.0f},
+		{0.0f, -sx, cx, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	Matrix4x4 ry = Matrix4x4((const float[4][4]){
+		{cy, 0.0f, -sy, 0.0f},
+		{0.0f, 1.0f, 0.0f, 0.0f},
+		{sy, 0.0f, cy, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	Matrix4x4 rz = Matrix4x4((const float[4][4]){
+		{cz, sz, 0.0f, 0.0f},
+		{-sz, cz, 0.0f, 0.0f},
+		{0.0f, 0.0f, 1.0f, 0.0f},
+		{0.0f, 0.0f, 0.0f, 1.0f}
+	});
+
+	return rx * ry * rz;
 }
 
 RT_CALLABLE Matrix4x4	inverseScaleMatrix(const Vector3 &scale)

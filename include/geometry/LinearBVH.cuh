@@ -16,6 +16,7 @@ enum GeomType
 	TORUS,
 	KISS,
 	TRIANGLE,
+	QUAD,
 	NONE
 };
 

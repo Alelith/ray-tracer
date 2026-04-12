@@ -1,20 +1,16 @@
 #include "LinearBVH.cuh"
+#include <algorithm>
 
 RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 {
 	AABB nodeBox = data[start].box;
 	for (int i = start + 1; i < end; i++)
 		nodeBox = AABB(nodeBox, data[i].box);
+
 	if (end - start == 1)
 	{
-		BVHData* newData = new BVHData[count + 1];
-		for (size_t k = 0; k < count; k++)
-			newData[k] = bvhData[k];
-		newData[count] = data[start];
-		delete[] bvhData;
-		bvhData = newData;
+		bvhData[count] = data[start];
 		count++;
-
 		return count - 1;
 	}
 	else
@@ -27,8 +23,9 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 			axis = 1;
 		else if (zlen > xlen && zlen > ylen)
 			axis = 2;
-		
-		std::sort(data.begin() + start, data.begin() + end, [axis](const BVHData &a, const BVHData &b) {
+
+		std::sort(data.begin() + start, data.begin() + end, [axis](const BVHData &a, const BVHData &b)
+		{
 			float aCenter, bCenter;
 			if (axis == 0)
 			{
@@ -49,22 +46,16 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 		});
 
 		int mid = bestSplit(data, start, end);
-		
+
 		BVHData nodeData;
 		nodeData.geomIdx = -1; // Internal node
 		nodeData.type = NONE;
 		nodeData.rightChildIdx = 0;
 		nodeData.box = nodeBox;
 
-		BVHData* newData = new BVHData[count + 1];
-		for (size_t k = 0; k < count; k++)
-			newData[k] = bvhData[k];
-		newData[count] = nodeData;
-		delete[] bvhData;
-		bvhData = newData;
+		int nodeIdx = count;
+		bvhData[count] = nodeData;
 		count++;
-
-		int nodeIdx = count - 1;
 
 		buildNode(data, start, mid);
 		int rIdx = buildNode(data, mid, end);
@@ -75,33 +66,35 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 
 RT_CALLABLE int	LinearBVH::bestSplit(vector<BVHData> &data, int start, int end)
 {
-	float minCost = INFINITY;
-	int res = start + (end - start) / 2;
+	int n = end - start;
+	if (n <= 1) return start;
 
-	for (int i = start; i < end - 1; i++)
+	AABB* rightBoxes = new AABB[n];
+	rightBoxes[n - 1] = data[end - 1].box;
+	for (int i = n - 2; i >= 0; i--)
+		rightBoxes[i] = AABB(rightBoxes[i + 1], data[start + i].box);
+
+	float minCost = INFINITY;
+	int res = start + n / 2;
+
+	AABB leftBox = data[start].box;
+	for (int i = 0; i < n - 1; i++)
 	{
-		AABB leftBox = data[start].box;
-		for (int j = start + 1; j <= i; j++)
-			leftBox = AABB(leftBox, data[j].box);
-		
-		AABB rightBox = data[i + 1].box;
-		for (int j = i + 2; j < end; j++)
-			rightBox = AABB(rightBox, data[j].box);
-		
-		float cost = leftBox.getArea() * (i - start + 1) + rightBox.getArea() * (end - i - 1);
+		leftBox = AABB(leftBox, data[start + i].box);
+		float cost = leftBox.getArea() * (i + 1) + rightBoxes[i + 1].getArea() * (n - i - 1);
 		if (cost < minCost)
 		{
 			minCost = cost;
-			res = i + 1;
+			res = start + i + 1;
 		}
 	}
+	delete[] rightBoxes;
 	return res;
 }
 
-RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) 
-	: bvhData(nullptr), count(0), worldGeoms(worldGeoms)
+RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : bvhData(nullptr), count(0), worldGeoms(worldGeoms)
 {
-	vector<BVHData>	tmpData;
+	vector<BVHData> tmpData;
 
 	for (size_t i = 0; i < worldGeoms.spheres.count; i++)
 	{
@@ -175,10 +168,22 @@ RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms)
 		data.box = worldGeoms.triangles.boundingBox[i];
 		tmpData.push_back(data);
 	}
+	for (size_t i = 0; i < worldGeoms.quads.count; i++)
+	{
+		BVHData data;
+		data.geomIdx = i;
+		data.type = QUAD;
+		data.rightChildIdx = -1; // No children in a linear BVH
+		data.box = worldGeoms.quads.boundingBox[i];
+		tmpData.push_back(data);
+	}
+
+	if (tmpData.empty()) return;
+	bvhData = new BVHData[tmpData.size() * 2];
 	buildNode(tmpData, 0, tmpData.size());
 }
 
-RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
+RT_CALLABLE static bool	hitGeometry(const WorldGeometries &worldGeoms, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
 {
 	bool hit = false;
 	switch (geomData.type)
@@ -210,15 +215,29 @@ RT_CALLABLE static bool hitGeometry(const WorldGeometries &worldGeoms, const Ray
 			break;
 		case TRIANGLE:
 			hit = triangleHits(
-				worldGeoms.triangles.v0[geomData.geomIdx],
-				worldGeoms.triangles.v1[geomData.geomIdx],
-				worldGeoms.triangles.v2[geomData.geomIdx],
-				worldGeoms.triangles.triNormal[geomData.geomIdx],
-				ray,
-				limits,
-				record
+			worldGeoms.triangles.v0[geomData.geomIdx],
+			worldGeoms.triangles.v1[geomData.geomIdx],
+			worldGeoms.triangles.v2[geomData.geomIdx],
+			worldGeoms.triangles.triNormal[geomData.geomIdx],
+			ray,
+			limits,
+			record
 			);
 			if (hit) record.geomIdx = worldGeoms.triangles.geomIdx[geomData.geomIdx];
+			return hit;
+		case QUAD:
+			hit = quadHits(
+			worldGeoms.quads.Q[geomData.geomIdx],
+			worldGeoms.quads.u[geomData.geomIdx],
+			worldGeoms.quads.v[geomData.geomIdx],
+			worldGeoms.quads.w[geomData.geomIdx],
+			worldGeoms.quads.quadNormal[geomData.geomIdx],
+			worldGeoms.quads.D[geomData.geomIdx],
+			ray,
+			limits,
+			record
+			);
+			if (hit) record.geomIdx = worldGeoms.quads.geomIdx[geomData.geomIdx];
 			return hit;
 		default:
 			return false;
@@ -265,11 +284,11 @@ RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord 
 LinearBVH	LinearBVH::cudaCopy() const
 {
 	WorldGeometries cudaWorldGeoms;
-	
+
 	cudaWorldGeoms = worldGeoms.cudaCopy();
 
 	LinearBVH cudaBVH;
-	
+
 	cudaBVH.count = count;
 	cudaMalloc(&cudaBVH.bvhData, count * sizeof(BVHData));
 

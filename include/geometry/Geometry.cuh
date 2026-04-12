@@ -44,6 +44,22 @@ struct WorldGeometryData
 	void				cudaFreeWorld();
 };
 
+struct QuadGeometryData
+{
+	Point3	*Q = nullptr;
+	Vector3	*u = nullptr;
+	Vector3	*v = nullptr;
+	Vector3	*w = nullptr;
+	Vector3	*quadNormal = nullptr;
+	float	*D = nullptr;
+	AABB	*boundingBox = nullptr;
+	int		*geomIdx = nullptr; // Index to identify which geometry was hit in the original list
+	size_t	count = 0;
+
+	QuadGeometryData	cudaCopy() const;
+	void				cudaFreeQuad();
+};
+
 struct WorldGeometries
 {
 	SimpleGeometryData			spheres;
@@ -54,6 +70,7 @@ struct WorldGeometries
 	ParametrizedGeometryData	tori;
 	ParametrizedGeometryData	kisses;
 	WorldGeometryData			triangles;
+	QuadGeometryData			quads;
 
 	RT_CALLABLE size_t	totalCount() const;
 
@@ -68,6 +85,7 @@ RT_CALLABLE void	makeCylinder    (float radius, float height, const Point3 &cent
 RT_CALLABLE void	makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 RT_CALLABLE void	makeTorus       (float majorRadius, float minorRadius, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 RT_CALLABLE void	makeTriangle    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, WorldGeometries &worldGeoms);
+RT_CALLABLE void	makeQuad        (const Point3 &Q, const Vector3 &u, const Vector3 &v, WorldGeometries &worldGeoms);
 /*void			makePlane       (const Point3 &point, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeCone        (float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
 void			makeHyperboloid (float waist, float radius, float height, const Point3 &center, const Vector3 &normal, WorldGeometries &worldGeoms);
@@ -79,5 +97,6 @@ RT_CALLABLE bool	cylinderHits    (const Matrix4x4 &inverseTransform, const Ray &
 RT_CALLABLE bool	coneHits        (const Matrix4x4 &inverseTransform, const Ray &ray, const Limits &limits, HitRecord &record);
 RT_CALLABLE bool	torusHits       (const Matrix4x4 &inverseTransform, float param, const Ray &ray, const Limits &limits, HitRecord &record);
 RT_CALLABLE bool	triangleHits    (const Point3 &v0, const Point3 &v1, const Point3 &v2, const Vector3 &normal, const Ray &ray, const Limits &limits, HitRecord &record);
+RT_CALLABLE bool	quadHits        (const Point3 &Q, const Vector3 &u, const Vector3 &v, const Vector3 &w, const Vector3 &normal, float D, const Ray &ray, const Limits &limits, HitRecord &record);
 
 #endif /* GEOMETRY_HPP */

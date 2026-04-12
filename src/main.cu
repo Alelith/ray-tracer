@@ -3,6 +3,7 @@
 #include "LinearBVH.cuh"
 #include "debug/PrintPPM.cuh"
 #include "debug/SavePNG.cuh"
+#include "parsing/Parser.cuh"
 
 #include <fstream>
 #include <cmath>
@@ -43,42 +44,37 @@ static std::string makeRenderOutputPath()
 	return oss.str();
 }
 
-int main()
+int main(int argc, char** argv)
 {
-	WorldGeometries worldGeoms;
-	Materials materials;
+	if (argc < 2)
+	{
+		std::cerr << "Uso: " << argv[0] << " <archivo.lrtc>" << std::endl;
+		return 1;
+	}
 
-	makeSphere(Point3( 0.0,   0.5,  -2), 0.125, worldGeoms);   // centre
-	makeTorus(1.25, 0.5, Point3(0.0, 0.0, -2), Vector3(0, 1, 0), worldGeoms); // centre
-	makeCylinder(0.5, 0.75, Point3(3.0, 0.0, -1), Vector3(0.25, 1, -0.25), worldGeoms);   // right
-	makeSphere(Point3( 4.7,   3.0,  -1),  2, worldGeoms);   // right
-	makeSphere(Point3( -3.0,   0.0,  -1),  0.5, worldGeoms);   // left
-	makeCone(0.5, 1.0, Point3(-4, 2, -1), Vector3(-0.25, -1, 0.25), worldGeoms);   // left
-	makeSphere(Point3( 0.0, -100.5, -1), 100.0, worldGeoms);  // ground
-	makeSphere(Point3( 0.0,   2.0,  -2), 0.25, worldGeoms);   // above
-	makeSphere(Point3( -1.5,   2.0, -2), 0.25, worldGeoms);   // above
-	makeSphere(Point3( 1.5,   2.0,  -2), 0.25, worldGeoms);   // above
-	makeTorus(0.75, 0.125, Point3( 0.0,   1.5,  -2), Vector3(0, 1, 0), worldGeoms);   // above
+	Parser parser(argv[1]);
+	if (!parser.parse())
+	{
+		std::cerr << "Error al parsear el archivo: " << argv[1] << std::endl;
+		return 1;
+	}
 
-	char GravelTexturePaths[5][255] = {"res/Gravel/albedo.jpg", "res/Gravel/roughness.png", "", "", ""};
-	char MetalTexturePaths[5][255] = {"res/Metal/albedo.png", "res/Metal/roughness.png", "res/Metal/metalness.png", "", ""};
-	char WoodTexturePaths[5][255] = {"res/Wood/albedo.jpg", "res/Wood/roughness.jpg", "", "", ""};
-	char WoodEmissiveTexturePaths[5][255] = {"", "res/Wood/roughness.jpg", "", "", "res/Wood/albedo.jpg"};
+	ParsedCameraData camData = parser.getCameraData();
+	if (!camData.isParsed)
+	{
+		std::cerr << "Error: No se encontró la configuración de la cámara en el archivo .lrtc" << std::endl;
+		return 1;
+	}
 
-	addMaterial(Color(0.25, 0.75, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // centre
-	addMaterial(Color(0, 0.5, 1), 0.0625, 0.0, 1.0, 4.5, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // centre
-	addMaterial(Color(1, 0, 1), 0.125, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // right
-	addMaterial(Color(1, 1, 1), 1.0, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, WoodTexturePaths, materials); // right
-	addMaterial(Color(1, 1, 1), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // left
-	addMaterial(Color(0.6, 0.75, 0.3), 1, 1.0, 0.0, 0.0, Color(0.0, 0.0, 0.0), 1.0, nullptr, materials); // left
-	addMaterial(Color(1.0, 1, 0.5), 1.0, 0.0, 0.0, 1.0, Color(0.0, 0.0, 0.0), 1.0, GravelTexturePaths, materials); // ground
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 1.0), 70.0, nullptr, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(0.0, 1.0, 1.0), 25.0, WoodEmissiveTexturePaths, materials); // above
-	addMaterial(Color(1, 1, 1), 0.0, 0.0, 1.0, 1.5, Color(1.0, 1.0, 0.0), 25.0, nullptr, materials); // above
-	addMaterial(Color(0, 0, 0), 0.0, 0.0, 1.0, 1.5, Color(1.0, 0.01, 1.0), 60.0, nullptr, materials); // above
+	WorldGeometries worldGeoms = parser.getWorldGeometries();
+	Materials materials = parser.getMaterials();
 
-	LinearBVH bvh(worldGeoms);
-	Camera camera(16.0 / 9.0, 3840, 25, 25, 90, Point3(0, 2.75, -8), Vector3(0.0, -0.75, 1.0), bvh, materials, 512.0, 0.001, 0.0001, 0.2);
+	std::cout << "Creating BVH..." << std::endl;
+LinearBVH bvh(worldGeoms);
+std::cout << "BVH Created!" << std::endl;
+	Camera camera(camData.aspectRatio, camData.imageWidth, camData.samplesPerPixel, camData.maxDepth, camData.fov, 
+				  camData.position, camData.normal, bvh, materials, 
+				  camData.normalWeight, camData.positionWeight, camData.albedoWeight, camData.colorWeight);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -87,6 +83,10 @@ int main()
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+	// Utilizar las dimensiones reales resultantes de la cámara (por un lado window display vs resolución actual)
+	const int imageWidth = camData.imageWidth;
+	const int imageHeight = static_cast<int>(imageWidth / camData.aspectRatio);
 
 	SDL_Window* win = SDL_CreateWindow("Ray Tracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
 	if (win == nullptr)
@@ -105,7 +105,7 @@ int main()
 		return 1;
 	}
 
-	SDL_Texture* texture = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 3840, 2160);
+	SDL_Texture* texture = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, imageWidth, imageHeight);
 	if (texture == nullptr)
 	{
 		SDL_DestroyRenderer(ren);
@@ -116,9 +116,8 @@ int main()
 	}
 
 	Timer timer;
-	int spp = 2500;
-	const int imageWidth = 3840;
-	const int imageHeight = 2160;
+	int spp = camData.samplesPerPixel;
+	
 	if (!ensureRendersDirectory())
 	{
 		std::cerr << "No se pudo crear/acceder al directorio renders/." << std::endl;
