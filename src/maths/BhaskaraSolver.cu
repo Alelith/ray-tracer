@@ -1,5 +1,26 @@
+/**
+ * @file BhaskaraSolver.cu
+ * @brief Implementation of Bhaskara (quadratic formula) root solver
+ * 
+ * @author Lilith Estévez Boeta
+ * @date 2026-04-13
+ */
+
 #include "Solver.cuh"
 
+/**
+ * @brief Attempts to solve a quadratic equation ax^2 + bx + c = 0
+ * 
+ * @details Evaluates the discriminant to find real and complex roots. 
+ * Falls back to linear solver if the squared coefficient is zero.
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] a Quadratic scale
+ * @param[in] b Linear scale
+ * @param[in] c Constant
+ * @return Struct with solutions (up to two distinct roots)
+ */
 RT_CALLABLE Solutions	solveBhaskara(float a, float b, float c)
 {
 	Solutions	sols;

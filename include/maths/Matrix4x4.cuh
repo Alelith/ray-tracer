@@ -1,13 +1,31 @@
+/**
+ * @file Matrix4x4.cuh
+ * @brief 4x4 Matrix class and related affine transformations
+ * 
+ * @author Lilith Estévez Boeta
+ * @date 2026-04-13
+ */
+
 #ifndef MATRIX4X4_HPP
 # define MATRIX4X4_HPP
 
 # include "Vector3.cuh"
 # include "Point3.cuh"
 
+/**
+ * @class Matrix4x4
+ * @brief 4x4 matrix structure for geometric transformations
+ * 
+ * Affine transformations representation. Used for object placement
+ * and camera manipulation within the scene. Contains basic matrix methods
+ * like transposition and inversion.
+ * 
+ * @ingroup math_module
+ */
 class Matrix4x4
 {
 	private:
-		float	m[4][4];
+		float	m[4][4]; ///< Internal 2D array representation of the matrix
 	public:
 		RT_CALLABLE Matrix4x4();
 		RT_CALLABLE Matrix4x4(const float values[4][4]);
@@ -19,6 +37,11 @@ class Matrix4x4
 		inline RT_CALLABLE float		&operator()(int row, int col) { return m[row][col]; }
 		inline RT_CALLABLE float		operator()(int row, int col) const { return m[row][col]; }
 
+		/**
+		 * @brief Computes the algebraic inverse of the matrix
+		 * 
+		 * @return The inverse matrix or a default matrix if singular
+		 */
 		inline RT_CALLABLE Matrix4x4	inverse() const
 		{
 			Matrix4x4 inv;
@@ -49,6 +72,12 @@ class Matrix4x4
 							inv(i, j) /= det;
 			return inv;
 		}
+
+		/**
+		 * @brief Computes transposed matrix
+		 * 
+		 * @return Transposed result
+		 */
 		inline RT_CALLABLE Matrix4x4	transpose() const
 		{
 			Matrix4x4 transposed;
@@ -61,6 +90,15 @@ class Matrix4x4
 
 std::ostream	&operator<<(std::ostream &os, const Matrix4x4 &mat);
 
+/**
+ * @brief Multiplies two 4x4 matrices
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] mat1 Left matrix operand
+ * @param[in] mat2 Right matrix operand
+ * @return Concatenated matrix transformation
+ */
 inline RT_CALLABLE Matrix4x4	operator*(const Matrix4x4 &mat1, const Matrix4x4 &mat2)
 {
 	Matrix4x4 result;
@@ -77,7 +115,15 @@ inline RT_CALLABLE Matrix4x4	operator*(const Matrix4x4 &mat1, const Matrix4x4 &m
 	return result;
 }
 
-// Matrix * Vector: w=0, no translation applied (directions)
+/**
+ * @brief Multiplies a vector by a matrix (no translation)
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] mat The matrix
+ * @param[in] vec The vector to evaluate
+ * @return Computed vector mapped
+ */
 inline RT_CALLABLE Vector3	operator*(const Matrix4x4 &mat, const Vector3 &vec)
 {
 	float x = mat(0, 0) * vec.x() + mat(0, 1) * vec.y() + mat(0, 2) * vec.z();
@@ -86,7 +132,15 @@ inline RT_CALLABLE Vector3	operator*(const Matrix4x4 &mat, const Vector3 &vec)
 	return Vector3(x, y, z);
 }
 
-// Matrix * Point: w=1, translation applied (positions)
+/**
+ * @brief Multiplies a point by a matrix (applies translation)
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] mat The matrix
+ * @param[in] point The point
+ * @return Point after transformation mapping
+ */
 inline RT_CALLABLE Point3	operator*(const Matrix4x4 &mat, const Point3 &point)
 {
 	float x = mat(0, 0) * point.x() + mat(0, 1) * point.y() + mat(0, 2) * point.z() + mat(0, 3);
@@ -95,14 +149,88 @@ inline RT_CALLABLE Point3	operator*(const Matrix4x4 &mat, const Point3 &point)
 	return Point3(x, y, z);
 }
 
+/**
+ * @brief Constructs a new generic translation matrix
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] translation XYZ amounts
+ * @return 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		translationMatrix(const Vector3 &translation);
+
+/**
+ * @brief Constructs a generic rotation matrix
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] rotation Pitch, Yaw and Roll mapped to X, Y, Z degrees
+ * @return 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		rotationMatrix(const Vector3 &rotation);
+
+/**
+ * @brief Constructs a new geometric scale matrix
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] scale Scaling amounts for X, Y, Z dimensions
+ * @return 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		scaleMatrix(const Vector3 &scale);
+
+/**
+ * @brief Generates consolidated 4x4 matrix from geometric parameters
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] translation Offset vector
+ * @param[in] rotation Angles parameterization
+ * @param[in] scale Dimension extents mapping
+ * @return Merged 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		masterMatrix(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 
+/**
+ * @brief Creates the inverse of a given translation vector as matrix
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] translation Initial offsets mapping
+ * @return Inversed equivalent 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		inverseTranslationMatrix(const Vector3 &translation);
+
+/**
+ * @brief Generates inverse evaluation of rotation values
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] rotation Amounts mapped to degrees natively equivalent mapped
+ * @return Reverse rotation 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		inverseRotationMatrix(const Vector3 &rotation);
+
+/**
+ * @brief Precalculates specific inversal structure for scale
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] scale Base dimension equivalents
+ * @return Scaling mapping into an inverted 4x4 matrix
+ */
 RT_CALLABLE Matrix4x4		inverseScaleMatrix(const Vector3 &scale);
+
+/**
+ * @brief Produces a full reverse matrix out of separated transformations
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] translation Normal mapping for space mappings
+ * @param[in] rotation The mapped equivalents degrees parameter
+ * @param[in] scale Scaling amounts mapping bounds
+ * @return Consolidated inverse Master rotation Matrix
+ */
 RT_CALLABLE Matrix4x4		inverseMasterMatrix(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 
 #endif /* MATRIX4X4_HPP */

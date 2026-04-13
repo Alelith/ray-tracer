@@ -1,5 +1,27 @@
+/**
+ * @file CardanoSolver.cu
+ * @brief Implementation of Cardano's method for cubic equations
+ * 
+ * @author Lilith Estévez Boeta
+ * @date 2026-04-13
+ */
+
 #include "Solver.cuh"
 
+/**
+ * @brief Solves a cubic equation: ax^3 + bx^2 + cx + d = 0
+ * 
+ * @details Normalizes the equation to monic form and uses Cardano's method
+ * to find the roots analytically. Returns real and complex pairs.
+ * 
+ * @ingroup math_module
+ * 
+ * @param[in] a Cubic coefficient
+ * @param[in] b Quadratic coefficient
+ * @param[in] c Linear coefficient
+ * @param[in] d Constant term
+ * @return Solutions struct containing up to three roots
+ */
 RT_CALLABLE Solutions	solveCardano(float a, float b, float c, float d)
 {
 	Solutions	sols;
