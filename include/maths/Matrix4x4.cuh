@@ -40,6 +40,11 @@ class Matrix4x4
 		/**
 		 * @brief Computes the algebraic inverse of the matrix
 		 * 
+		 * @details Utilizes Cramer's Rule-style determinant calculation for a 4x4, 
+		 * explicitly expanding all algebraic terms to achieve higher CUDA throughput 
+		 * with zero dynamic branching. If the determinant equals zero, it falls back 
+		 * to a null or identity matrix, indicating a non-invertible setup.
+		 * 
 		 * @return The inverse matrix or a default matrix if singular
 		 */
 		inline RT_CALLABLE Matrix4x4	inverse() const
@@ -181,6 +186,11 @@ RT_CALLABLE Matrix4x4		scaleMatrix(const Vector3 &scale);
 
 /**
  * @brief Generates consolidated 4x4 matrix from geometric parameters
+ * 
+ * @details Sequentially computes the Scale matrix, the Rotation 
+ * matrix, and the Translation matrix, concatenating them using 
+ * T * R * S logic to provide coherent and stable mapping. Ideal 
+ * for establishing primitive to world-space coordinates.
  * 
  * @ingroup math_module
  * 

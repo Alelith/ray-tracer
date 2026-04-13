@@ -61,6 +61,10 @@ struct Solutions
 /**
  * @brief Solves a linear equation: ax + b = 0
  * 
+ * @details Evaluates the single unknown by isolating x = -b / a. 
+ * If a is remarkably close to zero, it evaluates the constant mathematically by 
+ * possibly returning zero valid solutions.
+ * 
  * @ingroup math_module
  * 
  * @param[in] a Coefficient of x
@@ -71,6 +75,11 @@ RT_CALLABLE Solutions	solveLinear  (float a, float b);
 
 /**
  * @brief Solves a quadratic equation: ax^2 + bx + c = 0
+ * 
+ * @details Applies the classic quadratic formula (Bhaskara's method) deriving up to 
+ * two distinct real roots. It primarily calculates the discriminant (b^2 - 4ac) 
+ * to determine the number and nature of roots. Returns complex roots if requested 
+ * by the implementation context, though most ray-casting equations only care for reals.
  * 
  * @ingroup math_module
  * 
@@ -84,6 +93,11 @@ RT_CALLABLE Solutions	solveBhaskara(float a, float b, float c);
 /**
  * @brief Solves a cubic equation: ax^3 + bx^2 + cx + d = 0
  * 
+ * @details Uses Cardano's analytical method by applying a depressed cubic 
+ * transformation (x = t - b/3a) to resolve up to three algebraic roots.
+ * Handles the calculation of the discriminant and resolving real solutions 
+ * for intersections against continuous higher-degree complex geometries.
+ * 
  * @ingroup math_module
  * 
  * @param[in] a Cubic coefficient
@@ -96,6 +110,12 @@ RT_CALLABLE Solutions	solveCardano (float a, float b, float c, float d);
 
 /**
  * @brief Solves a quartic equation: ax^4 + bx^3 + cx^2 + dx + e = 0
+ * 
+ * @details Leverages Ferrari's method for resolving 4th-degree polynomials 
+ * through resolvent cubics. Transforms the quartic into a product of two 
+ * quadratic expressions, subsequently solving them using Bhaskara's solver. 
+ * Vital for detecting intersections on torus surfaces or advanced custom 
+ * spline geometries.
  * 
  * @ingroup math_module
  * 
