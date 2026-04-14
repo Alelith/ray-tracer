@@ -4,15 +4,20 @@
 # include "Vector3.cuh"
 # include "stb_image.h"
 
-struct Texture
+namespace render
 {
-	int		width;
-	int		height;
 
-	cudaTextureObject_t image;
+	struct Texture
+	{
+		int		width;
+		int		height;
 
-	Texture();
-	Texture(const char *path);
-};
+		cudaTextureObject_t image;
+
+		Texture();
+		Texture(const char *path);
+	};
+
+}
 
 #endif /* TEXTURE_CUH */
