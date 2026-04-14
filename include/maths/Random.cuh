@@ -4,22 +4,27 @@
 # include "Vector3.cuh"
 # include <climits>
 
-struct Random
+namespace maths
 {
-	unsigned long	state;
 
-	RT_CALLABLE Random(unsigned long seed = 123456789UL) : state(seed ? seed : 1UL) {}
+	struct Random
+	{
+		unsigned long	state;
 
-	RT_CALLABLE float			next();
-	RT_CALLABLE float			randomfloat();
-	RT_CALLABLE float			randomfloat(float min, float max);
+		RT_CALLABLE Random(unsigned long seed = 123456789UL) : state(seed ? seed : 1UL) {}
 
-	RT_CALLABLE Vector3			randomVector3();
-	RT_CALLABLE Vector3			randomVector3(float min, float max);
-	RT_CALLABLE Vector3			randomUnitVector3();
-	RT_CALLABLE Vector3			randomInUnitSphere();
-	RT_CALLABLE Vector3			randomInUnitDisk();
-	RT_CALLABLE Vector3			randomInHemisphere(const Vector3 &normal);
-};
+		RT_CALLABLE float	next();
+		RT_CALLABLE float	randomfloat();
+		RT_CALLABLE float	randomfloat(float min, float max);
+
+		RT_CALLABLE Vector3	randomVector3();
+		RT_CALLABLE Vector3	randomVector3(float min, float max);
+		RT_CALLABLE Vector3	randomUnitVector3();
+		RT_CALLABLE Vector3	randomInUnitSphere();
+		RT_CALLABLE Vector3	randomInUnitDisk();
+		RT_CALLABLE Vector3	randomInHemisphere(const Vector3 &normal);
+	};
+
+} // namespace maths
 
 #endif /* RANDOM_HPP */
