@@ -1,23 +1,23 @@
 #ifndef PARSER_CUH
 # define PARSER_CUH
 
-
-#include "Point3.cuh"
-#include "Vector3.cuh"
-#include "Geometry.cuh"
-#include "Material.cuh"
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <cstring>
+# include "Point3.cuh"
+# include "Vector3.cuh"
+# include "Geometry.cuh"
+# include "Material.cuh"
+# include <string>
+# include <fstream>
+# include <iostream>
+# include <sstream>
+# include <vector>
+# include <cstring>
 
 namespace parsing
 {
 
 	using namespace maths;
 	using namespace geometry;
+	using namespace render;
 
 	struct ParsedCameraData
 	{

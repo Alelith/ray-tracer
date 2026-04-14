@@ -11,7 +11,7 @@ MAGENTA = \033[0;95m
 CYAN = \033[0;96m
 WHITE = \033[0;97m
 
-INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/
+INCLUDE_DIRS = include/ include/geometry/ include/maths/ include/render/ include/debug/ include/parsing/
 INCLUDES = $(addprefix -I , $(INCLUDE_DIRS))
 CUDA = nvcc
 CUDAFLAGS = -std=c++17 -rdc=true --expt-relaxed-constexpr -w
