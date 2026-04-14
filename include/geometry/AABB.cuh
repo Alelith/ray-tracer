@@ -23,9 +23,8 @@ class AABB
 		const RT_CALLABLE Limits	&getYLimits() const;
 		const RT_CALLABLE Limits	&getZLimits() const;
 
-		RT_CALLABLE float			getArea() const;
-
-		RT_CALLABLE bool			hit(const Ray &ray, const Limits &limits) const;
+		RT_CALLABLE float	getArea() const;
+		RT_CALLABLE bool	hit(const Ray &ray, const Limits &limits) const;
 };
 
 #endif /* AABB_HPP */

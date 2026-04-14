@@ -1,12 +1,10 @@
 #include "LinearBVH.cuh"
 #include <algorithm>
-
 RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 {
 	AABB nodeBox = data[start].box;
 	for (int i = start + 1; i < end; i++)
 		nodeBox = AABB(nodeBox, data[i].box);
-
 	if (end - start == 1)
 	{
 		bvhData[count] = data[start];
@@ -23,7 +21,6 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 			axis = 1;
 		else if (zlen > xlen && zlen > ylen)
 			axis = 2;
-
 		std::sort(data.begin() + start, data.begin() + end, [axis](const BVHData &a, const BVHData &b)
 		{
 			float aCenter, bCenter;
@@ -44,39 +41,31 @@ RT_CALLABLE int	LinearBVH::buildNode(vector<BVHData> &data, int start, int end)
 			}
 			return aCenter < bCenter;
 		});
-
 		int mid = bestSplit(data, start, end);
-
 		BVHData nodeData;
-		nodeData.geomIdx = -1; // Internal node
+		nodeData.geomIdx = -1; 
 		nodeData.type = NONE;
 		nodeData.rightChildIdx = 0;
 		nodeData.box = nodeBox;
-
 		int nodeIdx = count;
 		bvhData[count] = nodeData;
 		count++;
-
 		buildNode(data, start, mid);
 		int rIdx = buildNode(data, mid, end);
 		bvhData[nodeIdx].rightChildIdx = rIdx;
 		return nodeIdx;
 	}
 }
-
 RT_CALLABLE int	LinearBVH::bestSplit(vector<BVHData> &data, int start, int end)
 {
 	int n = end - start;
 	if (n <= 1) return start;
-
 	AABB* rightBoxes = new AABB[n];
 	rightBoxes[n - 1] = data[end - 1].box;
 	for (int i = n - 2; i >= 0; i--)
 		rightBoxes[i] = AABB(rightBoxes[i + 1], data[start + i].box);
-
 	float minCost = INFINITY;
 	int res = start + n / 2;
-
 	AABB leftBox = data[start].box;
 	for (int i = 0; i < n - 1; i++)
 	{
@@ -91,29 +80,24 @@ RT_CALLABLE int	LinearBVH::bestSplit(vector<BVHData> &data, int start, int end)
 	delete[] rightBoxes;
 	return res;
 }
-
 RT_CALLABLE LinearBVH::LinearBVH(const WorldGeometries &worldGeoms) : bvhData(nullptr), count(0), worldGeoms(worldGeoms)
 {
 	vector<BVHData> tmpData;
-
 	for (size_t i = 0; i < worldGeoms.count; i++)
 	{
 		BVHData data;
 		data.geomIdx = i;
 		data.type = worldGeoms.primitives[i].type;
-		data.rightChildIdx = -1; // No children in a linear BVH
+		data.rightChildIdx = -1; 
 		data.box = worldGeoms.primitives[i].boundingBox;
 		tmpData.push_back(data);
 	}
-
 	if (tmpData.empty()) return;
 	bvhData = new BVHData[tmpData.size() * 2];
 	buildNode(tmpData, 0, tmpData.size());
 }
-
 RT_CALLABLE static bool	hitGeometry(const Primitive &primitive, const Ray &ray, const Limits &limits, HitRecord &record, const BVHData &geomData)
 {
-	// Ejecución en la CPU (Host): Mantenemos el switch por seguridad de compilación
 	bool hit = false;
 	switch (primitive.type)
 	{
@@ -128,30 +112,24 @@ RT_CALLABLE static bool	hitGeometry(const Primitive &primitive, const Ray &ray, 
 	if (hit) record.geomIdx = primitive.geomIdx;
 	return hit;
 }
-
 RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord &record) const
 {
 	bool hitAnything = false;
-
 	Limits currentLimits = limits;
-
 	int nodesToVisit[64];
 	int top = 0;
-	nodesToVisit[top++] = 0; // Start with the root node
-
+	nodesToVisit[top++] = 0; 
 	while (top > 0)
 	{
 		int currentIdx = nodesToVisit[--top];
-
 		const BVHData &currentNode = bvhData[currentIdx];
-
 		if (currentNode.box.hit(ray, currentLimits))
 		{
 			if (currentNode.geomIdx != -1)
 			{
 				if (hitGeometry(worldGeoms.primitives[currentNode.geomIdx], ray, currentLimits, record, currentNode))
 				{
-					currentLimits = Limits(currentLimits.getMin(), record.t); // Update limits to find closest hit
+					currentLimits = Limits(currentLimits.getMin(), record.t); 
 					hitAnything = true;
 				}
 			}
@@ -164,25 +142,17 @@ RT_CALLABLE bool	LinearBVH::hit(const Ray &ray, const Limits &limits, HitRecord 
 	}
 	return hitAnything;
 }
-
 LinearBVH	LinearBVH::cudaCopy() const
 {
 	WorldGeometries cudaWorldGeoms;
-
 	cudaWorldGeoms = worldGeoms.cudaCopy();
-
 	LinearBVH cudaBVH;
-
 	cudaBVH.count = count;
 	cudaMalloc(&cudaBVH.bvhData, count * sizeof(BVHData));
-
 	cudaMemcpy(cudaBVH.bvhData, bvhData, count * sizeof(BVHData), cudaMemcpyHostToDevice);
-
 	cudaBVH.worldGeoms = cudaWorldGeoms;
-
 	return cudaBVH;
 }
-
 void	LinearBVH::cudaFreeBVH()
 {
 	cudaFree(bvhData);

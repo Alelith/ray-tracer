@@ -22,7 +22,6 @@ class LinearBVH
 		WorldGeometries			worldGeoms;
 
 		RT_CALLABLE int	buildNode(vector<BVHData> &data, int start, int end);
-
 		RT_CALLABLE int	bestSplit(vector<BVHData> &data, int start, int end);
 	public:
 		RT_CALLABLE LinearBVH() : bvhData(nullptr), count(0) {}
@@ -31,8 +30,7 @@ class LinearBVH
 
 		RT_CALLABLE bool	hit(const Ray &ray, const Limits &limits, HitRecord &record) const;
 
-		LinearBVH			cudaCopy() const;
-		void				cudaFreeBVH();
+		LinearBVH	cudaCopy() const;
+		void		cudaFreeBVH();
 };
-
 #endif /* LINEARBVH_HPP */

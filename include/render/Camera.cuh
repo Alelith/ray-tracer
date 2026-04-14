@@ -31,7 +31,6 @@ struct RenderData
 
 	RT_CALLABLE Ray		getRay(float u, float v, Random &rand, int iteration) const;
 };
-
 class Camera
 {
 	public:
@@ -54,7 +53,6 @@ class Camera
 		Vector3	normal;
 		Vector3	pixelDeltaU;
 		Vector3	pixelDeltaV;
-
 		int		iteration;
 
 		RenderData	cudaRenderData;

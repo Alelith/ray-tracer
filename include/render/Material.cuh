@@ -11,7 +11,6 @@ struct Material
 {
 	Color	albedo;
 	cudaTextureObject_t	albedoTexture;
-
 	float	roughness;
 	cudaTextureObject_t	roughnessTexture;
 	float	metallic;
@@ -19,14 +18,13 @@ struct Material
 	float	transmission;
 	cudaTextureObject_t	transmissionTexture;
 	float	ior;
-
 	Color	emmision;
 	cudaTextureObject_t	emmisionTexture;
+
 	float	emmisionStrength;
 
 	Material() : albedo(1.0f, 1.0f, 1.0f), roughness(0.0f), metallic(0.0f), transmission(0.0f), ior(1.0f), emmision(0.0f, 0.0f, 0.0f), emmisionStrength(0.0f) {}
-	Material(const Color &albedo, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength, cudaTextureObject_t albedoTexture = 0, cudaTextureObject_t roughnessTexture = 0, cudaTextureObject_t metallicTexture = 0, cudaTextureObject_t transmissionTexture = 0, cudaTextureObject_t emmisionTexture = 0)
-		: albedo(albedo), roughness(roughness), metallic(metallic), transmission(transmission), ior(ior), emmision(emmision), emmisionStrength(emmisionStrength), albedoTexture(albedoTexture), roughnessTexture(roughnessTexture), metallicTexture(metallicTexture), transmissionTexture(transmissionTexture), emmisionTexture(emmisionTexture) {}
+	Material(const Color &albedo, float roughness, float metallic, float transmission, float ior, const Color &emmision, float emmisionStrength, cudaTextureObject_t albedoTexture = 0, cudaTextureObject_t roughnessTexture = 0, cudaTextureObject_t metallicTexture = 0, cudaTextureObject_t transmissionTexture = 0, cudaTextureObject_t emmisionTexture = 0) : albedo(albedo), roughness(roughness), metallic(metallic), transmission(transmission), ior(ior), emmision(emmision), emmisionStrength(emmisionStrength), albedoTexture(albedoTexture), roughnessTexture(roughnessTexture), metallicTexture(metallicTexture), transmissionTexture(transmissionTexture), emmisionTexture(emmisionTexture) {}
 };
 
 struct MaterialsList

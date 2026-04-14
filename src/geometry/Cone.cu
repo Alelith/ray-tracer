@@ -4,13 +4,12 @@ void	makeCone(float radius, float height, const Point3 &center, const Vector3 &n
 {
 	Matrix4x4	master = masterMatrix(center.toVector(), normal, Vector3(radius, height, radius));
 	AABB		box(Point3(-1, -0.5, -1), Point3(1, 0.5, 1), master);
-
+	
 	Primitive	prim;
 	prim.type = CONE;
 	prim.geomIdx = primitives.size();
 	prim.boundingBox = box;
 	prim.inverseTransform = master.inverse();
-
 	primitives.push_back(prim);
 }
 
@@ -19,16 +18,12 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 	Ray		localRay = getLocalRay(invTransform, ray);
 	Point3	o = localRay.getOrigin();
 	Vector3	d = localRay.getDirection();
-
 	float	bestT = limits.getMax();
 	bool	found = false;
 	Vector3	bestLocalNormal;
-
-	// Lateral surface: x^2 + z^2 - (y - 0.5)^2 = 0 with y constrained to [-0.5, 0.5].
 	float	a = d.x() * d.x() + d.z() * d.z() - d.y() * d.y();
 	float	b = 2.0f * (o.x() * d.x() + o.z() * d.z() - (o.y() - 0.5f) * d.y());
 	float	c = o.x() * o.x() + o.z() * o.z() - (o.y() - 0.5f) * (o.y() - 0.5f);
-
 	if (fabsf(a) > 1e-8f)
 	{
 		float	disc = b * b - 4.0f * a * c;
@@ -37,7 +32,6 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 			float	sqrtDisc = sqrtf(disc);
 			float	t0 = (-b - sqrtDisc) / (2.0f * a);
 			float	t1 = (-b + sqrtDisc) / (2.0f * a);
-
 			if (limits.isBetween(t0))
 			{
 				float y0 = o.y() + t0 * d.y();
@@ -49,7 +43,6 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 					bestLocalNormal = Vector3(p0.x(), -(p0.y() - 0.5f), p0.z()).normalized();
 				}
 			}
-
 			if (limits.isBetween(t1))
 			{
 				float y1 = o.y() + t1 * d.y();
@@ -78,8 +71,6 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 			}
 		}
 	}
-
-	// Bottom cap at y = -0.5.
 	if (fabsf(d.y()) > 1e-8f)
 	{
 		float tBottom = (-0.5f - o.y()) / d.y();
@@ -94,18 +85,14 @@ RT_CALLABLE bool	coneHits(const Matrix4x4 &invTransform, const Ray &ray, const L
 			}
 		}
 	}
-
 	if (!found)
 		return false;
-
 	record.t = bestT;
 	record.point = ray.at(bestT);
 	Vector3 worldNormal = (invTransform.transpose() * bestLocalNormal).normalized();
 	record.setFaceNormal(ray, worldNormal);
-
 	Point3 localHit = localRay.at(bestT);
 	record.u = 0.5f + atan2f(localHit.z(), localHit.x()) / (2.0f * M_PI_F);
-	record.v = localHit.y() + 0.5f;  // Map y from [-0.5, 0.5] to [0, 1]
-
+	record.v = localHit.y() + 0.5f;  
 	return true;
 }
