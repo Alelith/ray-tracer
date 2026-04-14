@@ -8,7 +8,7 @@ sp 0,-100,-1 100 0.5,0.5,0.5 0.8 0 0 1 0,0,0 0
 
 # Dragón (usando material rojo metálico)
 # obj <file_path> <position> <normal> <scale> <albedo> <roughness> <metalness> <transmission> <ior> <emission> <emission_strength>
-obj res/meshes/dragon.obj 0,1,0 0,1,0.5 3,3,3 1,0.2,0.2 0.125 0.0 0.0 4.5 0,0,0 0
+obj res/meshes/dragon.obj 0,1,0 0,90,0.5 3,3,3 1,0.2,0.2 0.125 0.0 0.0 4.5 0,0,0 0
 
 # Luz emisiva
 sp 2,1.5,1 0.25 1,1,1 1 0 0 1 1,1,1 60
