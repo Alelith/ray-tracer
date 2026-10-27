@@ -3,8 +3,16 @@
 
 CMakeFiles/rt.dir/src/main.cpp.o
  /home/lilith/Proyectos/ray-tracer/src/main.cpp
+ /home/lilith/Proyectos/ray-tracer/src/headers/Film.hpp
  /home/lilith/Proyectos/ray-tracer/src/headers/Image.hpp
+ /home/lilith/Proyectos/ray-tracer/src/headers/RNG.hpp
+ /home/lilith/Proyectos/ray-tracer/src/headers/Sampling.hpp
+ /home/lilith/Proyectos/ray-tracer/src/headers/Vec3.hpp
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Film.ipp
  /home/lilith/Proyectos/ray-tracer/src/headers/detail/Image.ipp
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/RNG.ipp
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Sampling.ipp
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Vec3.ipp
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
@@ -16,9 +24,19 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/bits/errno.h
  /usr/include/bits/floatn-common.h
  /usr/include/bits/floatn.h
+ /usr/include/bits/flt-eval-method.h
+ /usr/include/bits/fp-fast.h
+ /usr/include/bits/fp-logb.h
+ /usr/include/bits/iscanonical.h
  /usr/include/bits/libc-header-start.h
+ /usr/include/bits/libm-simd-decl-stubs.h
  /usr/include/bits/locale.h
  /usr/include/bits/long-double.h
+ /usr/include/bits/math-vector.h
+ /usr/include/bits/mathcalls-helper-functions.h
+ /usr/include/bits/mathcalls-macros.h
+ /usr/include/bits/mathcalls-narrow.h
+ /usr/include/bits/mathcalls.h
  /usr/include/bits/pthreadtypes-arch.h
  /usr/include/bits/pthreadtypes.h
  /usr/include/bits/select.h
@@ -61,8 +79,10 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/bits/waitstatus.h
  /usr/include/bits/wchar.h
  /usr/include/bits/wordsize.h
+ /usr/include/c++/16/algorithm
  /usr/include/c++/16/backward/binders.h
  /usr/include/c++/16/bit
+ /usr/include/c++/16/bits/algorithmfwd.h
  /usr/include/c++/16/bits/alloc_traits.h
  /usr/include/c++/16/bits/allocator.h
  /usr/include/c++/16/bits/basic_string.h
@@ -91,21 +111,26 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/c++/16/bits/ptr_traits.h
  /usr/include/c++/16/bits/range_access.h
  /usr/include/c++/16/bits/requires_hosted.h
+ /usr/include/c++/16/bits/specfun.h
  /usr/include/c++/16/bits/std_abs.h
  /usr/include/c++/16/bits/stdexcept_throw.h
  /usr/include/c++/16/bits/stdexcept_throwfwd.h
+ /usr/include/c++/16/bits/stl_algo.h
  /usr/include/c++/16/bits/stl_algobase.h
  /usr/include/c++/16/bits/stl_bvector.h
  /usr/include/c++/16/bits/stl_construct.h
  /usr/include/c++/16/bits/stl_function.h
+ /usr/include/c++/16/bits/stl_heap.h
  /usr/include/c++/16/bits/stl_iterator.h
  /usr/include/c++/16/bits/stl_iterator_base_funcs.h
  /usr/include/c++/16/bits/stl_iterator_base_types.h
  /usr/include/c++/16/bits/stl_pair.h
+ /usr/include/c++/16/bits/stl_tempbuf.h
  /usr/include/c++/16/bits/stl_uninitialized.h
  /usr/include/c++/16/bits/stl_vector.h
  /usr/include/c++/16/bits/string_view.tcc
  /usr/include/c++/16/bits/stringfwd.h
+ /usr/include/c++/16/bits/uniform_int_dist.h
  /usr/include/c++/16/bits/uses_allocator.h
  /usr/include/c++/16/bits/uses_allocator_args.h
  /usr/include/c++/16/bits/utility.h
@@ -114,6 +139,7 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/c++/16/cctype
  /usr/include/c++/16/cerrno
  /usr/include/c++/16/clocale
+ /usr/include/c++/16/cmath
  /usr/include/c++/16/concepts
  /usr/include/c++/16/cstddef
  /usr/include/c++/16/cstdint
@@ -128,10 +154,25 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/c++/16/ext/type_traits.h
  /usr/include/c++/16/initializer_list
  /usr/include/c++/16/iosfwd
+ /usr/include/c++/16/limits
  /usr/include/c++/16/new
+ /usr/include/c++/16/pstl/execution_defs.h
+ /usr/include/c++/16/pstl/glue_algorithm_defs.h
  /usr/include/c++/16/pstl/pstl_config.h
  /usr/include/c++/16/string
  /usr/include/c++/16/string_view
+ /usr/include/c++/16/tr1/bessel_function.tcc
+ /usr/include/c++/16/tr1/beta_function.tcc
+ /usr/include/c++/16/tr1/ell_integral.tcc
+ /usr/include/c++/16/tr1/exp_integral.tcc
+ /usr/include/c++/16/tr1/gamma.tcc
+ /usr/include/c++/16/tr1/hypergeometric.tcc
+ /usr/include/c++/16/tr1/legendre_function.tcc
+ /usr/include/c++/16/tr1/modified_bessel_func.tcc
+ /usr/include/c++/16/tr1/poly_hermite.tcc
+ /usr/include/c++/16/tr1/poly_laguerre.tcc
+ /usr/include/c++/16/tr1/riemann_zeta.tcc
+ /usr/include/c++/16/tr1/special_function_util.h
  /usr/include/c++/16/tuple
  /usr/include/c++/16/type_traits
  /usr/include/c++/16/vector
@@ -149,6 +190,7 @@ CMakeFiles/rt.dir/src/main.cpp.o
  /usr/include/gnu/stubs.h
  /usr/include/linux/errno.h
  /usr/include/locale.h
+ /usr/include/math.h
  /usr/include/stdc-predef.h
  /usr/include/stdint.h
  /usr/include/stdio.h

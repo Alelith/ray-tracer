@@ -31,6 +31,8 @@ constexpr Vec3& Vec3::operator*=(float t) {
 	x *= t;
 	y *= t;
 	z *= t;
+
+	return *this;
 }
 constexpr Vec3& Vec3::operator/=(float t) { return *this *= (1.0f / t); }
 
@@ -53,7 +55,7 @@ constexpr float	dot(const Vec3& v, const Vec3& w) { return v.x*w.x + v.y*w.y + v
 constexpr Vec3	cross(const Vec3& v, const Vec3& w) { return {v.y*w.z - v.z*w.y, v.z*w.x - v.x*w.z, v.x*w.y - v.y*w.x}; }
 constexpr Vec3	lerp(const Vec3& v, const Vec3& w, float t) { return (1.0f - t) * v + t * w; }
 constexpr Vec3	reflect(const Vec3& v, const Vec3& n) { return v - 2.0f * dot(v, n) * n; }
-constexpr Vec3	refract(const Vec3& uv, const Vec3& n, float etaiOverEtat) {
+inline Vec3	refract(const Vec3& uv, const Vec3& n, float etaiOverEtat) {
 	float cosTheta = std::fminf(dot(-uv, n), 1.0f);
 
 	Vec3 rPerp = etaiOverEtat * (uv + cosTheta * n);

@@ -107,4 +107,40 @@ CMakeFiles/rt.dir/src/main.cpp.o: \
  /usr/include/asm-generic/errno-base.h /usr/include/bits/types/error_t.h \
  /usr/include/c++/16/bits/charconv.h \
  /usr/include/c++/16/bits/basic_string.tcc \
- /home/lilith/Proyectos/ray-tracer/src/headers/detail/Image.ipp
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Image.ipp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/Vec3.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Vec3.ipp \
+ /usr/include/c++/16/cmath /usr/include/math.h \
+ /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
+ /usr/include/bits/fp-fast.h /usr/include/bits/mathcalls-macros.h \
+ /usr/include/bits/mathcalls-helper-functions.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
+ /usr/include/bits/iscanonical.h /usr/include/c++/16/bits/specfun.h \
+ /usr/include/c++/16/limits /usr/include/c++/16/tr1/gamma.tcc \
+ /usr/include/c++/16/tr1/special_function_util.h \
+ /usr/include/c++/16/tr1/bessel_function.tcc \
+ /usr/include/c++/16/tr1/beta_function.tcc \
+ /usr/include/c++/16/tr1/ell_integral.tcc \
+ /usr/include/c++/16/tr1/exp_integral.tcc \
+ /usr/include/c++/16/tr1/hypergeometric.tcc \
+ /usr/include/c++/16/tr1/legendre_function.tcc \
+ /usr/include/c++/16/tr1/modified_bessel_func.tcc \
+ /usr/include/c++/16/tr1/poly_hermite.tcc \
+ /usr/include/c++/16/tr1/poly_laguerre.tcc \
+ /usr/include/c++/16/tr1/riemann_zeta.tcc \
+ /home/lilith/Proyectos/ray-tracer/src/headers/RNG.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/RNG.ipp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/Film.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/Image.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/Vec3.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Film.ipp \
+ /usr/include/c++/16/algorithm /usr/include/c++/16/bits/stl_algo.h \
+ /usr/include/c++/16/bits/algorithmfwd.h \
+ /usr/include/c++/16/bits/stl_heap.h \
+ /usr/include/c++/16/bits/uniform_int_dist.h \
+ /usr/include/c++/16/bits/stl_tempbuf.h \
+ /usr/include/c++/16/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/16/pstl/execution_defs.h \
+ /home/lilith/Proyectos/ray-tracer/src/headers/Sampling.hpp \
+ /home/lilith/Proyectos/ray-tracer/src/headers/detail/Sampling.ipp

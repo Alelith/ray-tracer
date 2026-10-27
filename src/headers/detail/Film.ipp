@@ -15,6 +15,8 @@ inline Image Film::resolve(int samplesPerPixel) const {
 			img.set(x, y, toByte(c.x), toByte(c.y), toByte(c.z));
 		}
 	}
+
+	return img;
 }
 
 inline float Film::linearToSRGB(float v) {
