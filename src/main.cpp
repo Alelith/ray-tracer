@@ -1,6 +1,8 @@
 #include "Image.hpp"
 #include "Vec3.hpp"
 #include "RNG.hpp"
+#include "Film.hpp"
+#include "Sampling.hpp"
 
 int main() {
 	const int width = 400;
