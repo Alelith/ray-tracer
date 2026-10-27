@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/lilith/Proyectos/ray-tracer/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
