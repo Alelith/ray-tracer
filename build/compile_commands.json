@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/lilith/Proyectos/ray-tracer/build",
+  "command": "/usr/bin/clang++ -I/home/lilith/Proyectos/ray-tracer/include -I/home/lilith/Proyectos/ray-tracer/src/headers -g -std=c++17 -Wall -Wextra -Werror -o CMakeFiles/rt.dir/src/main.cpp.o -c /home/lilith/Proyectos/ray-tracer/src/main.cpp",
+  "file": "/home/lilith/Proyectos/ray-tracer/src/main.cpp",
+  "output": "/home/lilith/Proyectos/ray-tracer/build/CMakeFiles/rt.dir/src/main.cpp.o"
+}
+]

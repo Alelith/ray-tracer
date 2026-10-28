@@ -3,6 +3,8 @@
 #include "RNG.hpp"
 #include "Film.hpp"
 #include "Sampling.hpp"
+#include "Ray.hpp"
+#include "Camera.hpp"
 
 #include <cstdio>
 // Mini experimento Monte Carlo: estimar pi lanzando puntos al azar en un cuadrado.
