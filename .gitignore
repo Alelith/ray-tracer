@@ -1,11 +1,11 @@
 .vscode/
 obj/
 bin/
+build/
 *.o
 .cache_exists
 ray_tracer
 
 *.ppm
-*.txt
 *.out.\d+
 *.py

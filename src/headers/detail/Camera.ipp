@@ -14,7 +14,7 @@ inline Camera::Camera(Point3 lookFrom, Point3 lookAt, Vec3 up, float verticalFov
 	lowerLeft = origin - horizontal / 2.0f - vertical / 2.0f - w;
 }
 		
-inline Ray Camera::getRay(float s, float t) {
+inline Ray Camera::getRay(float s, float t) const {
 	Vec3 dir = lowerLeft + s * horizontal + t * vertical - origin;
 	return {origin, dir.normalize()};
 }

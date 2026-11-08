@@ -5,6 +5,10 @@
 #  define EPSILON 1e-8f
 # endif // EPSILON
 
+# ifndef KPI
+#  define KPI 3.14159265358979323846f
+# endif // KPI
+
 struct Vec3 {
 	float x = 0.0f, y = 0.0f, z = 0.0f;
 

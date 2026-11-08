@@ -7,7 +7,7 @@ class Camera {
 	public:
 		inline Camera(Point3 lookFrom, Point3 lookAt, Vec3 up, float verticalFovDeg, float aspectRatio);
 		
-		inline Ray	getRay(float s, float t);
+		inline Ray	getRay(float s, float t) const;
 
 	private:
 		Point3	origin;
