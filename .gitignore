@@ -1,11 +1,4 @@
 .vscode/
-obj/
-bin/
 build/
-*.o
-.cache_exists
-ray_tracer
 
 *.ppm
-*.out.\d+
-*.py

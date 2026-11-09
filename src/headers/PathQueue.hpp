@@ -19,10 +19,27 @@ class PathQueue {
 		std::vector<float>		ox, oy, oz;
 		std::vector<float>		dx, dy, dz;
 		std::vector<uint32_t>	pixel;
+		std::vector<uint32_t>	rng;
+
+		std::vector<float>		hitT;
+		std::vector<uint32_t>	hitPrim;
 
 	private:
 		std::atomic<uint32_t>	count{0};
 		uint32_t				cap = 0;
+};
+
+class IndexQueue {
+	public:
+		inline void		allocate(uint32_t capacity);
+		inline uint32_t	size() const;
+		inline void		clear();
+		inline void		push(uint32_t pathIndex);
+
+		std::vector<uint32_t>	index;
+
+	private:
+		std::atomic<uint32_t>	count{0};
 };
 
 # include "detail/PathQueue.ipp"

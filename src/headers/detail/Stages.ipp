@@ -14,13 +14,44 @@ inline void stageGenerateCamera(const Camera& cam, int width, int height, PathQu
 		out.pixel[slot] = pixelIndex;
 	});
 }
-inline Color	skyColor(const Vec3& dir) {
+inline void stageIntersect(const Scene& scene, PathQueue& paths, IndexQueue& missQueue, IndexQueue& hitQueue) {
+	missQueue.clear();
+	hitQueue.clear();
+	parallelFor(paths.size(), [&](uint32_t i) {
+		Ray ray = paths.ray(i);
+		float t;
+		uint32_t prim;
+		if (scene.closestHit(ray, 0.0f, kInfinity, t, prim)) {
+		//if (scene.closestHit(ray, EPSILON, kInfinity, t, prim)) {
+			paths.hitT[i] = t;
+			paths.hitPrim[i] = prim;
+			hitQueue.push(i);
+		}
+		else {
+			paths.hitPrim[i] = kNoHit;
+			missQueue.push(i);
+		}
+	});
+}
+inline Color skyColor(const Vec3& dir) {
+	// Real sky color
 	float t = 0.5f * (dir.y + 1.0f);
 	return lerp(Color(1.0f, 1.0f, 1.0f), Color(0.0f, 0.0f, 0.0f), t);
+	// Direction test
+	/*return 0.5f * (dir + Vec3(1.0f, 1.0f, 1.0f));*/
 }
-inline void		stageMissSky(const PathQueue& in, Film& film) {
-	parallelFor(in.size(), [&](uint32_t i) {
-		Ray r = in.ray(i);
-		film.add(in.pixel[i], skyColor(r.dir));
+inline void stageMissSky(const PathQueue& paths, const IndexQueue& missQueue, Film& film) {
+	parallelFor(missQueue.size(), [&](uint32_t k) {
+		uint32_t i = missQueue.index[k];
+		film.add(paths.pixel[i], skyColor(paths.ray(i).dir));
+	});
+}
+inline void stageShadeNormals(const Scene& scene, const PathQueue& paths, const IndexQueue& hitQueue, Film& film) {
+	parallelFor(hitQueue.size(), [&](uint32_t k) {
+		uint32_t i = hitQueue.index[k];
+		Ray ray = paths.ray(i);
+		Point3 p = ray.at(paths.hitT[i]);
+		Vec3 n = scene.outwardNormal(paths.hitPrim[i], p);
+		film.add(paths.pixel[i], 0.5f * (n + Vec3(1, 1, 1)));
 	});
 }

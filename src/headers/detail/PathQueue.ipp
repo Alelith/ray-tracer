@@ -7,6 +7,9 @@ inline void PathQueue::allocate(uint32_t cap_) {
 	dy.resize(cap_);
 	dz.resize(cap_);
 	pixel.resize(cap_);
+	rng.resize(cap_);
+	hitT.resize(cap_);
+	hitPrim.resize(cap_);
 	count.store(0);
 }
 inline uint32_t PathQueue::capacity() const { return cap; }
@@ -22,3 +25,11 @@ inline void PathQueue::setRay(uint32_t i, const Ray& r) {
 	dy[i] = r.dir.y;
 	dz[i] = r.dir.z;
 }
+
+inline void IndexQueue::allocate(uint32_t capacity) {
+	index.resize(capacity);
+	count.store(0);
+}
+inline uint32_t IndexQueue::size() const { return count.load(); }
+inline void IndexQueue::clear() { count.store(0); }
+inline void IndexQueue::push(uint32_t pathIndex) { index[count.fetch_add(1)] = pathIndex; }
