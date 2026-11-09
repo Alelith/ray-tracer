@@ -1,17 +1,21 @@
-# include "Parallel.hpp"
+#include "Parallel.hpp"
+#include "RNG.hpp"
 
-inline void stageGenerateCamera(const Camera& cam, int width, int height, PathQueue& out) {
+inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, PathQueue& out) {
 	out.clear();
 	parallelFor(static_cast<uint32_t>(width * height), [&](uint32_t pixelIndex) {
 		int x = static_cast<int>(pixelIndex) % width;
 		int y = static_cast<int>(pixelIndex) / width;
 
-		float s = (static_cast<float>(x) + 0.5f) / static_cast<float>(width);
-		float t = 1.0f - (static_cast<float>(y) + 0.5) / static_cast<float>(height);
+		uint32_t rng = makeSeed(pixelIndex, sampleIndex);
+
+		float s = (static_cast<float>(x) + rngNext(rng)) / static_cast<float>(width);
+		float t = 1.0f - (static_cast<float>(y) + rngNext(rng)) / static_cast<float>(height);
 
 		uint32_t slot = out.append();
-		out.setRay(slot, cam.getRay(s, t));
+		out.setRay(slot, cam.getRay(s, t, rng));
 		out.pixel[slot] = pixelIndex;
+		out.rng[slot] = rng;
 	});
 }
 inline void stageIntersect(const Scene& scene, PathQueue& paths, IndexQueue& missQueue, IndexQueue& hitQueue) {

@@ -1,3 +1,5 @@
+#include "RNG.hpp"
+
 inline Vec3 randomInUnitSphere(uint32_t& rng) {
 	while (true) {
 		Vec3 p{2.0f * rngNext(rng) - 1.0f, 2.0f * rngNext(rng), 2.0f * rngNext(rng) };

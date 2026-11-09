@@ -6,7 +6,7 @@
 # include "Film.hpp"
 # include "Scene.hpp"
 
-inline void		stageGenerateCamera(const Camera& cam, int width, int height, PathQueue& out);
+inline void		stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, PathQueue& out);
 inline void		stageIntersect(const Scene& scene, PathQueue& paths, IndexQueue& missQueue, IndexQueue& hitQueue);
 inline Color	skyColor(const Vec3& dir);
 inline void		stageMissSky(const PathQueue& in, const IndexQueue& missQueue, Film& film);
