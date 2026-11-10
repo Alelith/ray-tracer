@@ -15,11 +15,14 @@ class PathQueue {
 		inline uint32_t	append();
 		inline Ray		ray(uint32_t i) const;
 		inline void		setRay(uint32_t i, const Ray& r);
+		inline Color	throughput(uint32_t i) const;
+		inline void		setThroughput(uint32_t i, const Color& c);
 
 		std::vector<float>		ox, oy, oz;
 		std::vector<float>		dx, dy, dz;
 		std::vector<uint32_t>	pixel;
 		std::vector<uint32_t>	rng;
+		std::vector<float>		tr, tg, tb;
 
 		std::vector<float>		hitT;
 		std::vector<uint32_t>	hitPrim;

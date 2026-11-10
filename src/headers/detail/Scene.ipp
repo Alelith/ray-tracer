@@ -17,10 +17,15 @@ inline bool intersectSphere(const Sphere& sphere, const Ray& ray, float tMin, fl
 	return true;
 }
 
-inline uint32_t Scene::addSphere(Point3 center, float radius) {
-	spheres.push_back({center, radius});
-	return uint32_t(spheres.size() - 1);
+inline uint32_t Scene::addMaterial(const Material& m) {
+	materials.push_back(m);
+	return static_cast<uint32_t>(materials.size() - 1);
 }
+inline uint32_t Scene::addSphere(Point3 center, float radius, uint32_t material) {
+	spheres.push_back({center, radius, material});
+	return static_cast<uint32_t>(spheres.size() - 1);
+}
+inline const Material Scene::materialOf(uint32_t prim) const { return materials[spheres[prim].material]; }
 inline bool Scene::closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const {
 	bool hit = false;
 	float closest = tMax;
@@ -35,7 +40,6 @@ inline bool Scene::closestHit(const Ray& ray, float tMin, float tMax, float& tHi
 	}
 	if (hit) tHit = closest;
 	return hit;
-	
 }
 inline Vec3 Scene::outwardNormal(uint32_t prim, const Point3& p) const {
 	const Sphere& s = spheres[prim];

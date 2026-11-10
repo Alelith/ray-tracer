@@ -8,6 +8,9 @@ inline void PathQueue::allocate(uint32_t cap_) {
 	dz.resize(cap_);
 	pixel.resize(cap_);
 	rng.resize(cap_);
+	tr.resize(cap_);
+	tg.resize(cap_);
+	tb.resize(cap_);
 	hitT.resize(cap_);
 	hitPrim.resize(cap_);
 	count.store(0);
@@ -24,6 +27,12 @@ inline void PathQueue::setRay(uint32_t i, const Ray& r) {
 	dx[i] = r.dir.x;
 	dy[i] = r.dir.y;
 	dz[i] = r.dir.z;
+}
+inline Color PathQueue::throughput(uint32_t i) const { return {tr[i], tg[i], tb[i]}; }
+inline void PathQueue::setThroughput(uint32_t i, const Color& c) {
+	tr[i] = c.x;
+	tg[i] = c.y;
+	tb[i] = c.z;
 }
 
 inline void IndexQueue::allocate(uint32_t capacity) {

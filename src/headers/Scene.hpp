@@ -5,25 +5,30 @@
 # include <limits>
 # include <vector>
 # include "Ray.hpp"
+# include "Material.hpp"
 
 constexpr uint32_t	kNoHit = std::numeric_limits<uint32_t>::max();
 constexpr float		kInfinity = std::numeric_limits<float>::infinity();
 
 struct Sphere {
-	Point3	center;
-	float	radius;
+	Point3		center;
+	float		radius;
+	uint32_t	material;
 };
 
 inline bool		intersectSphere(const Sphere& sphere, const Ray& ray, float tMin, float tMax, float& tHit);
 
 class Scene {
 	public:
-		inline uint32_t		addSphere(Point3 center, float radius);
-		inline bool			closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const;
-		inline Vec3			outwardNormal(uint32_t prim, const Point3& p) const;
+		inline uint32_t			addMaterial(const Material& m);
+		inline uint32_t			addSphere(Point3 center, float radius, uint32_t material);
+		inline const Material	materialOf(uint32_t prim) const;
+		inline bool				closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const;
+		inline Vec3				outwardNormal(uint32_t prim, const Point3& p) const;
 	
 	private:
-		std::vector<Sphere>	spheres;
+		std::vector<Sphere>		spheres;
+		std::vector<Material>	materials;
 };
 
 # include "detail/Scene.ipp"

@@ -17,6 +17,16 @@ struct Image {
 
 inline bool		writePPM(const std::string& path, const Image& img);
 
+namespace png_detail {
+
+	inline uint32_t crc32(const uint8_t* data, size_t n, uint32_t crc = 0);
+	inline void putU32BE(std::vector<uint8_t>& v, uint32_t x);
+	inline void writeChunk(FILE* f, const char type[4], const std::vector<uint8_t>& data);
+
+}  // namespace png_detail
+
+inline bool writePNG(const std::string& path, const Image& img);
+
 # include "detail/Image.ipp"
 
 #endif // IMAGE_HPP
