@@ -8,6 +8,7 @@ enum class MaterialType : uint32_t {
 	Lambertian = 0,
 	Metal,
 	Dielectric,
+	Emissive,
 	Count
 };
 
@@ -18,10 +19,12 @@ struct Material {
 	Color			albedo{0.5f, 0.5f, 0.5f};
 	float			fuzz = 0.0f;
 	float			ior = 1.5f;
+	Color			emission{0.0f, 0.0f, 0.0f};
 
 	static Material	lambertian(Color albedo);
 	static Material	metal(Color albedo, float fuzz);
 	static Material	dielectric(Color albedo, float ior);
+	static Material	emissive(Color emission);
 };
 
 # include "detail/Material.ipp"

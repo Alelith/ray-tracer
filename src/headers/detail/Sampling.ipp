@@ -19,3 +19,10 @@ inline Vec3		randomInUnitDisk(uint32_t& rng) {
 
 	return {r * std::cos(phi), r * std::sin(phi), 0.0f};
 }
+inline void buildBasis(const Vec3& n, Vec3& u, Vec3& v) {
+	float sign = std::copysign(1.0f, n.z);
+	float a = -1.0f / (sign + n.z);
+	float b = n.x * n.y * a;
+	u = Vec3(1.0f + sign * n.x * n.x * a, sign * b, -sign * n.x);
+	v = Vec3(b, sign + n.y * n.y * a, -n.y);
+}

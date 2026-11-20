@@ -23,9 +23,24 @@ inline uint32_t Scene::addMaterial(const Material& m) {
 }
 inline uint32_t Scene::addSphere(Point3 center, float radius, uint32_t material) {
 	spheres.push_back({center, radius, material});
-	return static_cast<uint32_t>(spheres.size() - 1);
+	uint32_t prim = static_cast<uint32_t>(spheres.size() - 1);
+	if (materials[material].type == MaterialType::Emissive) lights.push_back(prim);
+	return prim;
 }
-inline const Material Scene::materialOf(uint32_t prim) const { return materials[spheres[prim].material]; }
+inline Color Scene::sky(const Vec3& dir) const {
+	float t = 0.5f * (dir.y + 1.0f);
+	return lerp(skyHorizon, skyZenith, t);
+}
+inline const std::vector<uint32_t>& Scene::getLights() const { return lights; }
+inline const Sphere& Scene::sphere(uint32_t prim) const { return spheres[prim]; }
+inline bool Scene::occluded(const Ray& ray, float tMin, float tMax) const {
+	for (const Sphere& s : spheres) {
+		float t;
+		if (intersectSphere(s, ray, tMin, tMax, t)) return true;
+	}
+	return false;
+}
+inline const Material& Scene::materialOf(uint32_t prim) const { return materials[spheres[prim].material]; }
 inline bool Scene::closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const {
 	bool hit = false;
 	float closest = tMax;

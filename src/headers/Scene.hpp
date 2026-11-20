@@ -20,15 +20,23 @@ inline bool		intersectSphere(const Sphere& sphere, const Ray& ray, float tMin, f
 
 class Scene {
 	public:
-		inline uint32_t			addMaterial(const Material& m);
-		inline uint32_t			addSphere(Point3 center, float radius, uint32_t material);
-		inline const Material	materialOf(uint32_t prim) const;
-		inline bool				closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const;
-		inline Vec3				outwardNormal(uint32_t prim, const Point3& p) const;
+		Color skyHorizon{0.5f, 0.7f, 1.0f};
+		Color skyZenith{1.0f, 1.0f, 1.0f};
+
+		inline uint32_t						addMaterial(const Material& m);
+		inline uint32_t						addSphere(Point3 center, float radius, uint32_t material);
+		inline Color						sky(const Vec3& dir) const;
+		inline const std::vector<uint32_t>&	getLights() const;
+		inline const Sphere&				sphere(uint32_t prim) const;
+		inline bool							occluded(const Ray& ray, float tMin, float tMax) const;
+		inline const Material&				materialOf(uint32_t prim) const;
+		inline bool							closestHit(const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const;
+		inline Vec3							outwardNormal(uint32_t prim, const Point3& p) const;
 	
 	private:
 		std::vector<Sphere>		spheres;
 		std::vector<Material>	materials;
+		std::vector<uint32_t>	lights;
 };
 
 # include "detail/Scene.ipp"

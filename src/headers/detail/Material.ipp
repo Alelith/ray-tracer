@@ -18,3 +18,10 @@ Material Material::dielectric(Color albedo, float ior) {
 	m.ior = ior;
 	return m;
 }
+Material Material::emissive(Color emission) {
+	Material m;
+	m.type = MaterialType::Emissive;
+	m.albedo = Color(0.0f, 0.0f, 0.0f);
+	m.emission = emission;
+	return m;
+}

@@ -24,12 +24,30 @@ class PathQueue {
 		std::vector<uint32_t>	rng;
 		std::vector<float>		tr, tg, tb;
 
+		std::vector<uint32_t>	countEmission;
+
 		std::vector<float>		hitT;
 		std::vector<uint32_t>	hitPrim;
 
 	private:
 		std::atomic<uint32_t>	count{0};
 		uint32_t				cap = 0;
+};
+
+class ShadowQueue {
+	public:
+		inline void		allocate(uint32_t cap_);
+		inline uint32_t	size() const;
+		inline void		clear();
+		inline uint32_t	append();
+
+		std::vector<float>		ox, oy, oz, dx, dy, dz;
+		std::vector<uint32_t>	tmax;
+		std::vector<float>		cr, cg, cb;
+		std::vector<uint32_t>	pixel;
+
+	private:
+		std::atomic<uint32_t>	count{0};
 };
 
 class IndexQueue {

@@ -11,6 +11,7 @@ inline void PathQueue::allocate(uint32_t cap_) {
 	tr.resize(cap_);
 	tg.resize(cap_);
 	tb.resize(cap_);
+	countEmission.resize(cap_);
 	hitT.resize(cap_);
 	hitPrim.resize(cap_);
 	count.store(0);
@@ -34,6 +35,24 @@ inline void PathQueue::setThroughput(uint32_t i, const Color& c) {
 	tg[i] = c.y;
 	tb[i] = c.z;
 }
+
+inline void ShadowQueue::allocate(uint32_t cap_) {
+	ox.resize(cap_);
+	oy.resize(cap_);
+	oz.resize(cap_);
+	dx.resize(cap_);
+	dy.resize(cap_);
+	dz.resize(cap_);
+	tmax.resize(cap_);
+	cr.resize(cap_);
+	cg.resize(cap_);
+	cb.resize(cap_);
+	pixel.resize(cap_);
+	count.store(0);
+}
+inline uint32_t ShadowQueue::size() const { return count.load(); }
+inline void ShadowQueue::clear() { count.store(0); }
+inline uint32_t ShadowQueue::append() { return count.fetch_add(1); }
 
 inline void IndexQueue::allocate(uint32_t capacity) {
 	index.resize(capacity);
