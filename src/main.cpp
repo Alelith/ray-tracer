@@ -1,18 +1,23 @@
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include "Camera.hpp"
 #include "Film.hpp"
+#include "Mesh.hpp"
 #include "Scene.hpp"
 #include "WavefrontRenderer.hpp"
 
 int main(int argc, char** argv) {
-	bool useNEE = true;
-	int samplesPerPixel = 1000;
+	bool useBVH = true;
+	int samplesPerPixel = 100;
+	std::string meshPath = "assets/dragon.obj";
 	for (int i = 1; i < argc; ++i) {
-		if (std::strcmp(argv[i], "--no-nee") == 0) useNEE = false;
-		if (std::strcmp(argv[i], "--spp") == 0 && i + 1 < argc) samplesPerPixel = std::atoi(argv[++i]);
+		if (!std::strcmp(argv[i], "--no-bvh")) useBVH = false;
+		if (!std::strcmp(argv[i], "--spp") && i + 1 < argc) samplesPerPixel = std::atoi(argv[++i]);
+		if (!std::strcmp(argv[i], "--mesh") && i + 1 < argc) meshPath = argv[++i];
 	}
 
 	const int width = 400;
@@ -21,35 +26,45 @@ int main(int argc, char** argv) {
 	const float aspect = float(width) / float(height);
 
 	Scene scene;
-	scene.skyHorizon = Color(0.02f, 0.02f, 0.03f);  // noche: casi toda la luz viene de las lámparas
-	scene.skyZenith = Color(0.005f, 0.01f, 0.03f);
+	scene.skyHorizon = Color(0.35f, 0.4f, 0.5f);
+	scene.skyZenith = Color(0.08f, 0.15f, 0.35f);
 
-	uint32_t ground = scene.addMaterial(Material::lambertian(Color(0.6f, 0.6f, 0.6f)));
+	uint32_t ground = scene.addMaterial(Material::lambertian(Color(0.55f, 0.55f, 0.55f)));
 	uint32_t red = scene.addMaterial(Material::lambertian(Color(0.7f, 0.2f, 0.2f)));
-	uint32_t glass = scene.addMaterial(Material::dielectric(Color(1.0f, 1.0f, 1.0f), 1.5f));
-	uint32_t gold = scene.addMaterial(Material::metal(Color(0.8f, 0.6f, 0.2f), 0.05f));
-	uint32_t lampBig = scene.addMaterial(Material::emissive(Color(4.0f, 3.6f, 3.2f)));
-	uint32_t lampSmall = scene.addMaterial(Material::emissive(Color(60.0f, 90.0f, 140.0f)));
+	uint32_t blue = scene.addMaterial(Material::lambertian(Color(0.2f, 0.35f, 0.75f)));
+	uint32_t gold = scene.addMaterial(Material::metal(Color(0.9f, 0.65f, 0.25f), 0.03f));
+	uint32_t lamp = scene.addMaterial(Material::emissive(Color(14.0f, 12.5f, 11.0f)));
 
-	scene.addSphere(Point3(0, -100.5f, -1), 100.0f, ground);
-	scene.addSphere(Point3(0, 0, -1.2f), 0.5f, red);
-	scene.addSphere(Point3(-1.0f, 0, -1), 0.5f, glass);
-	scene.addSphere(Point3(1.0f, 0, -1), 0.5f, gold);
-	scene.addSphere(Point3(-1.5f, 1.8f, -0.5f), 0.7f, lampBig);
-	scene.addSphere(Point3(0.6f, 0.0f, -0.2f), 0.1f, lampSmall);
+	scene.addSphere(Point3(0, -1000.0f, 0), 1000.0f, ground);
+	scene.addSphere(Point3(2.1f, 0.5f, 0.8f), 0.5f, red);
+	scene.addSphere(Point3(-2.2f, 0.6f, 0.9f), 0.6f, blue);
+	scene.addSphere(Point3(-4.0f, 5.0f, 3.5f), 1.2f, lamp);
 
-	Camera camera(Point3(0, 0.4f, 1.2f), Point3(0, 0, -1), Vec3(0, 1, 0), 45.0f, aspect);
+	Mesh mesh;
+	if (!loadOBJ(meshPath, mesh)) {
+		std::fprintf(stderr, "No puedo cargar %s\n", meshPath.c_str());
+		return 1;
+	}
+	// La malla cabe en [-1,1]^3 (es más ancha que alta). La escalamos y la apoyamos en el suelo.
+	scene.addMesh(mesh, gold, 1.5f, Vec3(0, 0.65f, 0));
+
+	auto tb = std::chrono::steady_clock::now();
+	scene.finalize(useBVH);
+	double buildSecs = std::chrono::duration<double>(std::chrono::steady_clock::now() - tb).count();
+	std::printf("%zu primitivas, %zu nodos BVH, construcción %.3f s (BVH %s)\n", scene.primitiveCount(),
+				scene.bvhNodeCount(), buildSecs, useBVH ? "activado" : "desactivado");
+
+	Camera camera(Point3(0, 2.2f, 6.0f), Point3(0, 0.9f, 0), Vec3(0, 1, 0), 38.0f, aspect);
 
 	Film film(width, height);
-	WavefrontRenderer renderer(scene, camera, width, height, maxDepth, useNEE);
+	WavefrontRenderer renderer(scene, camera, width, height, maxDepth);
 
 	auto t0 = std::chrono::steady_clock::now();
-	for (int s = 0; s < samplesPerPixel; ++s) {
-		renderer.renderPass(uint32_t(s), film, /*printStats=*/s == 0);
-	}
+	for (int s = 0; s < samplesPerPixel; ++s) renderer.renderPass(uint32_t(s), film);
 	double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
 	writePNG("out.png", film.resolve(samplesPerPixel));
-    std::printf("Escrita out.png (%d spp en %.2f s)\n", samplesPerPixel, secs);
+	std::printf("Escrita out.png (%d spp en %.2f s)\n", samplesPerPixel, secs);
 	return 0;
 }
+

@@ -20,6 +20,7 @@ inline void		stageIntersect(const Scene& scene, PathQueue& paths, RouteQueues& r
 inline void		stageMissSky(const Scene& scene, const PathQueue& in, const IndexQueue& missQueue, Film& film);
 inline Vec3		faceForward(const Vec3& outwardNormal, const Vec3& rayDir, bool& frontFace);
 inline void		stageEmissive(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, Film& film);
+inline bool		sampleSphereCone(const Primitive& light, const Point3& p, uint32_t& rng, Vec3& dir, float& oneMinusCosMax);
 inline void		stageShadow(const Scene& scene, const ShadowQueue& shadows, Film& film);
 inline void		stageLambertian(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, ShadowQueue& shadows, bool useNEE);
 inline void		stageMetal(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next);

@@ -66,8 +66,8 @@ inline void stageEmissive(const Scene& scene, const PathQueue& paths, const Inde
 		film.add(paths.pixel[i], c);
 	});
 }
-inline bool sampleSphereCone(const Sphere& light, const Point3& p, uint32_t& rng, Vec3& dir, float& oneMinusCosMax) {
-	Vec3 toCenter = light.center - p;
+inline bool sampleSphereCone(const Primitive& light, const Point3& p, uint32_t& rng, Vec3& dir, float& oneMinusCosMax) {
+	Vec3 toCenter = light.a - p;
 	float dist2 = toCenter.lengthSquared();
 	float radius2 = light.radius * light.radius;
 	if (dist2 <= radius2) return false;  // el punto está dentro de la esfera emisora
@@ -102,13 +102,13 @@ inline void stageLambertian(const Scene& scene, const PathQueue& paths, const In
 		if (useNEE && !lights.empty()) {
 			uint32_t numLights = static_cast<uint32_t>(lights.size());
 			uint32_t pick = std::min(numLights - 1, static_cast<uint32_t>(rngNext(rng) * numLights));
-			const Sphere& light = scene.sphere(lights[pick]);
+			const Primitive& light = scene.primitive(lights[pick]);
 
 			Vec3 lightDir;
 			float oneMinusCos;
 			float cosSurface;
 			float tLight;
-			if (sampleSphereCone(light, p, rng, lightDir, oneMinusCos) && (cosSurface = dot(n, lightDir)) > 0.0f && intersectSphere(light, {p, lightDir}, 0.0f, kInfinity, tLight)) {
+			if (sampleSphereCone(light, p, rng, lightDir, oneMinusCos) && (cosSurface = dot(n, lightDir)) > 0.0f && intersectSphere(light.a, light.radius, {p, lightDir}, 0.0f, kInfinity, tLight)) {
 				const Material& lightMat = scene.materialOf(lights[pick]);
 				float weight = 2.0f * oneMinusCos * cosSurface * static_cast<float>(numLights);
 				Color contrib = throughput * mat.albedo * lightMat.emission * weight;

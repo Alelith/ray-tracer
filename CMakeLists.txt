@@ -15,3 +15,5 @@ target_include_directories(rt
 	PRIVATE src/headers
 )
 target_compile_options(rt PRIVATE -Wall -Wextra -Werror)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
