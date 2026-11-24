@@ -15,6 +15,16 @@ struct RouteQueues {
 	inline void		clear();
 };
 
+struct RouteBatch {
+	RouteBatch(RouteQueues& t, uint32_t maxEntries);
+	~RouteBatch();
+	RouteBatch(const RouteBatch&) = delete;
+	RouteBatch&		operator=(const RouteBatch&) = delete;
+
+	RouteQueues&	target;
+	RouteQueues		local;
+};
+
 inline void		stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, PathQueue& out);
 inline void		stageIntersect(const Scene& scene, PathQueue& paths, RouteQueues& routes);
 inline void		stageMissSky(const Scene& scene, const PathQueue& in, const IndexQueue& missQueue, Film& film);

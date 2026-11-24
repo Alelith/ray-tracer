@@ -10,8 +10,14 @@ inline void RouteQueues::clear() {
 	for (auto& q : material) q.clear();
 }
 
+RouteBatch::RouteBatch(RouteQueues& t, uint32_t maxEntries) : target(t) { local.allocate(maxEntries); }
+RouteBatch::~RouteBatch() {
+	target.miss.appendBlock(local.miss);
+	for (uint32_t i = 0; i < kMaterialCount; i++) target.material[i].appendBlock(local.material[i]);
+}
+
 inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, PathQueue& out) {
-	out.clear();
+	out.setSize(static_cast<uint32_t>(width * height));
 	parallelFor(static_cast<uint32_t>(width * height), [&](uint32_t pixelIndex) {
 		int x = static_cast<int>(pixelIndex) % width;
 		int y = static_cast<int>(pixelIndex) / width;
@@ -20,7 +26,7 @@ inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32
 		float s = (static_cast<float>(x) + rngNext(rng)) / static_cast<float>(width);
 		float t = 1.0f - (static_cast<float>(y) + rngNext(rng)) / static_cast<float>(height);
 
-		uint32_t slot = out.append();
+		uint32_t slot = pixelIndex;
 		out.setRay(slot, cam.getRay(s, t, rng));
 		out.pixel[slot] = pixelIndex;
 		out.rng[slot] = rng;
@@ -30,19 +36,21 @@ inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32
 }
 inline void stageIntersect(const Scene& scene, PathQueue& paths, RouteQueues& routes) {
 	routes.clear();
-	parallelFor(paths.size(), [&](uint32_t i) {
-		Ray ray = paths.ray(i);
-		float t;
-		uint32_t prim;
-		//if (scene.closestHit(ray, 0.0f, kInfinity, t, prim)) {
-		if (scene.closestHit(ray, 1e-4f, kInfinity, t, prim)) {
-			paths.hitT[i] = t;
-			paths.hitPrim[i] = prim;
-			routes.material[static_cast<uint32_t>(scene.materialOf(prim).type)].push(i);
-		}
-		else {
-			paths.hitPrim[i] = kNoHit;
-			routes.miss.push(i);
+	parallelForChunks(paths.size(), [&](uint32_t begin, uint32_t end) {
+		RouteBatch batch (routes, end - begin);
+		for (uint32_t i = begin; i < end; i++) {
+			Ray ray = paths.ray(i);
+			float t;
+			uint32_t prim;
+			if (scene.closestHit(ray, 1e-3f, kInfinity, t, prim)) {
+				paths.hitT[i] = t;
+				paths.hitPrim[i] = prim;
+				batch.local.material[static_cast<uint32_t>(scene.materialOf(prim).type)].push(i);
+			}
+			else {
+				paths.hitPrim[i] = kNoHit;
+				batch.local.miss.push(i);
+			}
 		}
 	});
 }
@@ -87,88 +95,93 @@ inline bool sampleSphereCone(const Primitive& light, const Point3& p, uint32_t& 
 	return true;
 }
 inline void stageLambertian(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, ShadowQueue& shadows, bool useNEE) {
-	parallelFor(queue.size(), [&](uint32_t k) {
-		uint32_t i = queue.index[k];
-		Ray ray = paths.ray(i);
-		uint32_t rng = paths.rng[i];
+	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
+		Batch<PathQueue> out(next, end - begin);
+		Batch<ShadowQueue> shadowOut(shadows, end - begin);
+		for (uint32_t k = begin; k < end; k++) {
+			uint32_t i = queue.index[k];
+			Ray ray = paths.ray(i);
+			uint32_t rng = paths.rng[i];
 
-		Point3 p = ray.at(paths.hitT[i]);
-		bool front;
-		Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
-		const Material& mat = scene.materialOf(paths.hitPrim[i]);
-		Color throughput = paths.throughput(i);
+			Point3 p = ray.at(paths.hitT[i]);
+			bool front;
+			Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
+			const Material& mat = scene.materialOf(paths.hitPrim[i]);
+			Color throughput = paths.throughput(i);
 
-		const auto& lights = scene.getLights();
-		if (useNEE && !lights.empty()) {
-			uint32_t numLights = static_cast<uint32_t>(lights.size());
-			uint32_t pick = std::min(numLights - 1, static_cast<uint32_t>(rngNext(rng) * numLights));
-			const Primitive& light = scene.primitive(lights[pick]);
+			const auto& lights = scene.getLights();
+			if (useNEE && !lights.empty()) {
+				uint32_t numLights = static_cast<uint32_t>(lights.size());
+				uint32_t pick = std::min(numLights - 1, static_cast<uint32_t>(rngNext(rng) * numLights));
+				const Primitive& light = scene.primitive(lights[pick]);
 
-			Vec3 lightDir;
-			float oneMinusCos;
-			float cosSurface;
-			float tLight;
-			if (sampleSphereCone(light, p, rng, lightDir, oneMinusCos) && (cosSurface = dot(n, lightDir)) > 0.0f && intersectSphere(light.a, light.radius, {p, lightDir}, 0.0f, kInfinity, tLight)) {
-				const Material& lightMat = scene.materialOf(lights[pick]);
-				float weight = 2.0f * oneMinusCos * cosSurface * static_cast<float>(numLights);
-				Color contrib = throughput * mat.albedo * lightMat.emission * weight;
+				Vec3 lightDir;
+				float oneMinusCos;
+				float cosSurface;
+				float tLight;
+				if (sampleSphereCone(light, p, rng, lightDir, oneMinusCos) && (cosSurface = dot(n, lightDir)) > 0.0f && intersectSphere(light.a, light.radius, {p, lightDir}, 0.0f, kInfinity, tLight)) {
+					const Material& lightMat = scene.materialOf(lights[pick]);
+					float weight = 2.0f * oneMinusCos * cosSurface * static_cast<float>(numLights);
+					Color contrib = throughput * lightMat.emission * mat.albedo * weight;
 
-				uint32_t s = shadows.append();
-				shadows.ox[s] = p.x;
-				shadows.oy[s] = p.y;
-				shadows.oz[s] = p.z;
-				shadows.dx[s] = lightDir.x;
-				shadows.dy[s] = lightDir.y;
-				shadows.dz[s] = lightDir.z;
-				shadows.tmax[s] = tLight * 0.9999f;
-				shadows.cr[s] = contrib.x;
-				shadows.cg[s] = contrib.y;
-				shadows.cb[s] = contrib.z;
-				shadows.pixel[s] = paths.pixel[i];
+					ShadowQueue& shadow = shadowOut.local;
+					uint32_t j = shadow.append();
+					shadow.ox[j] = p.x; shadow.oy[j] = p.y; shadow.oz[j] = p.z;
+					shadow.dx[j] = lightDir.x; shadow.dy[j] = lightDir.y; shadow.dz[j] = lightDir.z;
+					shadow.tMax[j] = tLight * 0.999f;
+					shadow.cr[j] = contrib.x; shadow.cg[j] = contrib.y; shadow.cb[j] = contrib.z;
+					shadow.pixel[j] = paths.pixel[i];
+				}
 			}
+			Vec3 newDir = n + randomUnitVector(rng);
+			if(newDir.nearZero()) newDir = n;
+
+			Color newThroughput = throughput * mat.albedo;
+			PathQueue& nextQueue = out.local;
+			uint32_t j = nextQueue.append();
+			nextQueue.setRay(j, {p, newDir.normalize()});
+			nextQueue.pixel[j] = paths.pixel[i];
+			nextQueue.rng[j] = rng;
+			nextQueue.setThroughput(j, newThroughput);
+			nextQueue.countEmission[j] = useNEE ? 0 : 1;
 		}
-
-		Vec3 dir = n + randomUnitVector(rng);
-		if (dir.nearZero()) dir = n;
-
-		uint32_t j = next.append();
-		next.setRay(j, {p, dir.normalize()});
-		next.pixel[j] = paths.pixel[i];
-		next.rng[j] = rng;
-		next.setThroughput(j, throughput * mat.albedo);
-		next.countEmission[j] = useNEE ? 0 : 1;
 	});
 }
 inline void stageShadow(const Scene& scene, const ShadowQueue& shadows, Film& film) {
 	parallelFor(shadows.size(), [&](uint32_t i) {
 		Ray ray{{shadows.ox[i], shadows.oy[i], shadows.oz[i]}, {shadows.dx[i], shadows.dy[i], shadows.dz[i]}};
-		if (!scene.occluded(ray, 1e-3f, static_cast<float>(shadows.tmax[i]))) {
+		if (!scene.occluded(ray, 1e-3f, static_cast<float>(shadows.tMax[i]))) {
 			Color contrib{shadows.cr[i], shadows.cg[i], shadows.cb[i]};
 			film.add(shadows.pixel[i], contrib);
 		}
 	});
 }
 inline void stageMetal(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next) {
-	parallelFor(queue.size(), [&](uint32_t k) {
-		uint32_t i = queue.index[k];
-		Ray ray = paths.ray(i);
-		uint32_t rng = paths.rng[i];
+	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
+		Batch<PathQueue> out(next, end - begin);
+		for (uint32_t k = begin; k < end; k++) {
+			uint32_t i = queue.index[k];
+			Ray ray = paths.ray(i);
+			uint32_t rng = paths.rng[i];
 
-		Point3 p = ray.at(paths.hitT[i]);
-		bool front;
-		Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
-		const Material& mat = scene.materialOf(paths.hitPrim[i]);
+			Point3 p = ray.at(paths.hitT[i]);
+			bool front;
+			Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
+			const Material& mat = scene.materialOf(paths.hitPrim[i]);
 
-		Vec3 dir = reflect(ray.dir, n) +  mat.fuzz * randomUnitVector(rng);
-		// Si la perturbación manda el rayo bajo la superficie, el camino se absorbe.
-		if (dot(dir, n) <= 0.0f) return;
+			Vec3 reflected = reflect(ray.dir, n) + mat.fuzz * randomUnitVector(rng);
 
-		uint32_t j = next.append();
-		next.setRay(j, {p, dir.normalize()});
-		next.pixel[j] = paths.pixel[i];
-		next.rng[j] = rng;
-		next.setThroughput(j, paths.throughput(i) * mat.albedo);
-		next.countEmission[j] = 1;
+			if (dot(reflected, n) <= 0.0f) return;
+
+			Color newThroughput = paths.throughput(i) * mat.albedo;
+			PathQueue& nextQueue = out.local;
+			uint32_t j = nextQueue.append();
+			nextQueue.setRay(j, {p, reflected.normalize()});
+			nextQueue.pixel[j] = paths.pixel[i];
+			nextQueue.rng[j] = rng;
+			nextQueue.setThroughput(j, newThroughput);
+			nextQueue.countEmission[j] = 1;
+		}
 	});
 }
 inline float schlick(float cosine, float refIdx) {
@@ -177,32 +190,37 @@ inline float schlick(float cosine, float refIdx) {
 	return r0 + (1.0f - r0) * std::pow(1.0f - cosine, 5.0f);
 }
 inline void stageDielectric(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next) {
-	parallelFor(queue.size(), [&](uint32_t k) {
-		uint32_t i = queue.index[k];
-		Ray ray = paths.ray(i);
-		uint32_t rng = paths.rng[i];
+	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
+		Batch<PathQueue> out(next, end - begin);
+		for (uint32_t k = begin; k < end; k++) {
+			uint32_t i = queue.index[k];
+			Ray ray = paths.ray(i);
+			uint32_t rng = paths.rng[i];
 
-		Point3 p = ray.at(paths.hitT[i]);
-		bool front;
-		Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
-		const Material& mat = scene.materialOf(paths.hitPrim[i]);
+			Point3 p = ray.at(paths.hitT[i]);
+			bool front;
+			Vec3 n = faceForward(scene.outwardNormal(paths.hitPrim[i], p), ray.dir, front);
+			const Material& mat = scene.materialOf(paths.hitPrim[i]);
 
-		float eta = front ? 1.0f / mat.ior : mat.ior;
-		Vec3 unitDir = ray.dir.normalize();
-		float cosTheta = std::fmin(dot(-unitDir, n), 1.0f);
-		float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
+			float refractionRatio = front ? (1.0f / mat.ior) : mat.ior;
+			Vec3 unitDir = ray.dir.normalize();
+			float cosTheta = std::fmin(dot(-unitDir, n), 1.0f);
+			float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
 
-		bool cannotRefract = eta * sinTheta > 1.0f;  // reflexión total interna
-		bool refracts = !cannotRefract && schlick(cosTheta, eta) <= rngNext(rng);
-		Vec3 dir = refracts ? refract(unitDir, n, eta) : reflect(unitDir, n);
-		Color survived = paths.throughput(i);
-		if (refracts) survived *= mat.albedo;
+			bool cannotRefract = refractionRatio * sinTheta > 1.0f;
+			bool refracts = !cannotRefract && (schlick(cosTheta, refractionRatio) < rngNext(rng));
+			Vec3 direction = refracts ? refract(unitDir, n, refractionRatio) : reflect(unitDir, n);
 
-		uint32_t j = next.append();
-		next.setRay(j, {p, dir.normalize()});
-		next.pixel[j] = paths.pixel[i];
-		next.rng[j] = rng;
-		next.setThroughput(j, survived);
-		next.countEmission[j] = 1;
+			Color newThroughput = paths.throughput(i);
+			if (refracts) newThroughput *= mat.albedo;
+			PathQueue& nextQueue = out.local;
+			uint32_t j = nextQueue.append();
+			nextQueue.setRay(j, {p, direction});
+			nextQueue.pixel[j] = paths.pixel[i];
+			nextQueue.rng[j] = rng;
+			nextQueue.setThroughput(j, newThroughput);
+			nextQueue.countEmission[j] = 1;
+		}
+		
 	});
 }

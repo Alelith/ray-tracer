@@ -6,16 +6,31 @@
 
 #include "Camera.hpp"
 #include "Film.hpp"
+#include "Megakernel.hpp"
 #include "Mesh.hpp"
+#include "Parallel.hpp"
 #include "Scene.hpp"
 #include "WavefrontRenderer.hpp"
 
 int main(int argc, char** argv) {
 	bool useBVH = true;
+	bool megakernel = false;
 	int samplesPerPixel = 100;
 	std::string meshPath = "assets/dragon.obj";
 	for (int i = 1; i < argc; ++i) {
+		if (!std::strcmp(argv[i], "--help")) {
+			std::printf("Uso: %s [opciones]\n", argv[0]);
+			std::printf("Opciones:\n");
+			std::printf("  --no-bvh          Desactiva la construcción del BVH\n");
+			std::printf("  --megakernel      Usa el trazado de rayos en un solo kernel\n");
+			std::printf("  --threads <N>     Número de hilos a usar (por defecto: hardware_concurrency)\n");
+			std::printf("  --spp <N>         Número de muestras por píxel (por defecto: 100)\n");
+			std::printf("  --mesh <path>     Ruta al archivo OBJ de la malla (por defecto: assets/dragon.obj)\n");
+			return 0;
+		}
 		if (!std::strcmp(argv[i], "--no-bvh")) useBVH = false;
+		if (!std::strcmp(argv[i], "--megakernel")) megakernel = true;
+		if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) ThreadPool::instance().setThreadCount(std::atoi(argv[++i]));
 		if (!std::strcmp(argv[i], "--spp") && i + 1 < argc) samplesPerPixel = std::atoi(argv[++i]);
 		if (!std::strcmp(argv[i], "--mesh") && i + 1 < argc) meshPath = argv[++i];
 	}
@@ -60,11 +75,16 @@ int main(int argc, char** argv) {
 	WavefrontRenderer renderer(scene, camera, width, height, maxDepth);
 
 	auto t0 = std::chrono::steady_clock::now();
-	for (int s = 0; s < samplesPerPixel; ++s) renderer.renderPass(uint32_t(s), film);
+	for (int s = 0; s < samplesPerPixel; ++s) {
+		if (megakernel)
+			renderMegakernelPass(scene, camera, width, height, maxDepth, true, s, film);
+		else
+			renderer.renderPass(s, film, s == 0);
+	}
 	double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
 	writePNG("out.png", film.resolve(samplesPerPixel));
-	std::printf("Escrita out.png (%d spp en %.2f s)\n", samplesPerPixel, secs);
+	std::printf("Escrita out.png (%s, %u hilos, %d spp en %.2f s)\n", megakernel ? "megakernel" : "wavefront", ThreadPool::instance().threadCount(), samplesPerPixel, secs);
 	return 0;
 }
 
