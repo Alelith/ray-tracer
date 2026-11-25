@@ -16,9 +16,10 @@ RouteBatch::~RouteBatch() {
 	for (uint32_t i = 0; i < kMaterialCount; i++) target.material[i].appendBlock(local.material[i]);
 }
 
-inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, PathQueue& out) {
-	out.setSize(static_cast<uint32_t>(width * height));
-	parallelFor(static_cast<uint32_t>(width * height), [&](uint32_t pixelIndex) {
+inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32_t sampleIndex, uint32_t firstPixel, uint32_t pixelCount, PathQueue& out) {
+	out.setSize(pixelCount);
+	parallelFor(pixelCount, [&](uint32_t k) {
+		uint32_t pixelIndex = firstPixel + k;
 		int x = static_cast<int>(pixelIndex) % width;
 		int y = static_cast<int>(pixelIndex) / width;
 		uint32_t rng = makeSeed(pixelIndex, sampleIndex);
@@ -26,7 +27,7 @@ inline void stageGenerateCamera(const Camera& cam, int width, int height, uint32
 		float s = (static_cast<float>(x) + rngNext(rng)) / static_cast<float>(width);
 		float t = 1.0f - (static_cast<float>(y) + rngNext(rng)) / static_cast<float>(height);
 
-		uint32_t slot = pixelIndex;
+		uint32_t slot = k;
 		out.setRay(slot, cam.getRay(s, t, rng));
 		out.pixel[slot] = pixelIndex;
 		out.rng[slot] = rng;
@@ -65,6 +66,13 @@ inline Vec3 faceForward(const Vec3& outwardNormal, const Vec3& rayDir, bool& fro
 	frontFace = dot(rayDir, outwardNormal) < 0.0f;
 	return frontFace ? outwardNormal : -outwardNormal;
 }
+inline bool russianRoulette(int depth, Color& throughput, uint32_t& rng) {
+	if (depth < 3) return true;
+	float p = std::clamp(std::fmaxf(throughput.x, std::fmaxf(throughput.y, throughput.z)), 0.05f, 0.95f);
+	if (rngNext(rng) >= p) return false;
+	throughput /= p;
+	return true;
+}
 inline void stageEmissive(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, Film& film) {
 	parallelFor(queue.size(), [&](uint32_t k) {
 		uint32_t i = queue.index[k];
@@ -94,7 +102,7 @@ inline bool sampleSphereCone(const Primitive& light, const Point3& p, uint32_t& 
 	dir = (u * std::cosf(phi) * sinT + v * std::sinf(phi) * sinT + w * cosT).normalize();
 	return true;
 }
-inline void stageLambertian(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, ShadowQueue& shadows, bool useNEE) {
+inline void stageLambertian(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, ShadowQueue& shadows, bool useNEE, int depth) {
 	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
 		Batch<PathQueue> out(next, end - begin);
 		Batch<ShadowQueue> shadowOut(shadows, end - begin);
@@ -137,6 +145,7 @@ inline void stageLambertian(const Scene& scene, const PathQueue& paths, const In
 			if(newDir.nearZero()) newDir = n;
 
 			Color newThroughput = throughput * mat.albedo;
+			if (!russianRoulette(depth, newThroughput, rng)) continue;
 			PathQueue& nextQueue = out.local;
 			uint32_t j = nextQueue.append();
 			nextQueue.setRay(j, {p, newDir.normalize()});
@@ -156,7 +165,7 @@ inline void stageShadow(const Scene& scene, const ShadowQueue& shadows, Film& fi
 		}
 	});
 }
-inline void stageMetal(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next) {
+inline void stageMetal(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, int depth) {
 	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
 		Batch<PathQueue> out(next, end - begin);
 		for (uint32_t k = begin; k < end; k++) {
@@ -171,9 +180,10 @@ inline void stageMetal(const Scene& scene, const PathQueue& paths, const IndexQu
 
 			Vec3 reflected = reflect(ray.dir, n) + mat.fuzz * randomUnitVector(rng);
 
-			if (dot(reflected, n) <= 0.0f) return;
+			if (dot(reflected, n) <= 0.0f) continue;
 
 			Color newThroughput = paths.throughput(i) * mat.albedo;
+			if (!russianRoulette(depth, newThroughput, rng)) continue;
 			PathQueue& nextQueue = out.local;
 			uint32_t j = nextQueue.append();
 			nextQueue.setRay(j, {p, reflected.normalize()});
@@ -189,7 +199,7 @@ inline float schlick(float cosine, float refIdx) {
 	r0 = r0 * r0;
 	return r0 + (1.0f - r0) * std::pow(1.0f - cosine, 5.0f);
 }
-inline void stageDielectric(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next) {
+inline void stageDielectric(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, int depth) {
 	parallelForChunks(queue.size(), [&](uint32_t begin, uint32_t end) {
 		Batch<PathQueue> out(next, end - begin);
 		for (uint32_t k = begin; k < end; k++) {
@@ -213,6 +223,7 @@ inline void stageDielectric(const Scene& scene, const PathQueue& paths, const In
 
 			Color newThroughput = paths.throughput(i);
 			if (refracts) newThroughput *= mat.albedo;
+			if (!russianRoulette(depth, newThroughput, rng)) continue;
 			PathQueue& nextQueue = out.local;
 			uint32_t j = nextQueue.append();
 			nextQueue.setRay(j, {p, direction});

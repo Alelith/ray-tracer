@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -7,84 +8,84 @@
 #include "Camera.hpp"
 #include "Film.hpp"
 #include "Megakernel.hpp"
-#include "Mesh.hpp"
 #include "Parallel.hpp"
-#include "Scene.hpp"
+#include "Profiler.hpp"
+#include "Scenes.hpp"
 #include "WavefrontRenderer.hpp"
 
-int main(int argc, char** argv) {
-	bool useBVH = true;
-	bool megakernel = false;
-	int samplesPerPixel = 100;
-	std::string meshPath = "assets/dragon.obj";
-	for (int i = 1; i < argc; ++i) {
-		if (!std::strcmp(argv[i], "--help")) {
-			std::printf("Uso: %s [opciones]\n", argv[0]);
-			std::printf("Opciones:\n");
-			std::printf("  --no-bvh          Desactiva la construcción del BVH\n");
-			std::printf("  --megakernel      Usa el trazado de rayos en un solo kernel\n");
-			std::printf("  --threads <N>     Número de hilos a usar (por defecto: hardware_concurrency)\n");
-			std::printf("  --spp <N>         Número de muestras por píxel (por defecto: 100)\n");
-			std::printf("  --mesh <path>     Ruta al archivo OBJ de la malla (por defecto: assets/dragon.obj)\n");
-			return 0;
-		}
-		if (!std::strcmp(argv[i], "--no-bvh")) useBVH = false;
-		if (!std::strcmp(argv[i], "--megakernel")) megakernel = true;
-		if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) ThreadPool::instance().setThreadCount(std::atoi(argv[++i]));
-		if (!std::strcmp(argv[i], "--spp") && i + 1 < argc) samplesPerPixel = std::atoi(argv[++i]);
-		if (!std::strcmp(argv[i], "--mesh") && i + 1 < argc) meshPath = argv[++i];
-	}
+static void printUsage() {
+	std::printf(
+		"Uso: rt [opciones]\n"
+		"  --width N --height N   resolución (por defecto 800x450)\n"
+		"  --spp N				muestras por píxel (por defecto 64)\n"
+		"  --depth N			  rebotes máximos (por defecto 24)\n"
+		"  --threads N			hilos (por defecto: todos los núcleos)\n"
+		"  --batch N			  máximo de caminos en vuelo (limita la memoria)\n"
+		"  --out FICHERO		  imagen de salida (por defecto out.png)\n"
+		"  --mesh FICHERO		 malla OBJ (por defecto assets/torusknot.obj)\n"
+		"  --megakernel		   usa el renderer megakernel de referencia\n"
+		"  --no-nee			   desactiva el muestreo directo de luces\n"
+		"  --no-rr				desactiva la ruleta rusa\n"
+		"  --no-bvh			   intersección por fuerza bruta\n"
+		"  --profile			  muestra el tiempo por etapa\n");
+}
 
-	const int width = 400;
-	const int height = 225;
-	const int maxDepth = 20;
-	const float aspect = float(width) / float(height);
+int main(int argc, char** argv) {
+	RenderSettings cfg;
+	int spp = 64;
+	bool megakernel = false, useBVH = true, profile = false;
+	std::string out = "out.png";
+	std::string meshPath = "assets/dragon.obj";
+
+	for (int i = 1; i < argc; ++i) {
+		auto is = [&](const char* name) { return !std::strcmp(argv[i], name); };
+		auto next = [&]() { return i + 1 < argc ? argv[++i] : (std::fprintf(stderr, "Falta un valor\n"), std::exit(1), nullptr); };
+		if (is("--width")) cfg.width = std::atoi(next());
+		else if (is("--height")) cfg.height = std::atoi(next());
+		else if (is("--spp")) spp = std::atoi(next());
+		else if (is("--depth")) cfg.maxDepth = std::atoi(next());
+		else if (is("--threads")) ThreadPool::instance().setThreadCount(unsigned(std::atoi(next())));
+		else if (is("--batch")) cfg.maxPathsInFlight = uint32_t(std::atoi(next()));
+		else if (is("--out")) out = next();
+		else if (is("--mesh")) meshPath = next();
+		else if (is("--megakernel")) megakernel = true;
+		else if (is("--no-nee")) cfg.useNEE = false;
+		else if (is("--no-rr")) cfg.useRussianRoulette = false;
+		else if (is("--no-bvh")) useBVH = false;
+		else if (is("--profile")) profile = true;
+		else { printUsage(); return is("--help") ? 0 : 1; }
+	}
+	Profiler::instance().enabled = profile;
 
 	Scene scene;
-	scene.skyHorizon = Color(0.35f, 0.4f, 0.5f);
-	scene.skyZenith = Color(0.08f, 0.15f, 0.35f);
-
-	uint32_t ground = scene.addMaterial(Material::lambertian(Color(0.55f, 0.55f, 0.55f)));
-	uint32_t red = scene.addMaterial(Material::lambertian(Color(0.7f, 0.2f, 0.2f)));
-	uint32_t blue = scene.addMaterial(Material::lambertian(Color(0.2f, 0.35f, 0.75f)));
-	uint32_t gold = scene.addMaterial(Material::metal(Color(0.9f, 0.65f, 0.25f), 0.03f));
-	uint32_t lamp = scene.addMaterial(Material::emissive(Color(14.0f, 12.5f, 11.0f)));
-
-	scene.addSphere(Point3(0, -1000.0f, 0), 1000.0f, ground);
-	scene.addSphere(Point3(2.1f, 0.5f, 0.8f), 0.5f, red);
-	scene.addSphere(Point3(-2.2f, 0.6f, 0.9f), 0.6f, blue);
-	scene.addSphere(Point3(-4.0f, 5.0f, 3.5f), 1.2f, lamp);
-
-	Mesh mesh;
-	if (!loadOBJ(meshPath, mesh)) {
-		std::fprintf(stderr, "No puedo cargar %s\n", meshPath.c_str());
+	Camera camera(Point3(0, 0, 1), Point3(0, 0, 0), Vec3(0, 1, 0), 40.0f, 1.0f);
+	if (!buildCoverScene(scene, meshPath, float(cfg.width) / float(cfg.height), camera)) {
+		std::fprintf(stderr, "No puedo cargar la malla %s\n", meshPath.c_str());
 		return 1;
 	}
-	// La malla cabe en [-1,1]^3 (es más ancha que alta). La escalamos y la apoyamos en el suelo.
-	scene.addMesh(mesh, gold, 1.5f, Vec3(0, 0.65f, 0));
-
-	auto tb = std::chrono::steady_clock::now();
 	scene.finalize(useBVH);
-	double buildSecs = std::chrono::duration<double>(std::chrono::steady_clock::now() - tb).count();
-	std::printf("%zu primitivas, %zu nodos BVH, construcción %.3f s (BVH %s)\n", scene.primitiveCount(),
-				scene.bvhNodeCount(), buildSecs, useBVH ? "activado" : "desactivado");
+	std::printf("%zu primitivas, %zu nodos BVH, %u hilos\n", scene.primitiveCount(), scene.bvhNodeCount(),
+				ThreadPool::instance().threadCount());
 
-	Camera camera(Point3(0, 2.2f, 6.0f), Point3(0, 0.9f, 0), Vec3(0, 1, 0), 38.0f, aspect);
-
-	Film film(width, height);
-	WavefrontRenderer renderer(scene, camera, width, height, maxDepth);
+	Film film(cfg.width, cfg.height);
+	WavefrontRenderer renderer(scene, camera, cfg);
 
 	auto t0 = std::chrono::steady_clock::now();
-	for (int s = 0; s < samplesPerPixel; ++s) {
+	for (int s = 0; s < spp; ++s) {
 		if (megakernel)
-			renderMegakernelPass(scene, camera, width, height, maxDepth, true, s, film);
+			renderMegakernelPass(scene, camera, cfg, uint32_t(s), film);
 		else
-			renderer.renderPass(s, film, s == 0);
+			renderer.renderPass(uint32_t(s), film);
+		if ((s + 1) % std::max(1, spp / 10) == 0) {  // como mucho ~10 mensajes de progreso
+			std::printf("muestra %d/%d\n", s + 1, spp);
+			std::fflush(stdout);
+		}
 	}
 	double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
-	writePNG("out.png", film.resolve(samplesPerPixel));
-	std::printf("Escrita out.png (%s, %u hilos, %d spp en %.2f s)\n", megakernel ? "megakernel" : "wavefront", ThreadPool::instance().threadCount(), samplesPerPixel, secs);
+	writePNG(out, film.resolve(spp));
+	std::printf("%s: %dx%d, %d spp, %s, %.2f s\n", out.c_str(), cfg.width, cfg.height, spp,
+				megakernel ? "megakernel" : "wavefront", secs);
+	if (profile && !megakernel) Profiler::instance().print();
 	return 0;
 }
-

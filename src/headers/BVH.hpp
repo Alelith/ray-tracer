@@ -21,9 +21,12 @@ class BVH {
 	
 	private:
 		inline static bool	hitBox(const BVHNode& n, const Point3& o, const Vec3& invDir, float tMax);
-		inline uint32_t		buildRecursive(std::vector<Primitive>& prims, uint32_t begin, uint32_t end);
+		inline static float	area(const AABB& n);
+		inline uint32_t		buildRecursive(std::vector<uint32_t>& order, uint32_t begin, uint32_t end);
 
 		std::vector<BVHNode>	nodes;
+		std::vector<AABB>		boxes;
+		std::vector<Vec3>		centroids;
 };
 
 # include "detail/BVH.ipp"

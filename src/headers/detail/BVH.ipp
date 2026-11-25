@@ -1,8 +1,24 @@
 inline void BVH::build(std::vector<Primitive>& prims) {
 	nodes.clear();
 	if (prims.empty()) return;
-	nodes.reserve(prims.size() * 2);
-	buildRecursive(prims, 0, static_cast<uint32_t>(prims.size()));
+	
+	const uint32_t n = static_cast<uint32_t>(prims.size());
+	boxes.resize(n);
+	centroids.resize(n);
+	std::vector<uint32_t> order(n);
+	for (uint32_t i = 0; i < n; i++) {
+		boxes[i] = boundsOf(prims[i]);
+		centroids[i] = boxes[i].centroid();
+		order[i] = i;
+	}
+	nodes.reserve(2 * static_cast<size_t>(n));
+	buildRecursive(order, 0, n);
+
+	std::vector<Primitive> sorted(n);
+	for (uint32_t i = 0; i < n; i++) sorted[i] = prims[order[i]];
+	prims.swap(sorted);
+	boxes.clear();
+	centroids.clear();
 }
 inline bool BVH::closestHit(const std::vector<Primitive>& prims, const Ray& ray, float tMin, float tMax, float& tHit, uint32_t& primHit) const {
 	if (nodes.empty()) return false;
@@ -75,41 +91,95 @@ inline bool BVH::hitBox(const BVHNode& n, const Point3& o, const Vec3& invDir, f
 	}
 	return true;
 }
-inline uint32_t BVH::buildRecursive(std::vector<Primitive>& prims, uint32_t begin, uint32_t end) {
+inline float BVH::area(const AABB& b) {
+	Vec3 e = b.extent();
+	return 2.0f * (e.x * e.y + e.x * e.z + e.y * e.z);
+}
+inline uint32_t BVH::buildRecursive(std::vector<uint32_t>& order, uint32_t begin, uint32_t end) {
 	uint32_t nodeIndex = static_cast<uint32_t>(nodes.size());
 	nodes.emplace_back();
 
-	AABB bounds, centroids;
+	AABB bounds, cb;
 	for (uint32_t i = begin; i < end; i++) {
-		AABB b = boundsOf(prims[i]);
-		bounds.grow(b);
-		centroids.grow(b.centroid());
+		bounds.grow(boxes[order[i]]);
+		cb.grow(centroids[order[i]]);
 	}
 	nodes[nodeIndex].bmin = bounds.min;
 	nodes[nodeIndex].bmax = bounds.max;
 
 	const uint32_t count = end - begin;
-	Vec3 ext = centroids.extent();
-	int axis = (ext.x > ext.y && ext.x > ext.z) ? 0 : (ext.y > ext.z ? 1 : 2);
-
-	constexpr uint32_t kLeafSize = 4;
-	if (count <= kLeafSize || ext[axis] <= 0.0f) {
+	auto makeLeaf = [&]() {
 		nodes[nodeIndex].firstOrRight = begin;
 		nodes[nodeIndex].count = static_cast<uint16_t>(count);
 		nodes[nodeIndex].axis = 0;
 		return nodeIndex;
+	};
+	if (count <= 2) return makeLeaf();
+
+	constexpr int kBins = 16;
+	float bestCost = kInfinity;
+	int bestAxis = -1;
+	uint32_t bestSplit = 0;
+	Vec3 extent = cb.extent();
+
+	for (int axis = 0; axis < 3; axis++) {
+		if (extent[axis] < 0.0f) continue;
+		AABB binBoxs[kBins];
+		uint32_t binCounts[kBins] = {};
+		float scale = static_cast<float>(kBins) / extent[axis];
+		for (uint32_t i = begin; i < end; i++) {
+			uint32_t b = std::min(static_cast<uint32_t>(kBins - 1), static_cast<uint32_t>((centroids[order[i]][axis] - cb.min[axis]) * scale));
+			binBoxs[b].grow(boxes[order[i]]);
+			binCounts[b]++;
+		}
+
+		float leftAreas[kBins - 1], rightAreas[kBins - 1];
+		uint32_t leftCounts[kBins - 1], rightCounts[kBins - 1];
+		AABB acc;
+		uint32_t countAcc = 0;
+		for (int i = 0; i < kBins - 1; i++) {
+			acc.grow(binBoxs[i]);
+			countAcc += binCounts[i];
+			leftAreas[i] = area(acc);
+			leftCounts[i] = countAcc;
+		}
+		acc = AABB();
+		countAcc = 0;
+		for (int i = kBins - 1; i > 0; i--) {
+			acc.grow(binBoxs[i]);
+			countAcc += binCounts[i];
+			rightAreas[i - 1] = area(acc);
+			rightCounts[i - 1] = countAcc;
+		}
+		for (int i = 0; i < kBins - 1; i++) {
+			if (leftCounts[i] == 0 || rightCounts[i] == 0) continue;
+			float cost = leftAreas[i] * static_cast<float>(leftCounts[i]) + rightAreas[i] * static_cast<float>(rightCounts[i]);
+			if (cost < bestCost) {
+				bestCost = cost;
+				bestAxis = axis;
+				bestSplit = static_cast<uint32_t>(i);
+			}
+		}
 	}
 
-	uint32_t mid = begin + count / 2;
-	std::nth_element(prims.begin() + begin, prims.begin() + mid, prims.begin() + end,
-	[axis](const Primitive& a, const Primitive& b) {
-		return boundsOf(a).centroid()[axis] < boundsOf(b).centroid()[axis];
-	});
+	float parentArea = area(bounds);
+	if (bestAxis < 0) return makeLeaf();
+	float splitCost = 0.5f + bestCost / parentArea;
+	if (count <= 4 && splitCost >= static_cast<float>(count)) return makeLeaf();
 
-	buildRecursive(prims, begin, mid);
-	uint32_t right = buildRecursive(prims, mid, end);
+	float scale = static_cast<float>(kBins) / extent[bestAxis];
+	auto mid = std::partition(order.begin() + begin, order.begin() + end, [&](uint32_t i) {
+		uint32_t b = std::min(static_cast<uint32_t>(kBins - 1), static_cast<uint32_t>((centroids[i][bestAxis] - cb.min[bestAxis]) * scale));
+		return b <= bestSplit;
+	});
+	uint32_t midIndex = static_cast<uint32_t>(mid - order.begin());
+	if (midIndex == begin || midIndex == end) return makeLeaf();
+
+	buildRecursive(order, begin, midIndex);
+	
+	uint32_t right = buildRecursive(order, midIndex, end);
 	nodes[nodeIndex].firstOrRight = right;
 	nodes[nodeIndex].count = 0;
-	nodes[nodeIndex].axis = static_cast<uint16_t>(axis);
+	nodes[nodeIndex].axis = static_cast<uint16_t>(bestAxis);
 	return nodeIndex;
 }

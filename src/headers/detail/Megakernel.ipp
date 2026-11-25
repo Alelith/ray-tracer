@@ -1,4 +1,4 @@
-inline Color tracePathMegakernel(const Scene& scene, Ray ray, uint32_t& rng, int maxDepth, bool useNEE) {
+inline Color tracePathMegakernel(const Scene& scene, Ray ray, uint32_t& rng, int maxDepth, bool useNEE, bool useRR) {
 	Color radiance(0, 0, 0);
 	Color throughput(1, 1, 1);
 	bool countEmission = true;
@@ -58,11 +58,13 @@ inline Color tracePathMegakernel(const Scene& scene, Ray ray, uint32_t& rng, int
 			if (refracts) throughput *= mat.albedo;
 			countEmission = true;
 		}
+		if (!russianRoulette(useRR ? depth : 0, throughput, rng)) break;
 	}
 	return radiance;
 }
 
-inline void renderMegakernelPass(const Scene& scene, const Camera& camera, int width, int height, int maxDepth, bool useNEE, uint32_t sampleIndex, Film& film) {
+inline void renderMegakernelPass(const Scene& scene, const Camera& camera, const RenderSettings& settings, uint32_t sampleIndex, Film& film) {
+	const int width = settings.width, height = settings.height;
 	parallelFor(uint32_t(width * height), [&](uint32_t pixelIndex) {
 		int x = int(pixelIndex) % width;
 		int y = int(pixelIndex) / width;
@@ -70,6 +72,6 @@ inline void renderMegakernelPass(const Scene& scene, const Camera& camera, int w
 		float s = (float(x) + rngNext(rng)) / float(width);
 		float t = 1.0f - (float(y) + rngNext(rng)) / float(height);
 		Ray ray = camera.getRay(s, t, rng);
-		film.add(pixelIndex, tracePathMegakernel(scene, ray, rng, maxDepth, useNEE));
+		film.add(pixelIndex, tracePathMegakernel(scene, ray, rng, settings.maxDepth, settings.useNEE, settings.useRussianRoulette));
 	});
 }

@@ -41,11 +41,13 @@ inline bool intersectPrimitive(const Primitive& p, const Ray& ray, float tMin, f
 	return intersectTriangle(p.a, p.b, p.c, ray, tMin, tMax, tHit);
 }
 
+inline bool AABB::empty() const { return min.x > max.x; }
 inline void AABB::grow(const Vec3& p) {
 	min = {std::fminf(min.x, p.x), std::fminf(min.y, p.y), std::fminf(min.z, p.z)};
 	max = {std::fmaxf(max.x, p.x), std::fmaxf(max.y, p.y), std::fmaxf(max.z, p.z)};
 }	
 inline void AABB::grow(const AABB& b) {
+	if (b.empty()) return;
 	grow(b.min);
 	grow(b.max);
 }

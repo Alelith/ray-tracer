@@ -25,6 +25,7 @@ struct AABB {
 	Vec3	min{kInfinity, kInfinity, kInfinity};
 	Vec3	max{-kInfinity, -kInfinity, -kInfinity};
 
+	inline bool		empty() const;
 	inline void		grow(const Vec3& p);
 	inline void		grow(const AABB& b);
 	inline Vec3		centroid() const;
