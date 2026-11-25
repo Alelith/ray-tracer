@@ -1,4 +1,4 @@
-#include "Sampling.hpp"
+#include "Utils/Sampling.hpp"
 
 inline Camera::Camera(Point3 lookFrom, Point3 lookAt, Vec3 up, float verticalFovDeg, float aspectRatio, float aperture, float focusDist) {
 	float theta = verticalFovDeg * KPI / 180.0f;

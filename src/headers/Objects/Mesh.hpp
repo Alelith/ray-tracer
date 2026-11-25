@@ -4,7 +4,7 @@
 # include <vector>
 # include <cstdint>
 # include <string>
-# include "Vec3.hpp"
+# include "Maths/Vec3.hpp"
 
 struct Mesh {
 	std::vector<Point3>		vertex;
@@ -13,6 +13,6 @@ struct Mesh {
 
 inline bool		loadOBJ(const std::string& path, Mesh& mesh);
 
-# include "detail/Mesh.ipp"
+# include "detail/Objects/Mesh.ipp"
 
 #endif // MESH_HPP

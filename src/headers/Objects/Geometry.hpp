@@ -3,7 +3,7 @@
 
 # include <limits>
 # include <cstdint>
-# include "Ray.hpp"
+# include "Maths/Ray.hpp"
 
 constexpr uint32_t	kNoHit = std::numeric_limits<uint32_t>::max();
 constexpr float		kInfinity = std::numeric_limits<float>::infinity();
@@ -34,6 +34,6 @@ struct AABB {
 
 inline AABB		boundsOf(const Primitive& p);
 
-# include "detail/Geometry.ipp"
+# include "detail/Objects/Geometry.ipp"
 
 #endif // GEOMETRY_HPP

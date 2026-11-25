@@ -5,13 +5,13 @@
 #include <cstring>
 #include <string>
 
-#include "Camera.hpp"
-#include "Film.hpp"
-#include "Megakernel.hpp"
-#include "Parallel.hpp"
-#include "Profiler.hpp"
-#include "Scenes.hpp"
-#include "WavefrontRenderer.hpp"
+#include "Objects/Camera.hpp"
+#include "Objects/Film.hpp"
+#include "Rendering/Megakernel.hpp"
+#include "Rendering/Wavefront.hpp"
+#include "Utils/Parallel.hpp"
+#include "Utils/Profiler.hpp"
+#include "Utils/Scenes.hpp"
 
 static void printUsage() {
 	std::printf(

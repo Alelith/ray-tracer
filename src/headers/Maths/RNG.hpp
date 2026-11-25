@@ -8,6 +8,6 @@ inline float		rngNext(uint32_t& state);
 inline uint32_t		hash32(uint32_t v);
 inline uint32_t		makeSeed(uint32_t pixel, uint32_t sample);
 
-# include "detail/RNG.ipp"
+# include "detail/Maths/RNG.ipp"
 
 #endif // RNG_HPP

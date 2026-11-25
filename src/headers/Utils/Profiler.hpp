@@ -38,6 +38,6 @@ class ScopedStageTimer {
 		std::chrono::high_resolution_clock::time_point	start;
 };
 
-# include "detail/Profiler.ipp"
+# include "detail/Utils/Profiler.ipp"
 
 #endif // PROFILER_HPP

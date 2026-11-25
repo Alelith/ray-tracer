@@ -1,11 +1,10 @@
 #ifndef SCENES_HPP
 # define SCENES_HPP
 
-# include <string>
-# include "Camera.hpp"
-# include "Mesh.hpp"
-# include "RNG.hpp"
-# include "Scene.hpp"
+# include "Objects/Camera.hpp"
+# include "Objects/Mesh.hpp"
+# include "Maths/RNG.hpp"
+# include "Objects/Scene.hpp"
 
 // Escena "portada": un suelo, un nudo dorado, unas cuantas esferas grandes y un
 // campo de esferitas aleatorias de los tres materiales. Una lámpara esférica grande

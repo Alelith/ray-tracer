@@ -1,9 +1,8 @@
 #ifndef BVH_HPP
 # define BVH_HPP
 
-# include <cstdint>
 # include <vector>
-# include "Geometry.hpp"
+# include "Objects/Geometry.hpp"
 
 struct BVHNode {
 	Vec3		bmin, bmax;
@@ -29,6 +28,6 @@ class BVH {
 		std::vector<Vec3>		centroids;
 };
 
-# include "detail/BVH.ipp"
+# include "detail/Objects/BVH.ipp"
 
 #endif // BVH_HPP

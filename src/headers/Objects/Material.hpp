@@ -2,7 +2,7 @@
 # define MATERIAL_HPP
 
 # include <cstdint>
-# include "Vec3.hpp"
+# include "Maths/Vec3.hpp"
 
 enum class MaterialType : uint32_t {
 	Lambertian = 0,
@@ -27,6 +27,6 @@ struct Material {
 	static Material	emissive(Color emission);
 };
 
-# include "detail/Material.ipp"
+# include "detail/Objects/Material.ipp"
 
 #endif // MATERIAL_HPP

@@ -1,12 +1,10 @@
 #ifndef SCENE_HPP
 # define SCENE_HPP
 
-# include <cstdint>
-# include <vector>
-# include "Ray.hpp"
-# include "Material.hpp"
-# include "Mesh.hpp"
-# include "BVH.hpp"
+# include "Maths/Ray.hpp"
+# include "Objects/Material.hpp"
+# include "Objects/Mesh.hpp"
+# include "Objects/BVH.hpp"
 
 class Scene {
 	public:
@@ -37,6 +35,6 @@ class Scene {
 		bool	useBVH = true;
 };
 
-# include "detail/Scene.ipp"
+# include "detail/Objects/Scene.ipp"
 
 #endif // SCENE_HPP

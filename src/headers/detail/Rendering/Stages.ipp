@@ -1,5 +1,5 @@
-#include "Parallel.hpp"
-#include "RNG.hpp"
+#include "Utils/Parallel.hpp"
+#include "Maths/RNG.hpp"
 
 inline void RouteQueues::allocate(uint32_t capacity) {
 	miss.allocate(capacity);

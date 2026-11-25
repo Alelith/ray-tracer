@@ -47,6 +47,6 @@ constexpr Vec3	lerp(const Vec3& v, const Vec3& w, float t);
 constexpr Vec3	reflect(const Vec3& v, const Vec3& n);
 inline Vec3		refract(const Vec3& uv, const Vec3& n, float etaiOverEtat);
 
-# include "detail/Vec3.ipp"
+# include "detail/Maths/Vec3.ipp"
 
 #endif // VEC3_HPP

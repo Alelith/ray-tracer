@@ -1,4 +1,4 @@
-#include "RNG.hpp"
+#include "Maths/RNG.hpp"
 
 inline Vec3 randomInUnitSphere(uint32_t& rng) {
 	while (true) {

@@ -11,7 +11,6 @@ endif()
 
 add_executable(rt src/main.cpp)
 target_include_directories(rt
-	PUBLIC include
 	PRIVATE src/headers
 )
 target_compile_options(rt PRIVATE -Wall -Wextra -Werror)

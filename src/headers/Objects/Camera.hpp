@@ -2,7 +2,7 @@
 # define CAMERA_HPP
 
 # include <cstdint>
-# include "Ray.hpp"
+# include "Maths/Ray.hpp"
 
 class Camera {
 	public:
@@ -19,6 +19,6 @@ class Camera {
 		float	lensRadius = 0.0f;
 };
 
-# include "detail/Camera.ipp"
+# include "detail/Objects/Camera.ipp"
 
 #endif // CAMERA_HPP

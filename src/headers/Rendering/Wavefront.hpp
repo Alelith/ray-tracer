@@ -1,11 +1,11 @@
-#ifndef WAVEFRONTRENDERER_HPP
-# define WAVEFRONTRENDERER_HPP
+#ifndef WAVEFRONT_HPP
+# define WAVEFRONT_HPP
 
-# include "Camera.hpp"
-# include "Film.hpp"
-# include "Scene.hpp"
-# include "Stages.hpp"
-# include "Profiler.hpp"
+# include "Objects/Camera.hpp"
+# include "Objects/Film.hpp"
+# include "Objects/Scene.hpp"
+# include "Rendering/Stages.hpp"
+# include "Utils/Profiler.hpp"
 
 struct RenderSettings {
 	int			width = 800;
@@ -35,6 +35,6 @@ class WavefrontRenderer
 		ShadowQueue		shadows;
 };
 
-# include "detail/WavefrontRenderer.ipp"
+# include "detail/Rendering/Wavefront.ipp"
 
 #endif // WAVEFRONTRENDERER_HPP

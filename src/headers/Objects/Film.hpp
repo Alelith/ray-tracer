@@ -1,15 +1,14 @@
 #ifndef FILM_HPP
 # define FILM_HPP
 
-# include <vector>
-# include "Image.hpp"
-# include "Vec3.hpp"
+# include "Utils/Image.hpp"
+# include "Maths/Vec3.hpp"
 
 struct Film {
 	public:
 		int		width = 0;
 		int		height = 0;
-		std::vector<Color> accum;
+		std::vector<Color>	accum;
 
 		inline Film(int width_, int height_);
 
@@ -23,6 +22,6 @@ struct Film {
 		static inline uint8_t	toByte(float linear);
 };
 
-# include "detail/Film.ipp"
+# include "detail/Objects/Film.ipp"
 
 #endif // FILM_HPP

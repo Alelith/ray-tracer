@@ -1,7 +1,7 @@
 #ifndef RAY_HPP
 # define RAY_HPP
 
-# include "Vec3.hpp"
+# include "Maths/Vec3.hpp"
 
 struct Ray {
 	Point3	origin;
@@ -10,6 +10,6 @@ struct Ray {
 	inline Point3	at(float t) const;
 };
 
-# include "detail/Ray.ipp"
+# include "detail/Maths/Ray.ipp"
 
 #endif // RAY_HPP

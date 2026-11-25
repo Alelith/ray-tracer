@@ -27,6 +27,6 @@ namespace png_detail {
 
 inline bool writePNG(const std::string& path, const Image& img);
 
-# include "detail/Image.ipp"
+# include "detail/Utils/Image.ipp"
 
 #endif // IMAGE_HPP

@@ -2,10 +2,10 @@
 # define STAGES_HPP
 
 # include <array>
-# include "Camera.hpp"
-# include "PathQueue.hpp"
-# include "Film.hpp"
-# include "Scene.hpp"
+# include "Objects/Camera.hpp"
+# include "Utils/PathQueue.hpp"
+# include "Objects/Film.hpp"
+# include "Objects/Scene.hpp"
 
 struct RouteQueues {
 	IndexQueue								miss;
@@ -38,6 +38,6 @@ inline void		stageMetal(const Scene& scene, const PathQueue& paths, const IndexQ
 inline float	schlick(float cosine, float refIdx);
 inline void		stageDielectric(const Scene& scene, const PathQueue& paths, const IndexQueue& queue, PathQueue& next, int depth);
 
-# include "detail/Stages.ipp"
+# include "detail/Rendering/Stages.ipp"
 
 #endif // STAGES_HPP

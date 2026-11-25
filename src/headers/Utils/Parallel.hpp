@@ -45,6 +45,6 @@ inline void	parallelFor(uint32_t n, Fn&& fn);
 template <typename Fn>
 inline void	parallelForChunks(uint32_t n, Fn&& fn);
 
-# include "detail/Parallel.ipp"
+# include "detail/Utils/Parallel.ipp"
 
 #endif // PARALLEL_HPP

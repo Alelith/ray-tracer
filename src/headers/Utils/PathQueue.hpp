@@ -4,8 +4,7 @@
 # include <cstdint>
 # include <vector>
 # include <atomic>
-# include <algorithm>
-# include "Ray.hpp"
+# include "Maths/Ray.hpp"
 
 class PathQueue {
 	public:
@@ -84,6 +83,6 @@ class Batch {
 		Queue&		target;
 };
 
-# include "detail/PathQueue.ipp"
+# include "detail/Utils/PathQueue.ipp"
 
 #endif // PATHQUEUE_HPP
